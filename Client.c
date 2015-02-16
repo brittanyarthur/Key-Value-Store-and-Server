@@ -25,7 +25,10 @@ int main( int argc, char * argv[] )
 {
    int port = 30001;
    printf( "creating socket on port %d\n", port );
-   OpenSocket(port); 
+   int sock_fd = OpenSocket(port); 
+   if(sock_fd != -1){
+      RecieveData(sock_fd);
+   }
 }
 
 int OpenSocket(int port)
@@ -53,7 +56,13 @@ int OpenSocket(int port)
          printf( "Failed to bind socket.\n" );
          return -1;
    }
+   //what condition to break loop?
+   //???close(mysocket); how to close?
 
+   return sock_fd;
+}
+
+int RecieveData(int sock_fd){
    //recieve data
    while ( 1 )
    {
@@ -66,8 +75,4 @@ int OpenSocket(int port)
 
       sleep(1);
    }
-   //what condition to break loop?
-   //???close(mysocket); how to close?
-
-   return 1;
 }
