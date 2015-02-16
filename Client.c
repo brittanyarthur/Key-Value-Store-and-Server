@@ -13,9 +13,11 @@ To Run: gcc Client.c -o client
 #include <sys/types.h>
 */
 #include <stdlib.h> //free()
+#include <string.h>
 #include <stdio.h>
 #include <sys/socket.h>
 #include <arpa/inet.h> //inet_addr
+#include <unistd.h> //sleep
 
 int OpenSocket();
 
@@ -28,14 +30,14 @@ int main( int argc, char * argv[] )
 
 int OpenSocket(int port)
 {   
-   struct sockaddr_in mysocket;
+   struct sockaddr_in mysocket; 
    //create socket
    //INFO: SOCK_DGRAM is used for UDP packets, SOCK_STREAM for TCP.
    //INFO: AF_INET refers to addresses from the internet, IP addresses specifically. PF_INET refers to anything in the protocol, usually sockets/ports.
    //...Passing PF_NET ensures that the connection works right. AF = Address Family. PF = Protocol Family.
    //http://stackoverflow.com/questions/1593946/what-is-af-inet-and-why-do-i-need-it
-   int open_result = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-   if(open_result == -1)
+   int sock_fd = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ); //socket == file descriptor, thus: mysocket
+   if(sock_fd == -1)
    {
    	  printf("Could not create socket.");
         return -1;
@@ -46,11 +48,26 @@ int OpenSocket(int port)
    mysocket.sin_family = AF_INET;
    mysocket.sin_port = htons( port ); //connect it to the port
 
-   if (bind( open_result, (struct sockaddr*) &mysocket, sizeof(mysocket) ) < 0 )
+   if (bind( sock_fd, (struct sockaddr*) &mysocket, sizeof(mysocket) ) < 0 )
    {
          printf( "Failed to bind socket.\n" );
          return -1;
    }
+
+   //recieve data
+   while ( 1 )
+   {
+      unsigned char reply_buffer[256];
+      if(recv(sock_fd, reply_buffer, 256, 0) < 0)
+      {
+         printf("Failed to recieve message.\n");
+      }
+      printf("Data recieved is: %s\n",reply_buffer);
+
+      sleep(1);
+   }
+   //what condition to break loop?
+   //???close(mysocket); how to close?
 
    return 1;
 }
