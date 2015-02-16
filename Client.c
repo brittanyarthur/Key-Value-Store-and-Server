@@ -19,11 +19,12 @@ To Run: gcc Client.c -o client
 #include <arpa/inet.h> //inet_addr
 #include <unistd.h> //sleep
 
-int OpenSocket();
+int OpenSocket(int port);
+int RecieveData(int sock_fd);
 
 int main( int argc, char * argv[] )
 {
-   int port = 30001;
+   int port = 30000;
    printf( "creating socket on port %d\n", port );
    int sock_fd = OpenSocket(port); 
    if(sock_fd != -1){
@@ -33,7 +34,7 @@ int main( int argc, char * argv[] )
 
 int OpenSocket(int port)
 {   
-   struct sockaddr_in mysocket; 
+   struct sockaddr_in remote_server; 
    //create socket
    //INFO: SOCK_DGRAM is used for UDP packets, SOCK_STREAM for TCP.
    //INFO: AF_INET refers to addresses from the internet, IP addresses specifically. PF_INET refers to anything in the protocol, usually sockets/ports.
@@ -47,17 +48,17 @@ int OpenSocket(int port)
    }
 
    //bind socket to port
-   mysocket.sin_addr.s_addr = inet_addr("127.0.0.1"); //socket binds to localhost
-   mysocket.sin_family = AF_INET;
-   mysocket.sin_port = htons( port ); //connect it to the port
+   remote_server.sin_addr.s_addr = inet_addr("127.0.0.1"); //get data from this server
+   remote_server.sin_family = AF_INET;
+   remote_server.sin_port = htons( port ); //connect it to the port
 
-   if (bind( sock_fd, (struct sockaddr*) &mysocket, sizeof(mysocket) ) < 0 )
+   if (connect( sock_fd, (struct sockaddr*) &remote_server, sizeof(remote_server) ) < 0 )
    {
-         printf( "Failed to bind socket.\n" );
+         printf( "Failed to connect to remote server.\n" );
          return -1;
    }
    //what condition to break loop?
-   //???close(mysocket); how to close?
+   //???close(remote_server); how to close?
 
    return sock_fd;
 }
