@@ -24,7 +24,7 @@ int RecieveData(int sock_fd);
 
 int main( int argc, char * argv[] )
 {
-   int port = 30000;
+   int port = 631;//30000;
    printf( "creating socket on port %d\n", port );
    int sock_fd = OpenSocket(port); 
    if(sock_fd != -1){
@@ -50,7 +50,7 @@ int OpenSocket(int port)
    //bind socket to port
    remote_server.sin_addr.s_addr = inet_addr("127.0.0.1"); //get data from this server
    remote_server.sin_family = AF_INET;
-   remote_server.sin_port = htons( port ); //connect it to the port
+   remote_server.sin_port = htons( (unsigned short) port ); //connect it to the port
 
    if (connect( sock_fd, (struct sockaddr*) &remote_server, sizeof(remote_server) ) < 0 )
    {
@@ -59,7 +59,7 @@ int OpenSocket(int port)
    }
    //what condition to break loop?
    //???close(remote_server); how to close?
-
+   
    return sock_fd;
 }
 
@@ -71,8 +71,9 @@ int RecieveData(int sock_fd){
       if(recv(sock_fd, reply_buffer, 256, 0) < 0)
       {
          printf("Failed to recieve message.\n");
+      }else{
+         printf("Data recieved is: %s\n",reply_buffer);
       }
-      printf("Data recieved is: %s\n",reply_buffer);
 
       sleep(1);
    }
