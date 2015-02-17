@@ -44,8 +44,6 @@ int OpenSocket(int port)
    mysocket.sin_addr.s_addr = inet_addr("127.0.0.1"); //socket binds to localhost
    mysocket.sin_family = AF_INET;
    mysocket.sin_port = htons( port ); //connect it to the port
-   /* WILL THIS FIX ANYTHING Set all bits of the padding field to 0 */
-   //memset(mysocket.sin_zero, '\0', sizeof mysocket.sin_zero);  
 
    //bind this remote server socket to port
    if (bind( sock_fd, (struct sockaddr*) &mysocket, sizeof(mysocket) ) < 0 )

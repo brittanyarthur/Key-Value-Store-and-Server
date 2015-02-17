@@ -1,7 +1,5 @@
 //Clientc.c
-/*
-To Run: gcc Client.c -o client
-*/
+
 #include <stdlib.h> //free()
 #include <string.h>
 #include <stdio.h>
@@ -14,7 +12,7 @@ int RecieveData(int sock_fd);
 
 int main( int argc, char * argv[] )
 {
-   int port =  30000;//631;
+   int port =  30000;
    printf( "creating socket on port %d\n", port );
    int sock_fd = OpenSocket(port); 
    printf("Socket has been opened\n");
@@ -38,30 +36,26 @@ int OpenSocket(int port)
         return -1;
    }
 
-   // set IP address
+   // Set IP address
    remote_server.sin_addr.s_addr = inet_addr("127.0.0.1"); 
-   /* Address family = Internet */
+   // Address family = Internet 
    remote_server.sin_family = AF_INET;
-   /* Set port number, using htons function to use proper byte order */
-   remote_server.sin_port = htons( (unsigned short) port ); //connect it to the port
-   /* BUGSBUGSBUGS WILL THIS FIX IT Set all bits of the padding field to 0 */
-   //memset(remote_server.sin_zero, '\0', sizeof remote_server.sin_zero);  
+   // Set port number. htons function creates proper bigendian byte order for networking.
+   remote_server.sin_port = htons( (unsigned short) port ); 
 
    if (connect( sock_fd, (struct sockaddr*) &remote_server, sizeof(remote_server) ) < 0 )
    {
          printf( "Failed to connect to remote server.\n" );
          return -1;
    }
-   //what condition to break loop?
-   //???close(remote_server); how to close?
+
    return sock_fd;
 }
 
 int RecieveData(int sock_fd){
-   //recieve data
    unsigned char reply_buffer[256];
 
-   //When you call recv(), it will block until there is some data to read.
+   // recv() will block until there is some data to read.
    if(recv(sock_fd, reply_buffer, 256, 0) < 0)
    {
        printf("Failed to recieve message.\n");
