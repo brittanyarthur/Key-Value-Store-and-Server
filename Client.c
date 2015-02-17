@@ -1,16 +1,6 @@
 //Clientc.c
 /*
 To Run: gcc Client.c -o client
-
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
 */
 #include <stdlib.h> //free()
 #include <string.h>
@@ -24,9 +14,10 @@ int RecieveData(int sock_fd);
 
 int main( int argc, char * argv[] )
 {
-   int port = 631;//30000;
+   int port =  30000;//631;
    printf( "creating socket on port %d\n", port );
    int sock_fd = OpenSocket(port); 
+   printf("Socket has been opened\n");
    if(sock_fd != -1){
       RecieveData(sock_fd);
    }
@@ -47,10 +38,14 @@ int OpenSocket(int port)
         return -1;
    }
 
-   //bind socket to port
-   remote_server.sin_addr.s_addr = inet_addr("127.0.0.1"); //get data from this server
+   // set IP address
+   remote_server.sin_addr.s_addr = inet_addr("127.0.0.1"); 
+   /* Address family = Internet */
    remote_server.sin_family = AF_INET;
+   /* Set port number, using htons function to use proper byte order */
    remote_server.sin_port = htons( (unsigned short) port ); //connect it to the port
+   /* BUGSBUGSBUGS WILL THIS FIX IT Set all bits of the padding field to 0 */
+   memset(remote_server.sin_zero, '\0', sizeof remote_server.sin_zero);  
 
    if (connect( sock_fd, (struct sockaddr*) &remote_server, sizeof(remote_server) ) < 0 )
    {
@@ -59,7 +54,6 @@ int OpenSocket(int port)
    }
    //what condition to break loop?
    //???close(remote_server); how to close?
-   
    return sock_fd;
 }
 
@@ -68,13 +62,15 @@ int RecieveData(int sock_fd){
    while ( 1 )
    {
       unsigned char reply_buffer[256];
+
+      //When you call recv(), it will block until there is some data to read.
       if(recv(sock_fd, reply_buffer, 256, 0) < 0)
       {
          printf("Failed to recieve message.\n");
       }else{
          printf("Data recieved is: %s\n",reply_buffer);
       }
-
+      printf("Client will now try to recieve data\n");
       sleep(1);
    }
 }
