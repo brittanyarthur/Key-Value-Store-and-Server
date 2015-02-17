@@ -1,4 +1,4 @@
-//Server.c
+//Server.c 
 #include <stdio.h>
 #include <string.h>    //strlen
 #include <sys/socket.h>
@@ -57,10 +57,6 @@ int OpenSocket(int port)
 
 int SendData(int sock_fd)
 {
-   sockaddr_in address;
-   address.sin_family = AF_INET; //http://stackoverflow.com/questions/1593946/what-is-af-inet-and-why-do-i-need-it
-   address.sin_addr.s_addr = inet_addr("127.0.0.1");
-   address.sin_port = htons(30000);
 
    //Listen for incoming connections. A max of 1000 connections can happen.
    //Do we want to handle multiple connections another way? Such as by forking?
@@ -73,7 +69,7 @@ int SendData(int sock_fd)
     //Accept a new connection on a socket
     //http://www.linuxquestions.org/questions/programming-9/sockaddr_in-and-sockaddr_un-difference-629184/
     struct sockaddr_in newclient; //accept creates a new socket
-    int size = sizeof newclient;
+    socklen_t size = sizeof newclient;
     int newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
     if(newSocket < 0){
     	printf("Connection cannot be accepted\n");
