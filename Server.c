@@ -57,7 +57,6 @@ int OpenSocket(int port)
 
 int SendData(int sock_fd)
 {
-
    //Listen for incoming connections. A max of 1000 connections can happen.
    //Do we want to handle multiple connections another way? Such as by forking?
    if(listen(sock_fd,1000) < 0){

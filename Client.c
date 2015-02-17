@@ -7,21 +7,22 @@
 #include <arpa/inet.h> //inet_addr
 #include <unistd.h> //sleep
 
-int OpenSocket(int port);
+int OpenSocket(int remote_port, const char* remote_IP);
 int RecieveData(int sock_fd);
 
 int main( int argc, char * argv[] )
 {
-   int port =  30000;
-   printf( "creating socket on port %d\n", port );
-   int sock_fd = OpenSocket(port); 
+   int remote_port =  30000;
+   const char* remote_IP = "127.0.0.1";
+   int sock_fd = OpenSocket(remote_port, remote_IP); 
    printf("Socket has been opened\n");
    if(sock_fd != -1){
       RecieveData(sock_fd);
    }
+   return 1;
 }
 
-int OpenSocket(int port)
+int OpenSocket(int port, const char* remote_IP)
 {   
    struct sockaddr_in remote_server; 
    //create socket
@@ -37,7 +38,7 @@ int OpenSocket(int port)
    }
 
    // Set IP address
-   remote_server.sin_addr.s_addr = inet_addr("127.0.0.1"); 
+   remote_server.sin_addr.s_addr = inet_addr(remote_IP); 
    // Address family = Internet 
    remote_server.sin_family = AF_INET;
    // Set port number. htons function creates proper bigendian byte order for networking.
@@ -62,4 +63,5 @@ int RecieveData(int sock_fd){
    }else{
        printf("Data recieved is: %s\n",reply_buffer);
    }
+   return 1;
 }
