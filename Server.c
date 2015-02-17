@@ -37,7 +37,7 @@ int OpenSocket(int port)
    int sock_fd = socket( PF_INET, SOCK_STREAM, 0); //socket == file descriptor, thus: mysocket
    if(sock_fd == -1)
    {
-   	  printf("Could not create socket.");
+   	  printf("Could not create socket.\n");
         return -1;
    }
    
@@ -74,7 +74,7 @@ int SendData(int sock_fd)
     	printf("Connection cannot be accepted\n");
     	return -1;
     }
-    printf("Connection Accepted.");
+    printf("Connection Accepted.\n");
 
     //Finally, a message can be sent!
     char buffer[256];

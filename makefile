@@ -14,5 +14,4 @@ client : Client
 	./Client
 
 clean:
-	rm -f Server Client
-
+	@rm -f Server Client
