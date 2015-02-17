@@ -1,7 +1,8 @@
-test
-test.c
-client
-server
-Client
-Server
+# Possibly good thing Peter made.
+# First ignores everything, then de-ignores good stuff using !.
 
+*
+!*.c
+!*.h
+!*.txt
+!makefile
