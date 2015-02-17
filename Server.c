@@ -54,8 +54,6 @@ int OpenSocket(int port)
       return -1;
    }
 
-
-
    return sock_fd;
 }
 

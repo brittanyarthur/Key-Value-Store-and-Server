@@ -9,6 +9,7 @@ fork**	http://www.tutorialspoint.com/unix_sockets/socket_server_example.htm
 		http://gafferongames.com/networking-for-game-programmers/sending-and-receiving-packets/
 		http://www.binarytides.com/socket-programming-c-linux-tutorial/
 		http://www.codeproject.com/Articles/586000/Networking-and-Socket-programming-tutorial-in-C
+		http://www.programminglogic.com/example-of-client-server-program-in-c-using-sockets-and-tcp/
 -- argument info: 
 		http://stackoverflow.com/questions/1593946/what-is-af-inet-and-why-do-i-need-it
 		http://stackoverflow.com/questions/6729366/what-is-the-difference-between-af-inet-and-pf-inet-in-socket-programming
