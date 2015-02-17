@@ -45,7 +45,7 @@ int OpenSocket(int port)
    /* Set port number, using htons function to use proper byte order */
    remote_server.sin_port = htons( (unsigned short) port ); //connect it to the port
    /* BUGSBUGSBUGS WILL THIS FIX IT Set all bits of the padding field to 0 */
-   memset(remote_server.sin_zero, '\0', sizeof remote_server.sin_zero);  
+   //memset(remote_server.sin_zero, '\0', sizeof remote_server.sin_zero);  
 
    if (connect( sock_fd, (struct sockaddr*) &remote_server, sizeof(remote_server) ) < 0 )
    {
@@ -59,18 +59,13 @@ int OpenSocket(int port)
 
 int RecieveData(int sock_fd){
    //recieve data
-   while ( 1 )
-   {
-      unsigned char reply_buffer[256];
+   unsigned char reply_buffer[256];
 
-      //When you call recv(), it will block until there is some data to read.
-      if(recv(sock_fd, reply_buffer, 256, 0) < 0)
-      {
-         printf("Failed to recieve message.\n");
-      }else{
-         printf("Data recieved is: %s\n",reply_buffer);
-      }
-      printf("Client will now try to recieve data\n");
-      sleep(1);
+   //When you call recv(), it will block until there is some data to read.
+   if(recv(sock_fd, reply_buffer, 256, 0) < 0)
+   {
+       printf("Failed to recieve message.\n");
+   }else{
+       printf("Data recieved is: %s\n",reply_buffer);
    }
 }
