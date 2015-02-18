@@ -77,6 +77,20 @@ int AcceptConnection(int sock_fd){
       printf("Connection cannot be accepted\n");
     }
     printf("Connection Accepted.\n");
+    
+    //get the incoming message from the client. this will be broken up into another
+    //function once it works and is tested.
+    unsigned char reply_buffer[256];
+
+    // recv() will block until there is some data to read.
+    if(recv(newSocket, reply_buffer, 256, 0) < 0)
+    {
+        printf("Failed to recieve message.\n");
+    }else{
+       printf("Data recieved is: %s\n",reply_buffer);
+    }
+
+
     return newSocket;
 }
 

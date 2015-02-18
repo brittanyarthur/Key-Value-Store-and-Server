@@ -15,7 +15,6 @@ all : Server Client
 
 kvs: kvs.c
 
-
 server : Server
 	./Server
 
