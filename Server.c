@@ -6,6 +6,8 @@
  
 
 int OpenSocket(int port);
+int ListenIncomingConnection(int sock_fd);
+int AcceptConnection(int sock_fd);
 int SendData(int sock_fd);
 
 typedef struct sockaddr_in sockaddr_in;
@@ -55,8 +57,7 @@ int OpenSocket(int port)
    return sock_fd;
 }
 
-int SendData(int sock_fd)
-{
+int ListenIncomingConnection(int sock_fd){
    //Listen for incoming connections. A max of 1000 connections can happen.
    //Do we want to handle multiple connections another way? Such as by forking?
    if(listen(sock_fd,1000) < 0){
@@ -64,21 +65,28 @@ int SendData(int sock_fd)
        return -1;
     }
     printf("Listening\n");
+}
 
+int AcceptConnection(int sock_fd){
     //Accept a new connection on a socket
     //http://www.linuxquestions.org/questions/programming-9/sockaddr_in-and-sockaddr_un-difference-629184/
     struct sockaddr_in newclient; //accept creates a new socket
     socklen_t size = sizeof newclient;
     int newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
     if(newSocket < 0){
-    	printf("Connection cannot be accepted\n");
-    	return -1;
+      printf("Connection cannot be accepted\n");
     }
     printf("Connection Accepted.\n");
+    return newSocket;
+}
 
+int SendData(int sock_fd)
+{
+    ListenIncomingConnection(sock_fd);
+    int newSocket = AcceptConnection(sock_fd);
     //Finally, a message can be sent!
     char buffer[256];
-    strcpy(buffer,"Today is BRIGHT.\n");
+    strcpy(buffer,"Today is BRIGHT.");
     if(send(newSocket,buffer,sizeof(buffer),0) < 0){
     	printf("Error sending message\n");
     	return -1;

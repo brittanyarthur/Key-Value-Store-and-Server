@@ -1,11 +1,14 @@
 Design Doc Here
 
+***!!! : very good
+
 Resources for Client:
 -- concept tutorials:
 ***!!!  http://stackoverflow.com/questions/27014955/socket-connect-vs-bind
 		http://beej.us/guide/bgnet/output/html/multipage/clientserver.html
 fork**	http://www.tutorialspoint.com/unix_sockets/socket_server_example.htm
 -- code tutorials:
+        http://beej.us/guide/bgnet/output/html/multipage/syscalls.html#sendtorecv
 		http://gafferongames.com/networking-for-game-programmers/sending-and-receiving-packets/
 		http://www.binarytides.com/socket-programming-c-linux-tutorial/
 		http://www.codeproject.com/Articles/586000/Networking-and-Socket-programming-tutorial-in-C
@@ -13,3 +16,4 @@ fork**	http://www.tutorialspoint.com/unix_sockets/socket_server_example.htm
 -- argument info: 
 		http://stackoverflow.com/questions/1593946/what-is-af-inet-and-why-do-i-need-it
 		http://stackoverflow.com/questions/6729366/what-is-the-difference-between-af-inet-and-pf-inet-in-socket-programming
+		http://stackoverflow.com/questions/14317791/socket-accept-function-invalid-argument

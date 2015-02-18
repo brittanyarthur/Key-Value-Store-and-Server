@@ -1,4 +1,4 @@
-//Clientc.c 
+//Clientc.c
 
 #include <stdlib.h> //free()
 #include <string.h>
@@ -9,6 +9,7 @@
 
 int OpenSocket(int remote_port, const char* remote_IP);
 int RecieveData(int sock_fd);
+int WriteData(int sock_fd);
 
 int main( int argc, char * argv[] )
 {
@@ -16,8 +17,16 @@ int main( int argc, char * argv[] )
    const char* remote_IP = "127.0.0.1";
    int sock_fd = OpenSocket(remote_port, remote_IP); 
    printf("Socket has been opened\n");
+   int write_result = 0;
+   int recieve_result = 0;
    if(sock_fd != -1){
-      RecieveData(sock_fd);
+      write_result = WriteData(sock_fd);
+   }
+   if(write_result != -1){
+      recieve_result = RecieveData(sock_fd);
+   }
+   if(recieve_result == -1){
+      printf("An Error has occured.\n");
    }
    return 1;
 }
@@ -51,6 +60,15 @@ int OpenSocket(int port, const char* remote_IP)
    }
 
    return sock_fd;
+}
+
+int WriteData(int sock_fd){
+   char buffer[256];
+   strcpy(buffer,"What is today like?\n");
+   int result_status = write(sock_fd, buffer , strlen(buffer));
+   if(result_status < 0){
+      printf("An error occured sending data from the client to the server.\n");
+   }
 }
 
 int RecieveData(int sock_fd){
