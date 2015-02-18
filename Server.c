@@ -8,20 +8,27 @@
 int OpenSocket(int port);
 int ListenIncomingConnection(int sock_fd);
 int AcceptConnection(int sock_fd);
-int SendData(int sock_fd);
+int RecieveData(int newSocket);
+int SendData(int sock_fd, int newSocket);
 
 typedef struct sockaddr_in sockaddr_in;
 
 int main(int argc , char *argv[])
 {
-    // create socket
+  // create socket
 	int port = 30000;
 	printf( "creating socket on port %d\n", port );
-    int sock_fd = OpenSocket(port); 
+    int sock_fd = OpenSocket(port); //bind
     if(sock_fd != -1){
        printf("Connected\n");
+       //Listen for an incoming connection
+       if(ListenIncomingConnection(sock_fd) == -1) return 1;
+       //Accept the incoming connection
+       int newSocket = AcceptConnection(sock_fd);
+       if(newSocket==-1) return 1;
+       if(RecieveData(newSocket) == -1) return 1;
        //Send some data
-       SendData(sock_fd);
+       SendData(sock_fd, newSocket);
     }
      
     return 0;
@@ -31,21 +38,18 @@ int OpenSocket(int port)
 {   
    struct sockaddr_in mysocket; 
    //create socket
-   //INFO: SOCK_DGRAM is used for UDP packets, SOCK_STREAM for TCP.
-   //INFO: AF_INET refers to addresses from the internet, IP addresses specifically. PF_INET refers to anything in the protocol, usually sockets/ports.
-   //...Passing PF_NET ensures that the connection works right. AF = Address Family. PF = Protocol Family.
-   //http://stackoverflow.com/questions/1593946/what-is-af-inet-and-why-do-i-need-it
-   //int sock_fd = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-   int sock_fd = socket( PF_INET, SOCK_STREAM, 0); //socket == file descriptor, thus: mysocket
+   int sock_fd = socket( PF_INET, SOCK_STREAM, 0); 
    if(sock_fd == -1)
    {
    	  printf("Could not create socket.\n");
         return -1;
    }
-   
-   mysocket.sin_addr.s_addr = inet_addr("127.0.0.1"); //socket binds to localhost
+
+   //socket binds to localhost
+   mysocket.sin_addr.s_addr = inet_addr("127.0.0.1"); 
    mysocket.sin_family = AF_INET;
-   mysocket.sin_port = htons( port ); //connect it to the port
+   //connect socket to the port
+   mysocket.sin_port = htons( port ); 
 
    //bind this remote server socket to port
    if (bind( sock_fd, (struct sockaddr*) &mysocket, sizeof(mysocket) ) < 0 )
@@ -65,6 +69,23 @@ int ListenIncomingConnection(int sock_fd){
        return -1;
     }
     printf("Listening\n");
+    return 0;
+}
+
+int RecieveData(int newSocket){
+    //get the incoming message from the client.
+    unsigned char reply_buffer[256];
+    //clear buffer before writing to it
+    memset(reply_buffer, 0, sizeof(reply_buffer));
+    // recv() will block until there is some data to read.
+    if(recv(newSocket, reply_buffer, 256, 0) < 0)
+    {
+        printf("Failed to recieve message.\n");
+        return -1;
+    }else{
+       printf("Data recieved is: %s\n",reply_buffer);
+       return 0;
+    }
 }
 
 int AcceptConnection(int sock_fd){
@@ -75,29 +96,15 @@ int AcceptConnection(int sock_fd){
     int newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
     if(newSocket < 0){
       printf("Connection cannot be accepted\n");
+      return -1;
     }
     printf("Connection Accepted.\n");
-    
-    //get the incoming message from the client. this will be broken up into another
-    //function once it works and is tested.
-    unsigned char reply_buffer[256];
-
-    // recv() will block until there is some data to read.
-    if(recv(newSocket, reply_buffer, 256, 0) < 0)
-    {
-        printf("Failed to recieve message.\n");
-    }else{
-       printf("Data recieved is: %s\n",reply_buffer);
-    }
-
 
     return newSocket;
 }
 
-int SendData(int sock_fd)
+int SendData(int sock_fd, int newSocket)
 {
-    ListenIncomingConnection(sock_fd);
-    int newSocket = AcceptConnection(sock_fd);
     //Finally, a message can be sent!
     char buffer[256];
     strcpy(buffer,"Today is BRIGHT.");

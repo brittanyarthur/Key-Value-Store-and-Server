@@ -64,11 +64,14 @@ int OpenSocket(int port, const char* remote_IP)
 
 int WriteData(int sock_fd){
    char buffer[256];
-   strcpy(buffer,"What is today like?\n");
+   memset(buffer,'\0',strlen(buffer));
+   strcpy(buffer,"What is today like?");
    int result_status = write(sock_fd, buffer , strlen(buffer));
    if(result_status < 0){
       printf("An error occured sending data from the client to the server.\n");
+      return -1;
    }
+   return 0;
 }
 
 int RecieveData(int sock_fd){

@@ -17,3 +17,10 @@ fork**	http://www.tutorialspoint.com/unix_sockets/socket_server_example.htm
 		http://stackoverflow.com/questions/1593946/what-is-af-inet-and-why-do-i-need-it
 		http://stackoverflow.com/questions/6729366/what-is-the-difference-between-af-inet-and-pf-inet-in-socket-programming
 		http://stackoverflow.com/questions/14317791/socket-accept-function-invalid-argument
+
+Info on Creating a Socket on the Server Side:
+//INFO: SOCK_DGRAM is used for UDP packets, SOCK_STREAM for TCP.
+   //INFO: AF_INET refers to addresses from the internet, IP addresses specifically. PF_INET refers to anything in the protocol, usually sockets/ports.
+   //...Passing PF_NET ensures that the connection works right. AF = Address Family. PF = Protocol Family.
+   //http://stackoverflow.com/questions/1593946/what-is-af-inet-and-why-do-i-need-it
+   //int sock_fd = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
