@@ -22,6 +22,8 @@ int main(int argc , char *argv[])
     int sock_fd = OpenSocket(port); //bind
     if(sock_fd != -1){
        printf("Connected\n");
+       //Listen for an incoming connection
+       if(ListenIncomingConnection(sock_fd) == -1) printf("Error while listening\n");
        //Accept the incoming connection
        AcceptConnections(sock_fd);
     }
@@ -57,9 +59,8 @@ int OpenSocket(int port)
 }
 
 int ListenIncomingConnection(int sock_fd){
-   //Listen for incoming connections. A max of 1000 connections can happen.
-   //Do we want to handle multiple connections another way? Such as by forking?
-   if(listen(sock_fd,1000) < 0){
+   //Listen for incoming connections. A max of 1 connection can happen.
+   if(listen(sock_fd,1) < 0){
        printf("Error\n");
        return -1;
     }
@@ -93,36 +94,28 @@ int RecieveData(int newSocket){
 }
 
 int AcceptConnections(int sock_fd){
-    //Accept a new connection on a socket
     while(1){
-      //the output of sockedID_fd1 becomes the input for sockedID_fd0
-      //The first integer in the array (element 0) is set up and opened for reading, 
-      //while the second integer (element 1) is set up and opened for writing. 
       printf("about to fork 2 processes - child and parent. \n");
       struct sockaddr_in newclient; //accept creates a new socket
       socklen_t size = sizeof newclient;
       int newSocket = 0;
       //waiting to accept a connection
-      //Listen for an incoming connection
-      if(ListenIncomingConnection(sock_fd) == -1) printf("Error while listening\n");
       newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
       int pid = fork();
       if(pid == 0) { //child process
          printf("in child!!!\n");
          while(1){ // loop for an ongoing conversation with the client
-            //is it safe to return from a child process like this or is any cleanup needed?
             // 0 maps to other, 1 maps to no, 2 maps to yes 
             int data_recieved = RecieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
             if(data_recieved == -1){
                 printf("Error recieving data.\n"); 
                 return -1;
             }
-            //Send some data
             SendData(sock_fd, newSocket, data_recieved);
          }
          return 0;
       }else{
-         //wait(&pid);
+         //wait(&pid); 
          printf("in parent!!!\n");
       }
     }
