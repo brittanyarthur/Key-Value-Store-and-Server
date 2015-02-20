@@ -75,6 +75,7 @@ int ListenIncomingConnection(int sock_fd){
 }
 
 int RecieveData(int newSocket){
+    printf("about to recieve data\n");
     //get the incoming message from the client.
     unsigned char reply_buffer[256];
     //clear buffer before writing to it
@@ -94,33 +95,24 @@ int AcceptConnections(int sock_fd){
     //Accept a new connection on a socket
     //http://www.linuxquestions.org/questions/programming-9/sockaddr_in-and-sockaddr_un-difference-629184/
     while(1){
-      int sockedID_fd[2];
       //the output of sockedID_fd1 becomes the input for sockedID_fd0
-      pipe(sockedID_fd);
+      //The first integer in the array (element 0) is set up and opened for reading, 
+      //while the second integer (element 1) is set up and opened for writing. 
       printf("about to fork 2 processes - child and parent. \n");
-      int pid = fork();
       struct sockaddr_in newclient; //accept creates a new socket
       socklen_t size = sizeof newclient;
       int newSocket = 0;
+      int pid = fork();
       if(pid == 0) { //child process
          printf("in child!!!\n");
          newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
-         printf("new Socket in child is: %d\n",newSocket);
-         write(sockedID_fd[1], &newSocket,sizeof(newSocket));
+         printf("new Socket in child is: %d\n",newSocket); 
          //is it safe to return from a child process like this or is any cleanup needed?
-        return 0;
+        return newSocket;
       }else{
          wait(&pid);
          printf("in parent!!!\n");
-         int newSocket_fromchildprocess = 0;
-         read(sockedID_fd[0], &newSocket_fromchildprocess, sizeof(newSocket_fromchildprocess));
-         printf("new Socket in parent is: %d\n",newSocket_fromchildprocess);
-         if(newSocket_fromchildprocess < 0){
-            printf("Connection cannot be accepted\n");
-            return -1; 
-         }  
-         printf("Connection Accepted.\n");
-         return newSocket;
+         return 0;
       }
     }
 }
