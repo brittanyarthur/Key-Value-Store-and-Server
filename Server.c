@@ -25,12 +25,7 @@ int main(int argc , char *argv[])
        //Listen for an incoming connection
        if(ListenIncomingConnection(sock_fd) == -1) return 1;
        //Accept the incoming connection
-       int newSocket = AcceptConnections(sock_fd);
-       if(newSocket==0) return 0; //this is the child process returning 0
-       if(newSocket==-1) return 1;
-       if(RecieveData(newSocket) == -1) return 1;
-       //Send some data
-       SendData(sock_fd, newSocket);
+       AcceptConnections(sock_fd);
     }
      
     return 0;
@@ -93,7 +88,6 @@ int RecieveData(int newSocket){
 
 int AcceptConnections(int sock_fd){
     //Accept a new connection on a socket
-    //http://www.linuxquestions.org/questions/programming-9/sockaddr_in-and-sockaddr_un-difference-629184/
     while(1){
       //the output of sockedID_fd1 becomes the input for sockedID_fd0
       //The first integer in the array (element 0) is set up and opened for reading, 
@@ -106,13 +100,16 @@ int AcceptConnections(int sock_fd){
       if(pid == 0) { //child process
          printf("in child!!!\n");
          newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
-         printf("new Socket in child is: %d\n",newSocket); 
          //is it safe to return from a child process like this or is any cleanup needed?
-        return newSocket;
+         if(RecieveData(newSocket) == -1){
+             printf("Error recieving data."); 
+         }else{
+             //Send some data
+             SendData(sock_fd, newSocket);
+         }
       }else{
          wait(&pid);
          printf("in parent!!!\n");
-         return 0;
       }
     }
 }

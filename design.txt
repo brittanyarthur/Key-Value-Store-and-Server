@@ -15,9 +15,11 @@ fork**	http://www.tutorialspoint.com/unix_sockets/socket_server_example.htm
 		http://stackoverflow.com/questions/1593946/what-is-af-inet-and-why-do-i-need-it
 		http://stackoverflow.com/questions/6729366/what-is-the-difference-between-af-inet-and-pf-inet-in-socket-programming
 		http://stackoverflow.com/questions/14317791/socket-accept-function-invalid-argument
+        http://www.linuxquestions.org/questions/programming-9/sockaddr_in-and-sockaddr_un-difference-629184/
 
 -- useful info:
- 		for forking in Server.c: accept() blocks the caller until a connection is present (http://man7.org/linux/man-pages/man2/accept.2.html)
+ 		- for forking in Server.c: accept() blocks the caller until a connection is present (http://man7.org/linux/man-pages/man2/accept.2.html)
+ 		- good to know that read blocks when you use a pipe
 
 Info on Creating a Socket on the Server Side:
    //INFO: SOCK_DGRAM is used for UDP packets, SOCK_STREAM for TCP.
