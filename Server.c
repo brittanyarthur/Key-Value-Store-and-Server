@@ -3,7 +3,7 @@
 #include <string.h>     //strlen
 #include <sys/socket.h>
 #include <arpa/inet.h>  //inet_addr
-#include <unistd.h>     //fork()
+#include <unistd.h>     //fork(), access(2)
 #include <sys/wait.h>   //wait()
 
 int OpenSocket(int port);
@@ -11,6 +11,7 @@ int ListenIncomingConnection(int sock_fd);
 int AcceptConnections(int sock_fd);
 int RecieveData(int newSocket);
 int SendData(int sock_fd, int newSocket, int data_recieved);
+FILE* Initialize(char* filename);
 
 typedef struct sockaddr_in sockaddr_in;
 
@@ -33,7 +34,7 @@ int main(int argc , char *argv[])
 
 int OpenSocket(int port)
 {   
-   struct sockaddr_in mysocket; 
+   struct sockaddr_in socketinfo; //https://msdn.microsoft.com/en-us/library/aa917469.aspx
    //create socket
    int sock_fd = socket( PF_INET, SOCK_STREAM, 0); 
    if(sock_fd == -1)
@@ -43,13 +44,14 @@ int OpenSocket(int port)
    }
 
    //socket binds to localhost
-   mysocket.sin_addr.s_addr = inet_addr("127.0.0.1"); 
-   mysocket.sin_family = AF_INET;
+   socketinfo.sin_addr.s_addr = inet_addr("127.0.0.1"); 
+   //in internet family
+   socketinfo.sin_family = AF_INET;
    //connect socket to the port
-   mysocket.sin_port = htons( port ); 
+   socketinfo.sin_port = htons( port ); 
 
    //bind this remote server socket to port
-   if (bind( sock_fd, (struct sockaddr*) &mysocket, sizeof(mysocket) ) < 0 )
+   if (bind( sock_fd, (struct sockaddr*) &socketinfo, sizeof(socketinfo) ) < 0 )
    {
       printf( "Failed to bind socket.\n" );
       return -1;
@@ -104,7 +106,8 @@ int AcceptConnections(int sock_fd){
       int pid = fork();
       if(pid == 0) { //child process
          printf("in child!!!\n");
-         while(1){ // loop for an ongoing conversation with the client
+         // loop for an ongoing conversation with the client
+         while(1){ 
             // 0 maps to other, 1 maps to no, 2 maps to yes 
             int data_recieved = RecieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
             if(data_recieved == -1){
@@ -123,6 +126,18 @@ int AcceptConnections(int sock_fd){
 
 int SendData(int sock_fd, int newSocket, int data_recieved)
 {
+    FILE* fp; 
+    if( access( "testfile", W_OK ) != -1 ) { //check if the file has write access
+    // file exists
+      fp = Initialize("testfile");
+    } else {
+    // file doesn't exist
+       fp = fopen("testfile", "w+");
+    }
+    
+    fprintf(fp, "%s \n", "Hello hello today is feb 20th");
+    fclose(fp);
+
     //Finally, a message can be sent!
     char buffer[256];
     if(data_recieved == 1){
@@ -139,4 +154,21 @@ int SendData(int sock_fd, int newSocket, int data_recieved)
     printf("Message Successfully Sent.\n");	
     return 0;
 }
+
+FILE* Initialize(char* filename){
+   FILE* fp = fopen("testfile", "w+");
+   fprintf(fp, "%s \n", "This is the first line I am printing");
+   return fp;
+}
+
+
+
+
+
+
+
+
+
+
+
 
