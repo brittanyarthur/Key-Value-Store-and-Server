@@ -101,7 +101,8 @@ int initialize(char* file, int length, int size) {
 	3. if does exist, do NOT truncate
 	*/
 	
-	//open for reading and writing, without creation
+	//Q note: another way to check if file exists is with if( access( "testfile", W_OK ) != -1 ) {//exists}else{//does not exist} location: #include <unistd.h> 
+	//open for reading and writing, without creation               
 	if((store = fopen(file, "r+")) == NULL) {
 
 		/*
@@ -128,7 +129,7 @@ int initialize(char* file, int length, int size) {
 	}
 	
 	//save where the end of the header is
-	if((fgetpos(store, &hashTableStart)) == -1){
+	if((fgetpos(store, &hashTableStart)) == -1){        //Q: will this work on both cases? Esp we should check the one after we have appended data to a file already?
 		perror("Couldn't get file position)");
 	}
 	

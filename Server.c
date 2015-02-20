@@ -11,7 +11,6 @@ int ListenIncomingConnection(int sock_fd);
 int AcceptConnections(int sock_fd);
 int RecieveData(int newSocket);
 int SendData(int sock_fd, int newSocket, int data_recieved);
-FILE* Initialize(char* filename);
 
 typedef struct sockaddr_in sockaddr_in;
 
@@ -23,8 +22,6 @@ int main(int argc , char *argv[])
     int sock_fd = OpenSocket(port); //bind
     if(sock_fd != -1){
        printf("Connected\n");
-       //Listen for an incoming connection
-       if(ListenIncomingConnection(sock_fd) == -1) printf("Error while listening\n");
        //Accept the incoming connection
        AcceptConnections(sock_fd);
     }
@@ -97,6 +94,9 @@ int RecieveData(int newSocket){
 
 int AcceptConnections(int sock_fd){
     while(1){
+      //Listen for an incoming connection
+      if(ListenIncomingConnection(sock_fd) == -1) printf("Error while listening\n");
+
       printf("about to fork 2 processes - child and parent. \n");
       struct sockaddr_in newclient; //accept creates a new socket
       socklen_t size = sizeof newclient;
@@ -126,17 +126,6 @@ int AcceptConnections(int sock_fd){
 
 int SendData(int sock_fd, int newSocket, int data_recieved)
 {
-    FILE* fp; 
-    if( access( "testfile", W_OK ) != -1 ) { //check if the file has write access
-    // file exists
-      fp = Initialize("testfile");
-    } else {
-    // file doesn't exist
-       fp = fopen("testfile", "w+");
-    }
-    
-    fprintf(fp, "%s \n", "Hello hello today is feb 20th");
-    fclose(fp);
 
     //Finally, a message can be sent!
     char buffer[256];
@@ -153,12 +142,6 @@ int SendData(int sock_fd, int newSocket, int data_recieved)
     }
     printf("Message Successfully Sent.\n");	
     return 0;
-}
-
-FILE* Initialize(char* filename){
-   FILE* fp = fopen("testfile", "w+");
-   fprintf(fp, "%s \n", "This is the first line I am printing");
-   return fp;
 }
 
 
