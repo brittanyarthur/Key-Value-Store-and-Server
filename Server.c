@@ -10,7 +10,7 @@ int OpenSocket(int port);
 int ListenIncomingConnection(int sock_fd);
 int AcceptConnections(int sock_fd);
 int RecieveData(int newSocket);
-int SendData(int sock_fd, int newSocket);
+int SendData(int sock_fd, int newSocket, int data_recieved);
 
 typedef struct sockaddr_in sockaddr_in;
 
@@ -72,7 +72,7 @@ int ListenIncomingConnection(int sock_fd){
 int RecieveData(int newSocket){
     printf("about to recieve data\n");
     //get the incoming message from the client.
-    unsigned char reply_buffer[256];
+    char reply_buffer[256];
     //clear buffer before writing to it
     memset(reply_buffer, 0, sizeof(reply_buffer)); //<<<< We may need to do this in other places !
     // recv() will block until there is some data to read.
@@ -82,7 +82,16 @@ int RecieveData(int newSocket){
         return -1;
     }else{
        printf("Data recieved from client is: %s\n",reply_buffer);
-       return 0;
+       if(strcmp(reply_buffer, "no")){
+           return 1; // 1 maps to no
+       } else if(strcmp(reply_buffer, "yes")){
+           printf("returning YES");
+           return 2; // 2 maps to yes
+       } else if(strcmp(reply_buffer, "quit")){
+           printf("EXITING NOW\n");
+           close(newSocket);
+       }
+       return 0; // 0 maps to other
     }
 }
 
@@ -96,16 +105,22 @@ int AcceptConnections(int sock_fd){
       struct sockaddr_in newclient; //accept creates a new socket
       socklen_t size = sizeof newclient;
       int newSocket = 0;
+      //waiting to accept a connection
+      newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
       int pid = fork();
       if(pid == 0) { //child process
          printf("in child!!!\n");
-         newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
-         //is it safe to return from a child process like this or is any cleanup needed?
-         if(RecieveData(newSocket) == -1){
-             printf("Error recieving data."); 
-         }else{
-             //Send some data
-             SendData(sock_fd, newSocket);
+         //now starting an ongoing conversation with the client
+         while(1){
+            //is it safe to return from a child process like this or is any cleanup needed?
+            // 0 maps to other, 1 maps to no, 2 maps to yes 
+            int data_recieved = RecieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
+            if(data_recieved == -1){
+                printf("Error recieving data.\n"); 
+                return -1;
+            }
+            //Send some data
+            SendData(sock_fd, newSocket, data_recieved);
          }
          return 0;
       }else{
@@ -115,18 +130,22 @@ int AcceptConnections(int sock_fd){
     }
 }
 
-int SendData(int sock_fd, int newSocket)
+int SendData(int sock_fd, int newSocket, int data_recieved)
 {
     //Finally, a message can be sent!
     char buffer[256];
-    strcpy(buffer,"Today is BRIGHT.");
+    if(data_recieved == 1){
+       strcpy(buffer,"It must be a study day for you then!"); 
+    }else if(data_recieved == 2){
+       strcpy(buffer,"Today is BRIGHT."); 
+    }else{
+       strcpy(buffer,"Nooo you have to answer the question!!"); 
+    }
     if(send(newSocket,buffer,sizeof(buffer),0) < 0){
     	printf("Error sending message\n");
     	return -1;
     }
     printf("Message Successfully Sent.\n");	
-    close(sock_fd);
-    close(newSocket);
     return 0;
 }
 

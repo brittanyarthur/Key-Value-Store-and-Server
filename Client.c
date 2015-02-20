@@ -19,14 +19,18 @@ int main( int argc, char * argv[] )
    printf("Socket has been opened\n");
    int write_result = 0;
    int recieve_result = 0;
-   if(sock_fd != -1){
-      write_result = WriteData(sock_fd);
-   }
-   if(write_result != -1){
-      recieve_result = RecieveData(sock_fd);
-   }
-   if(recieve_result == -1){
-      printf("An Error has occured.\n");
+   while(1){
+      if(sock_fd != -1){
+         write_result = WriteData(sock_fd);
+      }else{
+         printf("Error: file descriptor error");
+      }
+      if(write_result != -1){
+         recieve_result = RecieveData(sock_fd);
+      }
+      if(recieve_result == -1){
+         printf("An Error has occured.\n");
+      }
    }
    return 1;
 }
@@ -63,10 +67,15 @@ int OpenSocket(int port, const char* remote_IP)
 }
 
 int WriteData(int sock_fd){
+   printf("\nWould you like to know what the weather is like? write 'yes' or 'no'?\n");
    char buffer[256];
    memset(buffer,'\0',strlen(buffer));
-   strcpy(buffer,"What is today like?");
-   int result_status = write(sock_fd, buffer , strlen(buffer));
+   fgets(buffer, sizeof(buffer), stdin);
+   if(strcmp(buffer, "quit") == 0){
+      printf("EXITING NOW\n");
+      close(sock_fd);
+   }
+   int result_status = write(sock_fd, buffer, strlen(buffer));
    if(result_status < 0){
       printf("An error occured sending data from the client to the server.\n");
       return -1;
@@ -76,7 +85,6 @@ int WriteData(int sock_fd){
 
 int RecieveData(int sock_fd){
    unsigned char reply_buffer[256];
-
    // recv() will block until there is some data to read.
    if(recv(sock_fd, reply_buffer, 256, 0) < 0)
    {
@@ -84,6 +92,5 @@ int RecieveData(int sock_fd){
    }else{
        printf("Data recieved from server is: %s\n",reply_buffer);
    }
-   close(sock_fd);
    return 1;
 }
