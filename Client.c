@@ -13,7 +13,7 @@ int WriteData(int sock_fd);
 
 int main( int argc, char * argv[] )
 {
-   int remote_port =  30000;
+   int remote_port =  10732;
    const char* remote_IP = "127.0.0.1";
    int sock_fd = OpenSocket(remote_port, remote_IP); 
    printf("Socket has been opened\n");
@@ -82,7 +82,8 @@ int RecieveData(int sock_fd){
    {
        printf("Failed to recieve message.\n");
    }else{
-       printf("Data recieved is: %s\n",reply_buffer);
+       printf("Data recieved from server is: %s\n",reply_buffer);
    }
+   close(sock_fd);
    return 1;
 }
