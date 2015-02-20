@@ -82,15 +82,17 @@ int RecieveData(int newSocket){
         return -1;
     }else{
        printf("Data recieved from client is: %s\n",reply_buffer);
-       if(strcmp(reply_buffer, "no")){
+       if(strcmp(reply_buffer, "no\n") == 0){
+           printf("returning NO\n");
            return 1; // 1 maps to no
-       } else if(strcmp(reply_buffer, "yes")){
-           printf("returning YES");
+       } else if(strcmp(reply_buffer, "yes\n") == 0){
+           printf("returning YES\n");
            return 2; // 2 maps to yes
-       } else if(strcmp(reply_buffer, "quit")){
+       } else if(strcmp(reply_buffer, "quit\n") == 0){
            printf("EXITING NOW\n");
            close(newSocket);
        }
+       printf("returning OTHER\n");
        return 0; // 0 maps to other
     }
 }
