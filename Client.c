@@ -57,7 +57,7 @@ int OpenSocket(int port, const char* remote_IP)
    // Set port number. htons function creates proper bigendian byte order for networking.
    remote_server.sin_port = htons( (unsigned short) port ); 
 
-   if (connect( sock_fd, (struct sockaddr*) &remote_server, sizeof(remote_server) ) < 0 )
+   if (connect(sock_fd, (struct sockaddr*) &remote_server, sizeof(remote_server)) < 0 )
    {
          printf( "Failed to connect to remote server.\n" );
          return -1;
@@ -71,7 +71,7 @@ int WriteData(int sock_fd){
    char buffer[256];
    memset(buffer,'\0',strlen(buffer));
    fgets(buffer, sizeof(buffer), stdin);
-   if(strcmp(buffer, "quit") == 0){
+   if(strcmp(buffer, "quit\n") == 0){
       printf("EXITING NOW\n");
       close(sock_fd);
    }

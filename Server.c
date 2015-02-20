@@ -22,8 +22,6 @@ int main(int argc , char *argv[])
     int sock_fd = OpenSocket(port); //bind
     if(sock_fd != -1){
        printf("Connected\n");
-       //Listen for an incoming connection
-       if(ListenIncomingConnection(sock_fd) == -1) return 1;
        //Accept the incoming connection
        AcceptConnections(sock_fd);
     }
@@ -83,16 +81,13 @@ int RecieveData(int newSocket){
     }else{
        printf("Data recieved from client is: %s\n",reply_buffer);
        if(strcmp(reply_buffer, "no\n") == 0){
-           printf("returning NO\n");
            return 1; // 1 maps to no
        } else if(strcmp(reply_buffer, "yes\n") == 0){
-           printf("returning YES\n");
            return 2; // 2 maps to yes
        } else if(strcmp(reply_buffer, "quit\n") == 0){
            printf("EXITING NOW\n");
            close(newSocket);
        }
-       printf("returning OTHER\n");
        return 0; // 0 maps to other
     }
 }
@@ -108,12 +103,13 @@ int AcceptConnections(int sock_fd){
       socklen_t size = sizeof newclient;
       int newSocket = 0;
       //waiting to accept a connection
+      //Listen for an incoming connection
+      if(ListenIncomingConnection(sock_fd) == -1) printf("Error while listening\n");
       newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
       int pid = fork();
       if(pid == 0) { //child process
          printf("in child!!!\n");
-         //now starting an ongoing conversation with the client
-         while(1){
+         while(1){ // loop for an ongoing conversation with the client
             //is it safe to return from a child process like this or is any cleanup needed?
             // 0 maps to other, 1 maps to no, 2 maps to yes 
             int data_recieved = RecieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
@@ -126,7 +122,7 @@ int AcceptConnections(int sock_fd){
          }
          return 0;
       }else{
-         wait(&pid);
+         //wait(&pid);
          printf("in parent!!!\n");
       }
     }
