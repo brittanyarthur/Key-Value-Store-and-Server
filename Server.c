@@ -107,6 +107,7 @@ int AcceptConnections(int sock_fd){
              //Send some data
              SendData(sock_fd, newSocket);
          }
+         return 0;
       }else{
          wait(&pid);
          printf("in parent!!!\n");
