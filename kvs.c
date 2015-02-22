@@ -306,14 +306,7 @@ int initialize(char* file, int length, int size) {
 			return -1;
 		}
 	}
-
-
-
 	//Q: will this work on both cases? Esp we should check the one after we have appended data to a file already?
-
-
-
-
 	return storefd;
 }
 
