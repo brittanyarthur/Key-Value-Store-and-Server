@@ -5,8 +5,10 @@
 # -Wall:   all warnings
 # -Wextra: even more warnings. Can be annoying or helpful.
 # -std=gnu99: uses a reasonable version of C
+# -lm:     links the math library which is stupid, used in kvs.c
 
-flags = -g -O0 -Wall -Wextra -std=gnu99
+
+flags = -g -O0 -Wall -Wextra -std=gnu99 -lm
 
 % : %.c 
 	gcc $< -o $@ ${flags}
