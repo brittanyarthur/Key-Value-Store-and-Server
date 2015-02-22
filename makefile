@@ -13,9 +13,9 @@ flags = -g -O0 -Wall -Wextra -std=gnu99 -lm
 % : %.c 
 	gcc $< -o $@ ${flags}
 
-all : Server Client
+all : Server Client hash
 
-kvs: kvs.c
+hash : kvs
 
 server : Server
 	./Server
@@ -24,4 +24,4 @@ client : Client
 	./Client
 
 clean:
-	@rm -f Server Client kvs *~
+	@rm -f Server Client hash *~
