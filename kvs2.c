@@ -55,25 +55,34 @@ int insert(FILE* store, char* key, void* value, int length){
 int fetch(FILE* store, char* key, void* value, int* length){
 	(void)value;
 	(void)length;
+	
+	int index = probe(store, key);
+	return 0;
+}
+
+//find the slot number that matches the key. or else, return -1.
+int probe(FILE* store, char* key){
 	int index = hash(key)%table_size;
+	char buffer[table_length];
+	int* magic = malloc(sizeof(int));
 	fseek(store, index*table_length, SEEK_SET);
 
-	int magic_candidate = 0;
-	char buffer[table_length];
 	do{
-	    fread(&magic_candidate, sizeof(int)*4, 1, store);
-	    printf("Magic number is %d\n",MAGIC_NUM);
-		printf("Magic number could be %d\n", magic_candidate);
-	    if(magic_candidate == MAGIC_NUM){
-	    	printf("found magic num\n");
-	    	//check if this key is equal to the one I have
+	    fread(magic, sizeof(int)*4, 1, store); //read in possible magic number
+	    if(*magic == MAGIC_NUM){
+	    	fseek(store, (index*table_length)+4, SEEK_SET); //offset magic number
+	    	fread(buffer, table_length, 1, store); 
+	    	if(strcmp(buffer, key)==0){ //check for a key match at this index
+	    		printf("found a match!\n");
 		    	return index;
+	    	}
 	    }
-	    fseek(store, (++index)*table_length, SEEK_SET);
-	}while(magic_candidate != MAGIC_NUM);
+	    *magic = 0;
+	    fseek(store, ++index*table_length, SEEK_SET); //find location of next magic number
+	}while(*magic == MAGIC_NUM); //search until there is a "null" slot
 
-	//int index = probe(key);
-	return 0;
+	free(magic);
+	return -1;
 }
 
 int main(){
@@ -83,7 +92,7 @@ int main(){
 	int val_len = sizeof(val);
 	int* val_ptr = &val_len;
 	insert(store, "nameb", val, sizeof(val));
-	//h_read(store,"nameb", sizeof(val));
+	h_read(store,"nameb", sizeof(val));
 	fetch(store, "nameb", val, val_ptr);
 	fclose(store);
 }
