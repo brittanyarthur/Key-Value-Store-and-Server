@@ -3,11 +3,6 @@
 #include <unistd.h>
 #include "kvs2.h"
 
-struct kvpair{
-	char* key;
-	void* value;
-}kvpair;
-
 FILE* initialize(char* name, int size, int length){
 	FILE* store;
 	if( access(name, W_OK ) != -1 )
@@ -31,7 +26,10 @@ FILE* access_file(char* name){
 }
 
 void populate(FILE* store, int size, int length){
-
+	//The argument size will be the number of entries in your hash table
+	for(int i = 0; i < size; i++){
+		kvpair* pair = malloc(sizeof(kvpair));
+	}
 }
 
 int main(){
