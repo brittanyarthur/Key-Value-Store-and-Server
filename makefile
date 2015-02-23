@@ -26,3 +26,6 @@ client : Client
 clean:
 	@rm -f Server Client kvs *~
 	@rm -rf *.dSYM
+
+spotless: clean
+	@rm -f example.store
