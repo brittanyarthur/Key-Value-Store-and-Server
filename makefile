@@ -15,7 +15,7 @@ flags = -g -O0 -Wall -Wextra -std=gnu99 -lm
 
 all : Server Client hash
 
-hash : kvs
+hash : kvs2
 
 server : Server
 	./Server
