@@ -50,7 +50,7 @@ int insert(FILE* store, char* key, void* value, int length){
 	int* magic = &m;
 	fwrite(magic, sizeof(MAGIC_NUM), 1, store);
 	fwrite(key, sizeof(key), 1, store);
-	fwrite(value, sizeof(value), 1, store);
+	fwrite(value, length, 1, store);
 	return 0;
 }
 
@@ -91,13 +91,19 @@ int probe(FILE* store, char* key){
 int main(){
 	//initialize hash table into file.
 	FILE* store = initialize("hashtable");
-	char* val = "Brit"; //sample value for testing.
-	int val_len = sizeof(val);
+
+	int* val = malloc(sizeof(int)*5); //sample value for testing.
+	for(int i = 0; i < 5; i++){
+		val[i] = i+50;
+	}
+	int val_len = sizeof(int)*5;
 	int* val_ptr = &val_len;
-	insert(store, "nameb", val, sizeof(val));
-	h_read(store,"nameb", sizeof(val));
+
+	insert(store, "nameb", val, val_len);
+	h_read(store,"nameb", val_len);
 	fetch(store, "nameb", val, val_ptr);
 	fclose(store);
+	free(val);
 	return 0;
 }
 
@@ -137,13 +143,22 @@ int h_read(FILE* store, char* key, int length){
 	//skip the magic number
 	fseek(store, (index*table_length)+4, SEEK_SET);
 
-	fread(buffer, length, 1, store);
+	fread(buffer, sizeof(key), 1, store);
 	printf("1 key: %s\n",buffer);
 
-	fread(buffer, length, 1, store);
-	printf("2 value: %s\n",buffer);
-/*
-	fread(buffer, length, 1, store);
+	//fread(buffer, length, 1, store);
+	//printf("2 value: %s\n",buffer);
+	int result[5];
+	for(int k = 0; k < 5; k++){
+		result[k] = 0;
+	}
+	fread(&result, length, 1, store);
+	printf("2 value: \n");
+	for(int i = 0; i < 5; i++){
+		printf("result[%d] = %d\n",i,result[i]);
+	}
+
+    /* fread(buffer, length, 1, store);
 	printf("3 %s\n",buffer);*/
 	
 	return 0;
