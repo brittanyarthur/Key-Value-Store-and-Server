@@ -9,19 +9,18 @@
 
 
 //all these are example values
-#define DEFAULT_LEN_KEY 3
-#define DEFAULT_LEN_VALUE 6
+#define DEFAULT_LEN_KEY 2
+#define DEFAULT_LEN_VALUE 3
 
 /*
 The overhead is the number of bytes in an entry that is neither key nor value.
-1 for newline
 4 for 0xdeadd00d or "emty"
-1 for : which seperates key and value
 2 for [ and ] which go around index number
-NEED TO TAKE INTO ACCOUNT LENGTH OF INDEX NUMBER
-+1 for single digit of index
+2 for double digit of index
+1 for : which seperates key and value
+1 for newline
 */
-#define ENTRY_OVERHEAD 9
+#define ENTRY_OVERHEAD 10
 
 #define DEFAULT_LEN_ENTRY (DEFAULT_LEN_KEY + DEFAULT_LEN_VALUE + ENTRY_OVERHEAD)
 
@@ -38,7 +37,7 @@ I was going to use \0 but printf can't write it and it was a pain to use write.
 
 FILE* store;
 long hashTableStart;
-int lenFile, numEntries, lenEntry, lenKey, lenValue, storefd;
+int lenFile, numEntries, lenEntry, lenKey, lenValue, storefd, lenIndex;
 
 
 /*
@@ -63,16 +62,31 @@ unsigned long hash(char *str) {
 
 	while ((c = *str++))
 		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-	printf("hash=%zu\n", hash);
 	return hash;
 }
 
+
+/** Given a key, get what slot it goes in. */
 int getIndex(char* key) {
 	int index = hash(key) % numEntries;
 	printf("index=%d\n", index);
 	return index;
 }
 
+/** Given where an entry starts, get where the key starts. */
+int getKeyStart(int entryStart) {
+	return entryStart
+				+4 //for 0xdeadd00d or "empty"
+				+2 //for [ and ]
+				+lenIndex;
+}
+
+/** Given where an entry starts, get where the value starts. */
+int getValueStart(int entryStart) {
+	return getKeyStart(entryStart)
+				+lenKey
+				+1; //for key/value seperator
+}
 
 /**
 Function initNewFile
@@ -85,6 +99,8 @@ size: number of entries in the hash table.
 Returns: 0 on success, -1 on error.
 */
 int initNewFile(int length, int size){
+
+	printf("INIT NEW FILE\n");
 
 	if(	fprintf(store, "lenFile=%d\n", length) <= 0 ||
 		fprintf(store, "numEntries=%d\n", size) <= 0 ||
@@ -102,12 +118,24 @@ int initNewFile(int length, int size){
 	lenKey = DEFAULT_LEN_KEY;
 	lenValue = DEFAULT_LEN_VALUE;
 
-		//save where the end of the header is
+	//save where the end of the header is
 	hashTableStart = ftell(store);
 
-	//generate a format string for human-readable index
+	/*
+	Generate a format string for human-readable index.
+	If there are 100 entries, the length of index is 3.
+	The format string would be "emty[%03d]".
+	*/
+
+	if(numEntries==1){
+		lenIndex = 1; //edge case, log10(0) fucks up
+	} else {
+		lenIndex = (int)log10(numEntries-1)+1;
+	}
+
+	printf("lenIndex=%d\n", lenIndex);
 	char formatString[10];
-	sprintf(formatString, "emty[%%0%dd]", (int)log(numEntries)); //"emty" replaces 0xdeadd00d
+	sprintf(formatString, "emty[%%0%dd]", lenIndex); //"emty" replaces 0xdeadd00d
 
 
 	//write empty hash table
@@ -135,9 +163,6 @@ int initNewFile(int length, int size){
 
 	//todo maybe: see if the size of the file matches
 
-
-
-
 	fflush(store);
 
 	return 0;
@@ -154,6 +179,8 @@ size: number of entries in the hash table.
 Returns: 0 on success, -1 on error.
 */
 int initExistingFile(int length, int size){
+
+	printf("INIT EXISTING FILE\n");
 
 	if(	fscanf(store, "lenFile=%d\n", &lenFile) <= 0 ||
 		fscanf(store, "numEntries=%d\n", &numEntries) <= 0 ||
@@ -181,8 +208,16 @@ int initExistingFile(int length, int size){
 		return -1;
 	}
 
-		//save where the end of the header is
+	//save where the end of the header is
 	hashTableStart = ftell(store);
+
+	//save the length of the human-readable index
+	if(numEntries==1){
+		lenIndex = 1; //edge case, log10(0) fucks up
+	} else {
+		lenIndex = (int)log10(numEntries-1)+1;
+	}
+
 
 
 	/*
@@ -212,17 +247,16 @@ Returns: slot location of where the value is stored, or -1 if the hash table is 
 */
 int insert(char* key, void* value, int length) {
 
+	// error checking
 	if(strlen(key)==0){
 		fprintf(stderr, "Insert needs a key.\n");
 		return -1;
 	}
-
-	int len = (int)strlen(key);
-	if(len > lenKey) {
-		fprintf(stderr, "Key length is %d, but maximum length is %d.\n", (int)len, lenKey);
+	int activeKeyLen = (int)strlen(key);
+	if(activeKeyLen > lenKey) {
+		fprintf(stderr, "Key length is %d, but maximum length is %d.\n", (int)activeKeyLen, lenKey);
 		return -1;
 	}
-
 	if(length > lenValue) {
 		fprintf(stderr, "Value length is %d, but maximum length is %d.\n", length, lenValue);
 		return -1;
@@ -231,23 +265,34 @@ int insert(char* key, void* value, int length) {
 	int index = getIndex(key);
 
 
-	printf("hashTableStart=%d\nlenEntry=%d\nlenEntry*index=%d\nseek to %d\n", (int)hashTableStart, lenEntry,  lenEntry * index, (int)hashTableStart + (lenEntry * index));
+	int entryStart = (int)hashTableStart + (lenEntry * index);
 
+	printf("hashTableStart=%d\n", (int)hashTableStart);
+	printf("seek to %d\n", entryStart);
 
-	lseek(storefd, (int)hashTableStart + (lenEntry * index), SEEK_SET);
-
+	lseek(storefd, entryStart, SEEK_SET);
 	int check = -1;
 
 	read(storefd, &check, 4); //check for 0xdeadd00d or "emty"
-
 	if(check == MAGIC_NUM) {
 		printf("slot %d has somethign in it.\n", index);
 		return index;
 	} else if (check == 0x79746d65) { //"ytme" which is empty backwards
-		printf("slot %d is empty.\n", index);
-		lseek(storefd, -4, SEEK_CUR); //go back
+
+		//write magic number
+		lseek(storefd, -4, SEEK_CUR); //go backwards over "emty"
 		write(storefd, &MAGIC_NUM, 4);
-		printf("wrote magic number!\n");
+
+		//write key
+		lseek(storefd, getKeyStart(entryStart), SEEK_SET);
+		write(storefd, key, activeKeyLen);
+
+		//write value
+		lseek(storefd, getValueStart(entryStart), SEEK_SET); //terrible
+		write(storefd, value, length);
+
+		printf("wrote to slot %d.\n", index);
+
 
 	} else {
 		printf("neither thing, read %x\n", check);
@@ -255,8 +300,6 @@ int insert(char* key, void* value, int length) {
 
 	value = value;
 	length = length;
-
-
 
 	return 0;
 }
@@ -271,6 +314,11 @@ size: number of entries in the hash table.
 Returns: a file descriptor, or -1 for error.
 */
 int initialize(char* file, int length, int size) {
+
+	if(size==0 || length==0) {
+		fprintf(stderr, "Can't have empty file.\n");
+		return -1;
+	}
 
 	/* apparently there is no open option which does all of these:
 	1. open for reading and writing
@@ -308,28 +356,22 @@ int initialize(char* file, int length, int size) {
 	}
 
 
-
-	//Q: will this work on both cases? Esp we should check the one after we have appended data to a file already?
-
-
-
-
 	return storefd;
 }
 
 
 
 int main() {
-	lenFile = numEntries = lenEntry = lenKey = lenValue = storefd = hashTableStart = -1;
+	lenFile = numEntries = lenEntry = lenKey = lenValue = storefd = hashTableStart = lenIndex = -1;
 	store = NULL;
 
 	//31 and 12 are example numbers. length, numEntry
-	if(initialize("example.store", 3, 4) == -1) {
+	if(initialize("example.store", 3, 11) == -1) {
 		fprintf(stderr, "Couldn't initialize.\n");
 		return EXIT_FAILURE;
 	}
 
-	insert("key", "value", 6);
+	insert("ps", "kjf", 3);
 
 	if(fclose(store) == EOF){
 		perror("Couldn't close file.\n");
