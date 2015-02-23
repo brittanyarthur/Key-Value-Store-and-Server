@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "kvs2.h"
 
+//size = # of entires, length = # size of each thing
 FILE* initialize(char* name, int size, int length){
 	FILE* store;
 	if( access(name, W_OK ) != -1 )
