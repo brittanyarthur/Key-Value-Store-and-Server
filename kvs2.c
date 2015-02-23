@@ -1,21 +1,34 @@
 //kvs2.c
 #include <stdio.h>
 #include <unistd.h>
+//#include "hvs2.h"
 
-void initialize(char* name, int size, int length);
-void create_file(char* name, int size, int length);
+struct kvpair{
+	char* key;
+	void* value;
+}kvpair;
 
 void initialize(char* name, int size, int length){
+	FILE* store;
 	if( access(name, W_OK ) != -1 ) {
 		//file exists
-		create_file(name, size, length);
+		store = access_file(name);
 	}else{
 		//file does not exist
+		store = create_file(name, size, length);
 	}
+	return store;
 }
 
-void create_file(char* name, int size, int length){
+FILE* create_file(char* name, int size, int length){
 	FILE* file = fopen(name, "w+");
+	//fill hash with fake data
+
+	return file;
+}
+
+FILE* access_file(char* name){
+
 }
 
 int main(){
