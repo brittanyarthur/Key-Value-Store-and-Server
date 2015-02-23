@@ -1,20 +1,28 @@
 //kvs2.c
 #include <stdio.h>
 #include <unistd.h>
-
-void initialize(char* name, int size, int length);
-void create_file(char* name, int size, int length);
+#include "hvs2.h"
 
 void initialize(char* name, int size, int length){
+	FILE* store;
 	if( access(name, W_OK ) != -1 ) {
 		//file exists
-		create_file(name, size, length);
+		store = access_file(name);
+		
 	}else{
 		//file does not exist
+		store = create_file(name, size, length);
 	}
+	return store;
 }
 
-void create_file(char* name, int size, int length){
+FILE* create_file(char* name, int size, int length){
+	FILE* store;
+
+	return store;
+}
+
+FILE* access_file(char* name){
 
 }
 
