@@ -1,5 +1,6 @@
 //kvs2.c
 #include <stdio.h>
+#include <stdlib.h> //malloc()
 #include <unistd.h>
 #include "kvs2.h"
 
@@ -28,9 +29,8 @@ FILE* access_file(char* name){
 
 void populate(FILE* store, int size, int length){
 	//The argument size will be the number of entries in your hash table
-	for(int i = 0; i < size; i++){
-		kvpair* pair = malloc(sizeof(kvpair));
-	}
+	void* value = malloc(length);
+	fwrite(value, sizeof(value), size, store);
 }
 
 int main(){
