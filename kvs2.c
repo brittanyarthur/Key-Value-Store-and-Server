@@ -4,20 +4,29 @@
 #include <unistd.h>
 #include "kvs2.h"
 
+#define table_size 10
+#define table_length 50
+
 //size = # of entires, length = # size of each thing
-FILE* initialize(char* name, int size, int length){
+FILE* initialize(char* name){
 	FILE* store;
 	if( access(name, W_OK ) != -1 )
 		store = access_file(name); //file exists
 	else
-		store = create_file(name, size, length); //file does not exist
+		store = create_file(name); //file does not exist
 	return store;
 }
 
-FILE* create_file(char* name, int size, int length){
+int insert(FILE* store, char* key, void* value, int length){
+	int index = hash(key)%table_size;
+//	index*
+	return index;
+}
+
+FILE* create_file(char* name){
 	FILE* store = fopen(name, "w+");
 	//fill hash with fake data
-	populate(store, size, length);
+	populate(store);
 	return store;
 }
 
@@ -27,15 +36,19 @@ FILE* access_file(char* name){
 	return store;
 }
 
-void populate(FILE* store, int size, int length){
+void populate(FILE* store){
 	//The argument size will be the number of entries in your hash table
-	void* value = malloc(length);
-	fwrite(value, sizeof(value), size, store);
+	void* value = malloc(table_length);
+	fwrite(value, sizeof(value), table_size, store);
 }
 
 int main(){
-	int size = 10;
-	int length = 50;
 	//initialize hash table into file.
-	initialize("hashtable", size, length);
+	FILE* store = initialize("hashtable");
+	char* val = "Jason Heron!!!";
+	insert(store, "name", val, sizeof(val));
 }
+
+
+
+
