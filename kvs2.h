@@ -4,6 +4,7 @@ FILE* access_file(char* name);
 int h_read(FILE* store, char* key, int length);
 void populate(FILE* store);
 int insert(FILE* store, char* key, void* value, int length);
+int fetch(FILE* store, char* key, void* value, int* length);
 
 /**
 * djb2 hash algorithm by Dan Bernstein
