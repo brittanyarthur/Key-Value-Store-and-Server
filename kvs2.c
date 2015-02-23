@@ -70,6 +70,7 @@ int probe(FILE* store, char* key){
 	fseek(store, index*table_length, SEEK_SET);
 
 	do{
+		*magic = 0;
 	    fread(magic, sizeof(int)*4, 1, store); //read in possible magic number
 	    if(*magic == MAGIC_NUM){
 	    	fseek(store, (index*table_length)+4, SEEK_SET); //offset magic number
@@ -79,8 +80,8 @@ int probe(FILE* store, char* key){
 		    	return index;
 	    	}
 	    }
-	    *magic = 0;
-	    fseek(store, ++index*table_length, SEEK_SET); //find location of next magic number
+	    ++index;
+	    fseek(store, index*table_length, SEEK_SET); //find location of next magic number
 	}while(*magic == MAGIC_NUM); //search until there is a "null" slot
 
 	free(magic);
@@ -133,13 +134,14 @@ int delete(char* key){
 int h_read(FILE* store, char* key, int length){
 	char buffer[table_length];
 	int index = hash(key)%table_size;
+	//skip the magic number
 	fseek(store, (index*table_length)+4, SEEK_SET);
 
 	fread(buffer, length, 1, store);
-	printf("1 %s\n",buffer);
+	printf("1 key: %s\n",buffer);
 
 	fread(buffer, length, 1, store);
-	printf("2 %s\n",buffer);
+	printf("2 value: %s\n",buffer);
 /*
 	fread(buffer, length, 1, store);
 	printf("3 %s\n",buffer);*/
