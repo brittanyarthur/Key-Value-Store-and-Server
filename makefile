@@ -25,3 +25,4 @@ client : Client
 
 clean:
 	@rm -f Server Client kvs *~
+	@rm -rf *.dSYM
