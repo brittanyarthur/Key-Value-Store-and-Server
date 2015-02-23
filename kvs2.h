@@ -1,6 +1,7 @@
 FILE* initialize(char* name);
 FILE* create_file(char* name);
 FILE* access_file(char* name);
+int h_read(FILE* store, char* key, int length);
 void populate(FILE* store);
 int insert(FILE* store, char* key, void* value, int length);
 

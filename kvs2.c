@@ -5,7 +5,7 @@
 #include "kvs2.h"
 
 #define table_size 10
-#define table_length 50
+#define table_length 100
 
 //size = # of entires, length = # size of each thing
 FILE* initialize(char* name){
@@ -19,8 +19,18 @@ FILE* initialize(char* name){
 
 int insert(FILE* store, char* key, void* value, int length){
 	int index = hash(key)%table_size;
-//	index*
-	return index;
+	fseek(store, index*table_length, SEEK_SET);
+	fwrite(value, sizeof(value), 1, store);
+	return 0;
+}
+
+int h_read(FILE* store, char* key, int length){
+	char buffer[20];
+	int index = hash(key)%table_size;
+	fseek(store, index*table_length, SEEK_SET);
+	fread(buffer, length, 1, store);
+	printf("%s\n",buffer);
+	return 0;
 }
 
 FILE* create_file(char* name){
@@ -47,6 +57,7 @@ int main(){
 	FILE* store = initialize("hashtable");
 	char* val = "Jason Heron!!!";
 	insert(store, "name", val, sizeof(val));
+	h_read(store,"name", sizeof(val));
 }
 
 
