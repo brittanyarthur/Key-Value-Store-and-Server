@@ -6,6 +6,8 @@ void populate(FILE* store);
 int insert(FILE* store, char* key, void* value, int length);
 int fetch(FILE* store, char* key, void* value, int* length);
 int probe(FILE* store, char* key);
+int delete(char* key);
+
 /**
 * djb2 hash algorithm by Dan Bernstein
 * from http://www.cse.yorku.ca/~oz/hash.html

@@ -12,6 +12,9 @@
 	#define value_size 75
 const int MAGIC_NUM = 0xdeadd00d;
 
+// Jason - I ended up not using this. I don't know if it is possible the way we were thinking
+// of doing it. I think we need to insert fields one at a time and just make sure the
+// sum of them does not exceed the limit size.  
 struct kvpair{
 	char* key;
 	void* value;
@@ -51,15 +54,14 @@ int insert(FILE* store, char* key, void* value, int length){
 	return 0;
 }
 
+//Q: why is length an int*? Not understanding.
 //return the slot location of where the value is stored. or else -1.
-int fetch(FILE* store, char* key, void* value, int* length){
-	(void)value;
-	(void)length;
-	
+int fetch(FILE* store, char* key, void* value, int* length){	
 	int index = probe(store, key);
 	return 0;
 }
 
+//this looks almost good. TODO: test more later. figure out int* length use cases from fetch.
 //find the slot number that matches the key. or else, return -1.
 int probe(FILE* store, char* key){
 	int index = hash(key)%table_size;
@@ -95,12 +97,12 @@ int main(){
 	h_read(store,"nameb", sizeof(val));
 	fetch(store, "nameb", val, val_ptr);
 	fclose(store);
+	return 0;
 }
 
 
+/*------------------------HELPER FUNCTIONS--------------------------------*/
 
-
-//HELPER FUNCTIONS
 FILE* create_file(char* name){
 	FILE* store = fopen(name, "w+");
 	populate(store);
@@ -114,25 +116,19 @@ FILE* access_file(char* name){
 }
 
 //continue point: Assume this works. Assume structures put null ptrs at end.
+//TODO: Confirm or improve.
 void populate(FILE* store){
-	//The argument size will be the number of entries in your hash table
-	//fwrite(value, sizeof(value), table_size, store);
 	char filler = 0;
 	int multiply = table_length/sizeof(char);
 	fwrite(&filler, sizeof(char)*multiply, table_size, store);
 }
 
 
+/*-----------------SECOND CLASS AND TODO FUNCTIONS---------------------------*/
 
-
-
-
-//SECOND CLASS AND TODO FUNCTIONS
-/*
-int fetch_probe(char* key){
-	int index = hash(key)%table_size;
-
-}*/
+int delete(char* key){
+	return 0;
+}
 
 int h_read(FILE* store, char* key, int length){
 	char buffer[table_length];
