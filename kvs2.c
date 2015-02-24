@@ -71,7 +71,7 @@ int probe(FILE* store, char* key){
 
 	do{
 		*magic = 0;
-	    fread(magic, sizeof(int)*4, 1, store); //read in possible magic number
+	    fread(magic, sizeof(MAGIC_NUM), 1, store); //read in possible magic number
 	    if(*magic == MAGIC_NUM){
 	    	fseek(store, (index*table_length)+4, SEEK_SET); //offset magic number
 	    	fread(buffer, table_length, 1, store); 

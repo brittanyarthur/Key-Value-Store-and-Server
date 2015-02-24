@@ -70,7 +70,7 @@ int WriteData(int sock_fd){
    printf("\nWould you like to know what the weather is like? write 'yes' or 'no'?\n");
    char buffer[256];
    memset(buffer,'\0',strlen(buffer));
-   fgets(buffer, sizeof(buffer), stdin);
+   fgets(buffer, sizeof(buffer), stdin); //dont do this
    if(strcmp(buffer, "quit\n") == 0){
       printf("EXITING NOW\n");
       close(sock_fd);
@@ -94,3 +94,6 @@ int RecieveData(int sock_fd){
    }
    return 1;
 }
+
+
+
