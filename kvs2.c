@@ -34,11 +34,10 @@ int insert(FILE* store, char* key, void* value, int length){
 		return -1;
 	}
 	//CONFIRM THIS CHECK IS DONE PROPERLY
-	if(key_size+length > table_length){ 
+	if(key_size+length+sizeof(TOMBSTONE) > table_length){ 
 		printf("Error: Data is too large.\n");
 		return -1;
 	}
-	//TODO: need to probe here using insert_probe
 	int index = insert_probe(store, key);
 
 	fseek(store, index*table_length, SEEK_SET);
@@ -46,9 +45,11 @@ int insert(FILE* store, char* key, void* value, int length){
 	//need to insert valid here
 	int m = VALID;
 	int* magic = &m;
+	int *len_ptr = &length;
+
 	fwrite(magic, sizeof(VALID), 1, store); //insert magic
 	fwrite(key, key_size, 1, store); //insert key
-									//insert length
+	fwrite(len_ptr, sizeof(int), 1, store); //insert length
 	fwrite(value, length, 1, store); //insert value
 	return 0;
 }
@@ -101,6 +102,9 @@ int fetch(FILE* store, void* result, char* key, int length){
 	fseek(store, (index*table_length)+sizeof(TOMBSTONE), SEEK_SET);
 	//read in key
 	fread(key_buffer, key_size, 1, store);
+
+	int *len_ptr = &length; //store the length of the value in len_ptr
+	fread(len_ptr, sizeof(int), 1, store);
 	//check if read fails?
 	fread(result, length, 1, store);
 	return 0;
