@@ -16,10 +16,10 @@ FILE* initialize(char* name){
 	FILE* store;
 	if(access(name, W_OK ) != -1)
 		//file exists
-		store = access_file(name); 
+		store = access_file(name);
 	else
 		//file does not exist
-		store = create_file(name); 
+		store = create_file(name);
 	return store;
 }
 
@@ -29,7 +29,7 @@ int insert(FILE* store, char* key, void* value, int length){
 		printf("Error: Cannot insert null values into hashtable.\n");
 		return -1;
 	}
-	if(key_size+length+sizeof(TOMBSTONE) > table_length){ 
+	if(key_size+length+sizeof(TOMBSTONE) > table_length){
 		printf("Error: Data is too large.\n");
 		return -1;
 	}
@@ -64,11 +64,11 @@ int insert_probe(FILE* store, char* key){
 	    if(*flag == VALID){
 	    	//printf("found valid data!\n");
 	    	fseek(store, (index*table_length)+4, SEEK_SET); //offset flag number
-	    	fread(key_buffer, key_size, 1, store); 
+	    	fread(key_buffer, key_size, 1, store);
 	    	// only return valid if I find a key match exists at that location
-	    	if(strcmp(key_buffer, key)==0){ 
+	    	if(strcmp(key_buffer, key)==0){
 	    		//printf("found a match!\n");
-		    	return index; // return the index to insert and replace 
+		    	return index; // return the index to insert and replace
 	    	}
 	    	// if not the key - just keep going, keep looking for a place to insert
 	    }else if(*flag == INVALID){
@@ -119,7 +119,7 @@ int fetch_probe(FILE* store, char* key){
 	    if(*magic == VALID){
 	    	//printf("found valid data!\n");
 	    	fseek(store, (index*table_length)+4, SEEK_SET); //offset magic number
-	    	fread(key_buffer, key_size, 1, store); 
+	    	fread(key_buffer, key_size, 1, store);
 	    	if(strcmp(key_buffer, key)==0){ //check for a key match at this index
 	    		//printf("found a match!\n");
 		    	return index;
@@ -201,6 +201,7 @@ int delete(char* key){
 
 //pass
 void read_int_array(FILE* store, char* key, int length){
+	length=length; //prevent unused parameter warning
 	int result[5];
 	for(int k = 0; k < 5; k++){
 		result[k] = 0; //fill result with zeros
@@ -216,6 +217,7 @@ void read_int_array(FILE* store, char* key, int length){
 
 //pass
 void read_char_array(FILE* store, char* key, int length){
+	length=length; //prevent unused parameter warning
 	char result[100];
 	int len_storage = 0;
 	int *len_ptr = &len_storage;

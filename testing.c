@@ -13,14 +13,14 @@ void rand_str(char *dest, size_t length);
 int main(){
 	FILE* my_data = initialize("hashtable");
 	if(insert_test1(my_data)){
-		// expected result: the 
+		// expected result: the
 		printf("TEST 1 PASS: collision on the same key.\n");
 	}else{
 		printf("TEST 1 FAIL: collision on the same key\n");
 	}
 
 	if(insert_test2(my_data)){
-		// expected result: the 
+		// expected result: the
 		printf("TEST 2 PASS: collision: allowing multiple entries on same index but different keys.\n");
 	}else{
 		printf("TEST 2 FAIL: collision: allowing multiple entries on same index but different keys.\n");
@@ -49,7 +49,7 @@ int insert_test1(FILE* file){
 	char second_result[max_value_size];
 	int length;
 	int* len = &length;
-	
+
 	//insert <brittany, arthur>
 	insert(file, key, "arthur", sizeof("arthur"));
 	//get brit's last name
@@ -64,7 +64,7 @@ int insert_test1(FILE* file){
 	fetch(file, second_result, key, len);
 	//printf("second result is: %s\n", second_result);
 
-	if(strcmp(first_result, second_result) != 0 && 
+	if(strcmp(first_result, second_result) != 0 &&
 	   strcmp(first_result, "arthur") == 0 &&
 	   strcmp(second_result, "hope") == 0){
 		return 1;
@@ -95,7 +95,7 @@ int insert_test2(FILE* file){
 	fetch(file, key2_value, key2, len);
 	//printf("second result is: %s\n", key2_value);
 
-	if(strcmp(mango_value, key2_value) != 0 && 
+	if(strcmp(mango_value, key2_value) != 0 &&
 	   strcmp(mango_value, "fruit") == 0 &&
 	   strcmp(key2_value, "key2value") == 0 &&
 	   hash(mango_value)%table_size == hash(key2_value)%table_size){
@@ -108,8 +108,9 @@ int insert_test2(FILE* file){
 //---------------------- TEST HELPER FUNCTIONS --------------------
 
 int print_matching_index(FILE* file){
+	file=file; 	//prevent unused parameter warning
 	char* key = "mango";
-	int index = hash(key)%table_size;
+	unsigned int index = hash(key)%table_size;
 	char key_matching_index[key_size];
 	for(;;){
 		rand_str(key_matching_index, key_size);
