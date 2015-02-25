@@ -273,23 +273,27 @@ int insert(char* key, void* value, int length) {
 	lseek(storefd, entryStart, SEEK_SET);
 	int check = -1;
 
-	read(storefd, &check, 4); //check for 0xdeadd00d or "emty"
+	//read(storefd, &check, 4); //check for 0xdeadd00d or "emty"
+	fread(&check, 4, 1, store);
 	if(check == MAGIC_NUM) {
 		printf("slot %d has somethign in it.\n", index);
 		return index;
 	} else if (check == 0x79746d65) { //"ytme" which is empty backwards
 
 		//write magic number
-		lseek(storefd, -4, SEEK_CUR); //go backwards over "emty"
-		write(storefd, &MAGIC_NUM, 4);
+		fseek(store, -4, SEEK_CUR); //go backwards over "emty"
+		//write(storefd, &MAGIC_NUM, 4);
+		fwrite(&MAGIC_NUM, 4, 1, store);
 
 		//write key
-		lseek(storefd, getKeyStart(entryStart), SEEK_SET);
-		write(storefd, key, activeKeyLen);
+		fseek(store, getKeyStart(entryStart), SEEK_SET);
+		//write(storefd, key, activeKeyLen);
+		fwrite(key, activeKeyLen, 1, store);
 
 		//write value
-		lseek(storefd, getValueStart(entryStart), SEEK_SET); //terrible
-		write(storefd, value, length);
+		fseek(store, getValueStart(entryStart), SEEK_SET);
+		//write(storefd, value, length);
+		fwrite(value, length ,1, store);
 
 		printf("wrote to slot %d.\n", index);
 
