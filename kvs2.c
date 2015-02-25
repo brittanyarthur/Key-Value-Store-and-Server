@@ -6,19 +6,14 @@
 #include <string.h>
 #include "kvs2.h"
 
-#define table_size 360
+#define table_size   360
 #define table_length 512
-#define key_size 25
+#define key_size     25
 	
-const int MAGIC_NUM = 0xdeadd00d;
-
-// Jason - I ended up not using this. I don't know if it is possible the way we were thinking
-// of doing it. I think we need to insert fields one at a time and just make sure the
-// sum of them does not exceed the limit size.  
-struct kvpair{
-	char* key;
-	void* value;
-}kvpair;
+//MAGIC NUMBER FLAGS
+const int TOMBSTONE = 0xdeadd00d;
+const int VALID     = 0xad00000b;
+const int INVALID   = 0xda00000b;
 
 //this looks good
 FILE* initialize(char* name){
@@ -46,18 +41,27 @@ int insert(FILE* store, char* key, void* value, int length){
 	int index = hash(key)%table_size;
 	fseek(store, index*table_length, SEEK_SET);
 
-	int m = MAGIC_NUM;
+	int m = TOMBSTONE;
 	int* magic = &m;
-	fwrite(magic, sizeof(MAGIC_NUM), 1, store);
+	fwrite(magic, sizeof(TOMBSTONE), 1, store);
 	fwrite(key, key_size, 1, store);
 	fwrite(value, length, 1, store);
 	return 0;
 }
 
+//read needs to use probe to find key in table
 //Q: why is length an int*? Not understanding.
 //return the slot location of where the value is stored. or else -1.
-int fetch(FILE* store, char* key, void* value, int* length){	
-	int index = probe(store, key);
+int fetch(FILE* store, void* result, char* key, int length){
+	char key_buffer[table_length]; //needs to be fixed size of key
+	int index = hash(key)%table_size;
+	//skip the magic number (this +4 is horrible)
+	fseek(store, (index*table_length)+4, SEEK_SET);
+	//read in key
+	fread(key_buffer, key_size, 1, store);
+	printf("1 key: %s\n",key_buffer);
+	//check if read fails?
+	fread(result, length, 1, store);
 	return 0;
 }
 
@@ -71,8 +75,8 @@ int probe(FILE* store, char* key){
 
 	do{
 		*magic = 0;
-	    fread(magic, sizeof(MAGIC_NUM), 1, store); //read in possible magic number
-	    if(*magic == MAGIC_NUM){
+	    fread(magic, sizeof(TOMBSTONE), 1, store); //read in possible magic number
+	    if(*magic == TOMBSTONE){
 	    	fseek(store, (index*table_length)+4, SEEK_SET); //offset magic number
 	    	fread(buffer, table_length, 1, store); 
 	    	if(strcmp(buffer, key)==0){ //check for a key match at this index
@@ -82,7 +86,7 @@ int probe(FILE* store, char* key){
 	    }
 	    ++index;
 	    fseek(store, index*table_length, SEEK_SET); //find location of next magic number
-	}while(*magic == MAGIC_NUM); //search until there is a "null" slot
+	}while(*magic == TOMBSTONE); //search until there is a "null" slot
 
 	free(magic);
 	return -1;
@@ -136,27 +140,12 @@ int delete(char* key){
 	return 0;
 }
 
-
-//read needs to use probe to find key in table
-int h_read(FILE* store, void* result, char* key, int length){
-	char key_buffer[table_length]; //needs to be fixed size of key
-	int index = hash(key)%table_size;
-	//skip the magic number (this +4 is horrible)
-	fseek(store, (index*table_length)+4, SEEK_SET);
-	//read in key
-	fread(key_buffer, key_size, 1, store);
-	printf("1 key: %s\n",key_buffer);
-	//check if read fails?
-	fread(result, length, 1, store);
-	return 0;
-}
-
 void read_int_array(FILE* store, char* key, int length){
 	int result[5];
 	for(int k = 0; k < 5; k++){
 		result[k] = 0; //fill result with zeros
 	}
-	h_read(store, result, key, length);
+	fetch(store, result, key, length);
 	printf("2 value: \n");
 	for(int i = 0; i < 5; i++){
 		printf("result[%d] = %d\n",i,result[i]);
