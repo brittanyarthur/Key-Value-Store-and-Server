@@ -18,7 +18,7 @@ const int INVALID   = 0xda00000b;
 //this looks good
 FILE* initialize(char* name){
 	FILE* store;
-	if( access(name, W_OK ) != -1 )
+	if(access(name, W_OK ) != -1)
 		//file exists
 		store = access_file(name); 
 	else
@@ -38,14 +38,17 @@ int insert(FILE* store, char* key, void* value, int length){
 		printf("Error: Data is too large.\n");
 		return -1;
 	}
+	//need to probe here using insert_probe
 	int index = hash(key)%table_size;
 	fseek(store, index*table_length, SEEK_SET);
 
-	int m = TOMBSTONE;
+	//need to insert valid here
+	int m = VALID;
 	int* magic = &m;
-	fwrite(magic, sizeof(TOMBSTONE), 1, store);
-	fwrite(key, key_size, 1, store);
-	fwrite(value, length, 1, store);
+	fwrite(magic, sizeof(VALID), 1, store); //insert magic
+	fwrite(key, key_size, 1, store); //insert key
+									//insert length
+	fwrite(value, length, 1, store); //insert valud
 	return 0;
 }
 
@@ -54,6 +57,7 @@ int insert(FILE* store, char* key, void* value, int length){
 //return the slot location of where the value is stored. or else -1.
 int fetch(FILE* store, void* result, char* key, int length){
 	char key_buffer[table_length]; //needs to be fixed size of key
+	//need to probe here
 	int index = hash(key)%table_size;
 	//skip the magic number (this +4 is horrible)
 	fseek(store, (index*table_length)+4, SEEK_SET);
