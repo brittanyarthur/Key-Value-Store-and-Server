@@ -100,8 +100,8 @@ int main(){
 	int* val_ptr = &val_len;
 
 	insert(store, "nameb", val, val_len);
-	h_read(store,"nameb", val_len);
-	fetch(store, "nameb", val, val_ptr);
+	read_int_array(store,"nameb", val_len);
+	//fetch(store, "nameb", val, val_ptr);
 	fclose(store);
 	free(val);
 	return 0;
@@ -137,31 +137,31 @@ int delete(char* key){
 	return 0;
 }
 
-int h_read(FILE* store, char* key, int length){
-	char buffer[table_length];
+
+//read needs to use probe to find key in table
+int h_read(FILE* store, void* result, char* key, int length){
+	char key_buffer[table_length]; //needs to be fixed size of key
 	int index = hash(key)%table_size;
-	//skip the magic number
+	//skip the magic number (this +4 is horrible)
 	fseek(store, (index*table_length)+4, SEEK_SET);
-
-	fread(buffer, sizeof(key), 1, store);
+	//read in key
+	fread(key_buffer, sizeof(key), 1, store); //needs to be fixed size of key
 	printf("1 key: %s\n",buffer);
+	//check if read fails?
+	fread(result, length, 1, store);
+	return 0;
+}
 
-	//fread(buffer, length, 1, store);
-	//printf("2 value: %s\n",buffer);
+void read_int_array(FILE* store, char* key, int length){
 	int result[5];
 	for(int k = 0; k < 5; k++){
-		result[k] = 0;
+		result[k] = 0; //fill result with zeros
 	}
-	fread(&result, length, 1, store);
+	h_read(store, result, key, length);
 	printf("2 value: \n");
 	for(int i = 0; i < 5; i++){
 		printf("result[%d] = %d\n",i,result[i]);
 	}
-
-    /* fread(buffer, length, 1, store);
-	printf("3 %s\n",buffer);*/
-	
-	return 0;
 }
 
 
