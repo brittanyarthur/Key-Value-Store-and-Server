@@ -39,10 +39,7 @@ int insert(FILE* store, char* key, void* value, int length){
 		return -1;
 	}
 	//TODO: need to probe here using insert_probe
-	int index = hash(key)%table_size;
-	printf("index I got from hash was: %d\n", index);
-	int test_index = insert_probe(store, key);
-	printf("index I got from probe was: %d\n", test_index);
+	int index = insert_probe(store, key);
 
 	fseek(store, index*table_length, SEEK_SET);
 
@@ -60,7 +57,6 @@ int insert(FILE* store, char* key, void* value, int length){
 //or else, find the closes null index to the index that was found through the hash
 int insert_probe(FILE* store, char* key){
 	//found index for new key
-	printf("key in PROBE is: %s\n",key);
 	int index = hash(key)%table_size;
 	char key_buffer[key_size];
 	int* flag = malloc(sizeof(int));
@@ -106,7 +102,6 @@ int fetch(FILE* store, void* result, char* key, int length){
 	fseek(store, (index*table_length)+4, SEEK_SET);
 	//read in key
 	fread(key_buffer, key_size, 1, store);
-	printf("1 key in fetch: %s\n",key_buffer);
 	//check if read fails?
 	fread(result, length, 1, store);
 	return 0;
