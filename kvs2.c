@@ -15,7 +15,7 @@ const int TOMBSTONE = 0xdeadd00d;
 const int VALID     = 0xad00000b;
 const int INVALID   = 0xda00000b;
 
-//this looks good
+//pass
 FILE* initialize(char* name){
 	FILE* store;
 	if(access(name, W_OK ) != -1)
@@ -27,13 +27,12 @@ FILE* initialize(char* name){
 	return store;
 }
 
-//this looks good
+//pass
 int insert(FILE* store, char* key, void* value, int length){
 	if(key == NULL || value == NULL){
 		printf("Error: Cannot insert null values into hashtable.\n");
 		return -1;
 	}
-	//CONFIRM THIS CHECK IS DONE PROPERLY
 	if(key_size+length+sizeof(TOMBSTONE) > table_length){ 
 		printf("Error: Data is too large.\n");
 		return -1;
@@ -42,7 +41,6 @@ int insert(FILE* store, char* key, void* value, int length){
 
 	fseek(store, index*table_length, SEEK_SET);
 
-	//need to insert valid here
 	int m = VALID;
 	int* magic = &m;
 	int *len_ptr = &length;
@@ -54,6 +52,7 @@ int insert(FILE* store, char* key, void* value, int length){
 	return 0;
 }
 
+//pass //note: while condition can be a condition to check for a full hash table
 //find the location to insert the new pair. if the key is encountered, return that index.
 //or else, find the closes null index to the index that was found through the hash
 int insert_probe(FILE* store, char* key){
@@ -92,6 +91,7 @@ int insert_probe(FILE* store, char* key){
 	return -1; // this should never be reached if hashtable isn't 100% full.
 }
 
+//pass
 //read needs to use probe to find key in table
 //return the slot location of where the value is stored. or else -1.
 int fetch(FILE* store, void* result, char* key, int* length){
@@ -109,6 +109,7 @@ int fetch(FILE* store, void* result, char* key, int* length){
 	return 0;
 }
 
+//pass
 //find the slot number that matches the key. or else, return -1.
 int fetch_probe(FILE* store, char* key){
 	int index = hash(key)%table_size;
@@ -178,6 +179,7 @@ FILE* access_file(char* name){
 	return store;
 }
 
+//pass
 //continue point: Assume this works. Assume structures put null ptrs at end.
 //TODO: Confirm or improve.
 void populate(FILE* store){
@@ -201,6 +203,7 @@ int delete(char* key){
 	return 0;
 }
 
+//pass
 void read_int_array(FILE* store, char* key, int length){
 	int result[5];
 	for(int k = 0; k < 5; k++){
@@ -208,15 +211,14 @@ void read_int_array(FILE* store, char* key, int length){
 	}
 	int len_storage = 0;
 	int *len_ptr = &len_storage;
-	printf("length was: %d\n",length);
 	fetch(store, result, key, len_ptr);
-	printf("now length is: %d\n",length);
 	printf("2 value: \n");
 	for(int i = 0; i < 5; i++){
 		printf("result[%d] = %d\n",i,result[i]);
 	}
 }
 
+//pass
 void read_char_array(FILE* store, char* key, int length){
 	char result[100];
 	int len_storage = 0;
