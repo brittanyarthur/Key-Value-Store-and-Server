@@ -53,23 +53,22 @@ int insert(FILE* store, char* key, void* value, int length){
 }
 
 //read needs to use probe to find key in table
-//Q: why is length an int*? Not understanding.
 //return the slot location of where the value is stored. or else -1.
 int fetch(FILE* store, void* result, char* key, int length){
 	char key_buffer[table_length]; //needs to be fixed size of key
 	//TODO: need to probe here
 	int index = hash(key)%table_size;
+
 	//skip the magic number (this +4 is horrible)
 	fseek(store, (index*table_length)+4, SEEK_SET);
 	//read in key
 	fread(key_buffer, key_size, 1, store);
-	printf("1 key: %s\n",key_buffer);
+	printf("1 key in fetch: %s\n",key_buffer);
 	//check if read fails?
 	fread(result, length, 1, store);
 	return 0;
 }
 
-//this looks almost good. TODO: test more later. figure out int* length use cases from fetch.
 //find the slot number that matches the key. or else, return -1.
 int probe(FILE* store, char* key){
 	int index = hash(key)%table_size;
@@ -148,6 +147,7 @@ void populate(FILE* store){
 /*-----------------SECOND CLASS AND TODO FUNCTIONS---------------------------*/
 
 int delete(char* key){
+	(void)key;
 	return 0;
 }
 
