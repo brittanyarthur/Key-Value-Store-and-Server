@@ -1,3 +1,6 @@
+#ifndef KVS2_H_
+#define KVS2_H_
+
 FILE* initialize(char* name);
 FILE* create_file(char* name);
 FILE* access_file(char* name);
@@ -9,16 +12,6 @@ void read_char_array(FILE* store, char* key, int length);
 int fetch_probe(FILE* store, char* key);
 int insert_probe(FILE* store, char* key);
 int delete(char* key);
+unsigned long hash(char *str);
 
-/**
-* djb2 hash algorithm by Dan Bernstein
-* from http://www.cse.yorku.ca/~oz/hash.html
-*/
-unsigned long hash(char *str) {
-	unsigned long hash = 5381;
-	int c;
-
-	while ((c = *str++))
-		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-	return hash;
-}
+#endif

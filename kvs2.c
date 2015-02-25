@@ -66,20 +66,20 @@ int insert_probe(FILE* store, char* key){
 		*flag = 0;
 	    fread(flag, sizeof(TOMBSTONE), 1, store); //read in possible flag number
 	    if(*flag == VALID){
-	    	printf("found valid data!\n");
+	    	//printf("found valid data!\n");
 	    	fseek(store, (index*table_length)+4, SEEK_SET); //offset flag number
 	    	fread(key_buffer, key_size, 1, store); 
 	    	// only return valid if I find a key match exists at that location
 	    	if(strcmp(key_buffer, key)==0){ 
-	    		printf("found a match!\n");
+	    		//printf("found a match!\n");
 		    	return index; // return the index to insert and replace 
 	    	}
 	    	// if not the key - just keep going, keep looking for a place to insert
 	    }else if(*flag == INVALID){
-	    	printf("found invalid data!\n");
+	    	//printf("found invalid data!\n");
 	    	return index; // return the index to insert
 	    }else if(*flag == TOMBSTONE){
-	    	printf("found tombstone!\n");
+	    	//printf("found tombstone!\n");
 	    	return index; // return the index to insert
 	    }
 	    ++index;
@@ -121,18 +121,18 @@ int fetch_probe(FILE* store, char* key){
 		*magic = 0;
 	    fread(magic, sizeof(TOMBSTONE), 1, store); //read in possible magic number
 	    if(*magic == VALID){
-	    	printf("found valid data!\n");
+	    	//printf("found valid data!\n");
 	    	fseek(store, (index*table_length)+4, SEEK_SET); //offset magic number
 	    	fread(key_buffer, key_size, 1, store); 
 	    	if(strcmp(key_buffer, key)==0){ //check for a key match at this index
-	    		printf("found a match!\n");
+	    		//printf("found a match!\n");
 		    	return index;
 	    	}
 	    }else if(*magic == INVALID){
-	    	printf("found invalid data!\n");
+	    	//printf("found invalid data!\n");
 	    	return -1;
 	    }else if(*magic == TOMBSTONE){
-	    	printf("found tombstone!\n");
+	    	//printf("found tombstone!\n");
 	    }
 	    ++index;
 	    index = index > table_size ? 0 : index;
@@ -142,7 +142,7 @@ int fetch_probe(FILE* store, char* key){
 	free(magic);
 	return -1;
 }
-
+/*
 int main(){
 	//initialize hash table into file.
 	FILE* store = initialize("hashtable");
@@ -162,7 +162,7 @@ int main(){
 	fclose(store);
 	free(val);
 	return 0;
-}
+}*/
 
 
 /*------------------------HELPER FUNCTIONS--------------------------------*/
@@ -229,6 +229,19 @@ void read_char_array(FILE* store, char* key, int length){
 	fetch(store, result, key, len_ptr);
 	printf("2 value: %s\n",result);
 
+}
+
+/**
+* djb2 hash algorithm by Dan Bernstein
+* from http://www.cse.yorku.ca/~oz/hash.html
+*/
+unsigned long hash(char *str) {
+	unsigned long hash = 5381;
+	int c;
+
+	while ((c = *str++))
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	return hash;
 }
 
 

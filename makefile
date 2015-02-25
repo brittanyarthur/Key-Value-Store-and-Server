@@ -9,13 +9,12 @@
 
 
 flags = -g -O0 -Wall -Wextra -std=gnu99 -lm
+OBJECTS = kvs2.o testing.o
 
 % : %.c 
 	gcc $< -o $@ ${flags}
 
-all : Server Client hash
-
-hash : kvs2
+all : Server Client testing
 
 server : Server
 	./Server
@@ -23,9 +22,19 @@ server : Server
 client : Client
 	./Client
 
+testing : $(OBJECTS)
+	gcc $(OBJECTS) -o testing
+
+kvs2.o : kvs2.c
+	gcc -c kvs2.c
+
+testing.o : testing.c
+	gcc -c testing.c
+
 clean:
-	@rm -f Server Client kvs *~
+	@rm -f Server Client kvs testing *~
 	@rm -rf *.dSYM
+	@rm -f kvs2.o testing.o
 
 spotless: clean
 	@rm -f example.store hashtable
