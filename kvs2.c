@@ -94,7 +94,7 @@ int insert_probe(FILE* store, char* key){
 
 //read needs to use probe to find key in table
 //return the slot location of where the value is stored. or else -1.
-int fetch(FILE* store, void* result, char* key, int length){
+int fetch(FILE* store, void* result, char* key, int* length){
 	char key_buffer[table_length]; //needs to be fixed size of key
 	//TODO: need to probe here
 	int index = fetch_probe(store, key);
@@ -103,10 +103,9 @@ int fetch(FILE* store, void* result, char* key, int length){
 	//read in key
 	fread(key_buffer, key_size, 1, store);
 
-	int *len_ptr = &length; //store the length of the value in len_ptr
-	fread(len_ptr, sizeof(int), 1, store);
+	fread(length, sizeof(int), 1, store);
 	//check if read fails?
-	fread(result, length, 1, store);
+	fread(result, *length, 1, store);
 	return 0;
 }
 
@@ -207,7 +206,11 @@ void read_int_array(FILE* store, char* key, int length){
 	for(int k = 0; k < 5; k++){
 		result[k] = 0; //fill result with zeros
 	}
-	fetch(store, result, key, length);
+	int len_storage = 0;
+	int *len_ptr = &len_storage;
+	printf("length was: %d\n",length);
+	fetch(store, result, key, len_ptr);
+	printf("now length is: %d\n",length);
 	printf("2 value: \n");
 	for(int i = 0; i < 5; i++){
 		printf("result[%d] = %d\n",i,result[i]);
@@ -216,10 +219,12 @@ void read_int_array(FILE* store, char* key, int length){
 
 void read_char_array(FILE* store, char* key, int length){
 	char result[100];
+	int len_storage = 0;
+	int *len_ptr = &len_storage;
 	for(int k = 0; k < 5; k++){
 		result[k] = '\0'; //fill result with zeros
 	}
-	fetch(store, result, key, length);
+	fetch(store, result, key, len_ptr);
 	printf("2 value: %s\n",result);
 
 }
