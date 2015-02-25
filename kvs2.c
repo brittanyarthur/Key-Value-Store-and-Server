@@ -96,10 +96,9 @@ int insert_probe(FILE* store, char* key){
 int fetch(FILE* store, void* result, char* key, int length){
 	char key_buffer[table_length]; //needs to be fixed size of key
 	//TODO: need to probe here
-	int index = hash(key)%table_size;
+	int index = fetch_probe(store, key);
 
-	//skip the magic number (this +4 is horrible)
-	fseek(store, (index*table_length)+4, SEEK_SET);
+	fseek(store, (index*table_length)+sizeof(TOMBSTONE), SEEK_SET);
 	//read in key
 	fread(key_buffer, key_size, 1, store);
 	//check if read fails?
@@ -108,7 +107,7 @@ int fetch(FILE* store, void* result, char* key, int length){
 }
 
 //find the slot number that matches the key. or else, return -1.
-int probe(FILE* store, char* key){
+int fetch_probe(FILE* store, char* key){
 	int index = hash(key)%table_size;
 	char key_buffer[key_size];
 	int* magic = malloc(sizeof(int));
@@ -120,21 +119,21 @@ int probe(FILE* store, char* key){
 	    if(*magic == VALID){
 	    	printf("found valid data!\n");
 	    	fseek(store, (index*table_length)+4, SEEK_SET); //offset magic number
-	    	fread(key_buffer, table_length, 1, store); 
+	    	fread(key_buffer, key_size, 1, store); 
 	    	if(strcmp(key_buffer, key)==0){ //check for a key match at this index
 	    		printf("found a match!\n");
 		    	return index;
 	    	}
 	    }else if(*magic == INVALID){
 	    	printf("found invalid data!\n");
-	    	return index;
+	    	return -1;
 	    }else if(*magic == TOMBSTONE){
 	    	printf("found tombstone!\n");
 	    }
 	    ++index;
 	    index = index > table_size ? 0 : index;
 	    fseek(store, index*table_length, SEEK_SET); //find location of next magic number
-	}while(*magic == TOMBSTONE); //search until there is a "null" slot
+	}while(*magic == TOMBSTONE || *magic == VALID); //search until there is a "null" slot
 
 	free(magic);
 	return -1;
