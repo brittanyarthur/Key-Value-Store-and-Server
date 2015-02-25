@@ -39,7 +39,10 @@ int insert(FILE* store, char* key, void* value, int length){
 		return -1;
 	}
 	//TODO: need to probe here using insert_probe
-	int index = hash(key)%table_size;
+	int index = insert_probe(store, key); //hash(key)%table_size; //
+	printf("index I got was: %d\n", index);
+	int test_index = hash(key)%table_size;
+	printf("index I got before was: %d\n", test_index);
 	fseek(store, index*table_length, SEEK_SET);
 
 	//need to insert valid here
@@ -55,35 +58,40 @@ int insert(FILE* store, char* key, void* value, int length){
 //find the location to insert the new pair. if the key is encountered, return that index.
 //or else, find the closes null index to the index that was found through the hash
 int insert_probe(FILE* store, char* key){
+	//found index for new key
+	printf("key in PROBE is: %s\n",key);
 	int index = hash(key)%table_size;
 	char key_buffer[key_size];
-	int* magic = malloc(sizeof(int));
+	int* flag = malloc(sizeof(int));
 	fseek(store, index*table_length, SEEK_SET);
 
 	do{
-		*magic = 0;
-	    fread(magic, sizeof(TOMBSTONE), 1, store); //read in possible magic number
-	    if(*magic == VALID){
+		*flag = 0;
+	    fread(flag, sizeof(TOMBSTONE), 1, store); //read in possible flag number
+	    if(*flag == VALID){
 	    	printf("found valid data!\n");
-	    	fseek(store, (index*table_length)+4, SEEK_SET); //offset magic number
+	    	fseek(store, (index*table_length)+4, SEEK_SET); //offset flag number
 	    	fread(key_buffer, table_length, 1, store); 
-	    	if(strcmp(key_buffer, key)==0){ //check for a key match at this index
+	    	// only return valid if I find a key match exists at that location
+	    	if(strcmp(key_buffer, key)==0){ 
 	    		printf("found a match!\n");
-		    	return index;
+		    	return index; // return the index to insert and replace 
 	    	}
-	    }else if(*magic == INVALID){
+	    	// if not the key - just keep going, keep looking for a place to insert
+	    }else if(*flag == INVALID){
 	    	printf("found invalid data!\n");
-	    	return index;
-	    }else if(*magic == TOMBSTONE){
+	    	return index; // return the index to insert
+	    }else if(*flag == TOMBSTONE){
 	    	printf("found tombstone!\n");
+	    	return index; // return the index to insert
 	    }
 	    ++index;
 	    index = index > table_size ? 0 : index;
-	    fseek(store, index*table_length, SEEK_SET); //find location of next magic number
-	}while(*magic == TOMBSTONE); //search until there is a "null" slot
+	    fseek(store, index*table_length, SEEK_SET); //find location of next flag number
+	}while(*flag == TOMBSTONE || *flag == VALID); //search until there is a "null" slot
 
-	free(magic);
-	return -1;
+	free(flag);
+	return -1; // this should never be reached if hashtable isn't 100% full.
 }
 
 //read needs to use probe to find key in table
@@ -176,8 +184,15 @@ FILE* access_file(char* name){
 //TODO: Confirm or improve.
 void populate(FILE* store){
 	char filler = 0;
-	int multiply = table_length;
-	fwrite(&filler, sizeof(char)*multiply, table_size, store);
+	int multiply = table_length - sizeof(INVALID);
+	int invalid_value = INVALID;
+	int* invalid = &invalid_value;
+
+	for(int i = 0; i < table_size; i++){
+		//every slot will begin with "invalid" at initialize
+ 		fwrite(invalid, sizeof(INVALID), 1, store);
+		fwrite(&filler, sizeof(char)*multiply, 1, store);
+	}
 }
 
 
