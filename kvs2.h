@@ -7,6 +7,7 @@ void populate(FILE* store);
 int insert(FILE* store, char* key, void* value, int length);
 void read_char_array(FILE* store, char* key, int length);
 int probe(FILE* store, char* key);
+int insert_probe(FILE* store, char* key);
 int delete(char* key);
 
 /**

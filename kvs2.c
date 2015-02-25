@@ -52,6 +52,40 @@ int insert(FILE* store, char* key, void* value, int length){
 	return 0;
 }
 
+//find the location to insert the new pair. if the key is encountered, return that index.
+//or else, find the closes null index to the index that was found through the hash
+int insert_probe(FILE* store, char* key){
+	int index = hash(key)%table_size;
+	char key_buffer[key_size];
+	int* magic = malloc(sizeof(int));
+	fseek(store, index*table_length, SEEK_SET);
+
+	do{
+		*magic = 0;
+	    fread(magic, sizeof(TOMBSTONE), 1, store); //read in possible magic number
+	    if(*magic == VALID){
+	    	printf("found valid data!\n");
+	    	fseek(store, (index*table_length)+4, SEEK_SET); //offset magic number
+	    	fread(key_buffer, table_length, 1, store); 
+	    	if(strcmp(key_buffer, key)==0){ //check for a key match at this index
+	    		printf("found a match!\n");
+		    	return index;
+	    	}
+	    }else if(*magic == INVALID){
+	    	printf("found invalid data!\n");
+	    	return index;
+	    }else if(*magic == TOMBSTONE){
+	    	printf("found tombstone!\n");
+	    }
+	    ++index;
+	    index = index > table_size ? 0 : index;
+	    fseek(store, index*table_length, SEEK_SET); //find location of next magic number
+	}while(*magic == TOMBSTONE); //search until there is a "null" slot
+
+	free(magic);
+	return -1;
+}
+
 //read needs to use probe to find key in table
 //return the slot location of where the value is stored. or else -1.
 int fetch(FILE* store, void* result, char* key, int length){
