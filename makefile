@@ -26,10 +26,10 @@ testing : $(OBJECTS)
 	gcc $(OBJECTS) -o testing
 
 kvs2.o : kvs2.c
-	gcc -c kvs2.c
+	gcc -c kvs2.c ${flags}
 
 testing.o : testing.c
-	gcc -c testing.c
+	gcc -c testing.c ${flags}
 
 clean:
 	@rm -f Server Client kvs testing *~
