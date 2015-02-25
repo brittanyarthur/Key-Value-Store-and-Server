@@ -1,0 +1,32 @@
+
+INSERTION TESTS
+
+1. collision on same key
+	insert <brit, arthur>
+	value of brit is arthur
+	insert <brit, hope>
+	value of brit is hope
+
+2. collision: allowing multiple entries on same index but different keys
+	a. confirm indexes are same by printing
+	b. insert both pairs
+	c. show that both pairs exist in the table
+
+2. non-collision: allowing multiple entries
+	a. confirm indexes are different by printing
+	b. insert both pairs
+	c. show that both pairs exist in the table
+
+3. simple insert
+	a. insert a value
+	b. show that the value is in the hash table
+
+MAX AND MIN
+
+1. prevents a key-value pair that is too large from being inserted
+2. prevents a key that is larger than key_size from being inserted 
+3. shows proper behavior of inserting a null character as a key 
+4. if probe reaches the end of the hash table when trying to find a place
+to insert, makes sure that it starts searching from the top of the hash table - both on inserting a value and on looking up a value it should have this behavior
+5. if the hash table is 100% full - have expected behavior and not loop forever trying to find if a value exists or if there is a place to insert a value
+
