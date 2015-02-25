@@ -14,4 +14,10 @@ int insert_probe(FILE* store, char* key);
 int delete(char* key);
 unsigned long hash(char *str);
 
+#define table_size        360
+#define table_length      512
+#define key_size          25
+#define flag_size         4
+#define max_value_size    table_length - key_size - flag_size
+
 #endif

@@ -6,10 +6,6 @@
 #include <string.h>
 #include "kvs2.h"
 
-#define table_size   360
-#define table_length 512
-#define key_size     25
-	
 //MAGIC NUMBER FLAGS
 const int TOMBSTONE = 0xdeadd00d;
 const int VALID     = 0xad00000b;
