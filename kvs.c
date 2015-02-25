@@ -9,18 +9,19 @@
 
 
 //all these are example values
-#define DEFAULT_LEN_KEY 2
+#define DEFAULT_LEN_KEY 10
 #define DEFAULT_LEN_VALUE 3
 
 /*
 The overhead is the number of bytes in an entry that is neither key nor value.
 4 for 0xdeadd00d or "emty"
 2 for [ and ] which go around index number
-2 for double digit of index
 1 for : which seperates key and value
 1 for newline
+= 8
++ the length of the index
 */
-#define ENTRY_OVERHEAD 10
+#define ENTRY_OVERHEAD (8+lenIndex)
 
 #define DEFAULT_LEN_ENTRY (DEFAULT_LEN_KEY + DEFAULT_LEN_VALUE + ENTRY_OVERHEAD)
 
@@ -34,10 +35,13 @@ I was going to use \0 but printf can't write it and it was a pain to use write.
 */
 #define EMPTY_BYTE "\a"
 
+#define EMPTY_BACKWARDS 0x79746d65 //"ytme" which is empty backwards
 
 FILE* store;
 long hashTableStart;
 int lenFile, numEntries, lenEntry, lenKey, lenValue, storefd, lenIndex;
+
+
 
 
 /*
@@ -68,13 +72,15 @@ unsigned long hash(char *str) {
 
 /** Given a key, get what slot it goes in. */
 int getIndex(char* key) {
-	int index = hash(key) % numEntries;
-	printf("index=%d\n", index);
-	return index;
+	return hash(key) % numEntries;
 }
 
 /** Given where an entry starts, get where the key starts. */
 int getKeyStart(int entryStart) {
+
+	//printf("> getKeyStart: in=%d, out=%d.\n", entryStart, entryStart+4+2+lenIndex);
+
+
 	return entryStart
 				+4 //for 0xdeadd00d or "empty"
 				+2 //for [ and ]
@@ -100,7 +106,13 @@ Returns: 0 on success, -1 on error.
 */
 int initNewFile(int length, int size){
 
-	printf("INIT NEW FILE\n");
+
+	//find the length of the index
+	if(size==1){
+		lenIndex = 1; //edge case, log10(0) fucks up
+	} else {
+		lenIndex = (int)log10(size-1)+1;
+	}
 
 	if(	fprintf(store, "lenFile=%d\n", length) <= 0 ||
 		fprintf(store, "numEntries=%d\n", size) <= 0 ||
@@ -127,13 +139,6 @@ int initNewFile(int length, int size){
 	The format string would be "emty[%03d]".
 	*/
 
-	if(numEntries==1){
-		lenIndex = 1; //edge case, log10(0) fucks up
-	} else {
-		lenIndex = (int)log10(numEntries-1)+1;
-	}
-
-	printf("lenIndex=%d\n", lenIndex);
 	char formatString[10];
 	sprintf(formatString, "emty[%%0%dd]", lenIndex); //"emty" replaces 0xdeadd00d
 
@@ -180,8 +185,6 @@ Returns: 0 on success, -1 on error.
 */
 int initExistingFile(int length, int size){
 
-	printf("INIT EXISTING FILE\n");
-
 	if(	fscanf(store, "lenFile=%d\n", &lenFile) <= 0 ||
 		fscanf(store, "numEntries=%d\n", &numEntries) <= 0 ||
 		fscanf(store, "lenEntry=%d\n", &lenEntry) <= 0 ||
@@ -190,6 +193,13 @@ int initExistingFile(int length, int size){
 	) {
 		fprintf(stderr, "Couldn't read header.\n");
 		return -1;
+	}
+
+	//save the length of the human-readable index
+	if(numEntries==1){
+		lenIndex = 1; //edge case, log10(0) fucks up
+	} else {
+		lenIndex = (int)log10(numEntries-1)+1;
 	}
 
 
@@ -210,13 +220,6 @@ int initExistingFile(int length, int size){
 
 	//save where the end of the header is
 	hashTableStart = ftell(store);
-
-	//save the length of the human-readable index
-	if(numEntries==1){
-		lenIndex = 1; //edge case, log10(0) fucks up
-	} else {
-		lenIndex = (int)log10(numEntries-1)+1;
-	}
 
 
 
@@ -267,35 +270,36 @@ int insert(char* key, void* value, int length) {
 
 	int entryStart = (int)hashTableStart + (lenEntry * index);
 
-	printf("hashTableStart=%d\n", (int)hashTableStart);
-	printf("seek to %d\n", entryStart);
+	//printf("hashTableStart=%d\n", (int)hashTableStart);
+	//printf("seek to %d\n", entryStart);
 
 	lseek(storefd, entryStart, SEEK_SET);
 	int check = -1;
 
-	read(storefd, &check, 4); //check for 0xdeadd00d or "emty"
+	//read(storefd, &check, 4); //check for 0xdeadd00d or "emty"
+	fread(&check, 4, 1, store);
 	if(check == MAGIC_NUM) {
-		printf("slot %d has somethign in it.\n", index);
+		printf("insert: slot %d has somethign in it.\n", index);
 		return index;
-	} else if (check == 0x79746d65) { //"ytme" which is empty backwards
+	} else if (check == EMPTY_BACKWARDS) {
 
 		//write magic number
-		lseek(storefd, -4, SEEK_CUR); //go backwards over "emty"
-		write(storefd, &MAGIC_NUM, 4);
+		fseek(store, -4, SEEK_CUR); //go backwards over "emty"
+		fwrite(&MAGIC_NUM, 4, 1, store);
 
 		//write key
-		lseek(storefd, getKeyStart(entryStart), SEEK_SET);
-		write(storefd, key, activeKeyLen);
+		fseek(store, getKeyStart(entryStart), SEEK_SET);
+		fwrite(key, activeKeyLen, 1, store);
 
 		//write value
-		lseek(storefd, getValueStart(entryStart), SEEK_SET); //terrible
-		write(storefd, value, length);
+		fseek(store, getValueStart(entryStart), SEEK_SET);
+		fwrite(value, length ,1, store);
 
-		printf("wrote to slot %d.\n", index);
+		printf("insert: wrote to slot %d.\n", index);
 
 
 	} else {
-		printf("neither thing, read %x\n", check);
+		printf("insert: neither thing, read %x\n", check);
 	}
 
 	value = value;
@@ -355,8 +359,66 @@ int initialize(char* file, int length, int size) {
 		}
 	}
 
-
 	return storefd;
+}
+
+
+int fetch(char* key, void* value, int* length) {
+	int index = getIndex(key);
+	int entryStart = (int) hashTableStart + index*lenEntry;
+	value=value;
+	length=length;
+	printf("fetch: looking in index %d.\n", index);
+
+	fseek(store, entryStart, SEEK_SET);
+
+	int check = -1;
+
+	//read(storefd, &check, 4); //check for 0xdeadd00d or "emty"
+	fread(&check, 4, 1, store);
+
+	if(check == MAGIC_NUM){
+
+		fseek(store, getKeyStart(entryStart), SEEK_SET);
+
+
+
+		//char keyToCheck[lenKey] = ""; // +1 for null byte which I must add
+		char* keyToCheck = malloc(sizeof(char) * lenKey);
+
+		//assert(keyToCheck) != NULL;
+
+
+		fread(keyToCheck, lenKey, 1, store);
+
+		//keyToCheck string is lenKey long, but the key we're looking for might be less than that
+		if(!memcmp(keyToCheck, key, strlen(key))) {
+			printf("match!\n");
+
+			fseek(store, getValueStart(entryStart), SEEK_SET);
+
+			//fread returns teh number of ITEMS read. equal to num of bytes if size=1.
+			int bytesRead = (int)fread(value, 1, lenValue, store); //need to change lenValue to not be the whole thing!
+
+			*length = bytesRead;
+
+
+		} else {
+			printf("no match\n");
+		}
+
+
+	} else if(check == EMPTY_BACKWARDS){
+		fprintf(stderr, "fetch: Entry is empty.\n");
+		return -1;
+
+	} else {
+			printf("fetch: neither thing, read %x\n", check);
+			return -1;
+	}
+
+	return 0;
+
 }
 
 
@@ -366,12 +428,19 @@ int main() {
 	store = NULL;
 
 	//31 and 12 are example numbers. length, numEntry
-	if(initialize("example.store", 3, 11) == -1) {
+	if(initialize("example.store", 3, 5) == -1) {
 		fprintf(stderr, "Couldn't initialize.\n");
 		return EXIT_FAILURE;
 	}
 
-	insert("ps", "kjf", 3);
+	insert("HELLO", "m3pe", 3);
+
+	char* fetchedValue = malloc(sizeof(char)*lenValue);
+	int fetchedSize;
+
+	fetch("HELLO", fetchedValue, &fetchedSize);
+
+	printf("fetch got \"%s\" in %d bytes.\n", fetchedValue, fetchedSize);
 
 	if(fclose(store) == EOF){
 		perror("Couldn't close file.\n");
@@ -382,10 +451,6 @@ int main() {
 }
 
 /*
-int fetch(char* key, void* value, int* length) {
-        return 0;
-}
-
 int probe(char* key) {
         return 0;
 }
