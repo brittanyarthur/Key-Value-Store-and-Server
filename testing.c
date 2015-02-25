@@ -122,6 +122,7 @@ int print_matching_index(FILE* file){
 	}
 }
 
+//http://stackoverflow.com/questions/15767691/whats-the-c-library-function-to-generate-random-string
 void rand_str(char *dest, size_t length) {
     char charset[] = "0123456789"
                      "abcdefghijklmnopqrstuvwxyz"
