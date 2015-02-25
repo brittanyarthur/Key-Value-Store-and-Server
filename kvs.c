@@ -16,11 +16,12 @@
 The overhead is the number of bytes in an entry that is neither key nor value.
 4 for 0xdeadd00d or "emty"
 2 for [ and ] which go around index number
-2 for double digit of index
 1 for : which seperates key and value
 1 for newline
+= 8
++ the length of the index
 */
-#define ENTRY_OVERHEAD 10
+#define ENTRY_OVERHEAD (8+lenIndex)
 
 #define DEFAULT_LEN_ENTRY (DEFAULT_LEN_KEY + DEFAULT_LEN_VALUE + ENTRY_OVERHEAD)
 
@@ -100,7 +101,13 @@ Returns: 0 on success, -1 on error.
 */
 int initNewFile(int length, int size){
 
-	printf("INIT NEW FILE\n");
+
+	//find the length of the index
+	if(size==1){
+		lenIndex = 1; //edge case, log10(0) fucks up
+	} else {
+		lenIndex = (int)log10(size-1)+1;
+	}
 
 	if(	fprintf(store, "lenFile=%d\n", length) <= 0 ||
 		fprintf(store, "numEntries=%d\n", size) <= 0 ||
@@ -127,13 +134,6 @@ int initNewFile(int length, int size){
 	The format string would be "emty[%03d]".
 	*/
 
-	if(numEntries==1){
-		lenIndex = 1; //edge case, log10(0) fucks up
-	} else {
-		lenIndex = (int)log10(numEntries-1)+1;
-	}
-
-	printf("lenIndex=%d\n", lenIndex);
 	char formatString[10];
 	sprintf(formatString, "emty[%%0%dd]", lenIndex); //"emty" replaces 0xdeadd00d
 
@@ -282,17 +282,14 @@ int insert(char* key, void* value, int length) {
 
 		//write magic number
 		fseek(store, -4, SEEK_CUR); //go backwards over "emty"
-		//write(storefd, &MAGIC_NUM, 4);
 		fwrite(&MAGIC_NUM, 4, 1, store);
 
 		//write key
 		fseek(store, getKeyStart(entryStart), SEEK_SET);
-		//write(storefd, key, activeKeyLen);
 		fwrite(key, activeKeyLen, 1, store);
 
 		//write value
 		fseek(store, getValueStart(entryStart), SEEK_SET);
-		//write(storefd, value, length);
 		fwrite(value, length ,1, store);
 
 		printf("wrote to slot %d.\n", index);
@@ -359,7 +356,6 @@ int initialize(char* file, int length, int size) {
 		}
 	}
 
-
 	return storefd;
 }
 
@@ -370,12 +366,12 @@ int main() {
 	store = NULL;
 
 	//31 and 12 are example numbers. length, numEntry
-	if(initialize("example.store", 3, 11) == -1) {
+	if(initialize("example.store", 3, 99) == -1) {
 		fprintf(stderr, "Couldn't initialize.\n");
 		return EXIT_FAILURE;
 	}
 
-	insert("ps", "kjf", 3);
+	//insert("ps", "kjf", 3);
 
 	if(fclose(store) == EOF){
 		perror("Couldn't close file.\n");
