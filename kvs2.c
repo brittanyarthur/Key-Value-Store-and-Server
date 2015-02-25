@@ -39,10 +39,11 @@ int insert(FILE* store, char* key, void* value, int length){
 		return -1;
 	}
 	//TODO: need to probe here using insert_probe
-	int index = insert_probe(store, key); //hash(key)%table_size; //
-	printf("index I got was: %d\n", index);
-	int test_index = hash(key)%table_size;
-	printf("index I got before was: %d\n", test_index);
+	int index = hash(key)%table_size;
+	printf("index I got from hash was: %d\n", index);
+	int test_index = insert_probe(store, key);
+	printf("index I got from probe was: %d\n", test_index);
+
 	fseek(store, index*table_length, SEEK_SET);
 
 	//need to insert valid here
@@ -71,7 +72,7 @@ int insert_probe(FILE* store, char* key){
 	    if(*flag == VALID){
 	    	printf("found valid data!\n");
 	    	fseek(store, (index*table_length)+4, SEEK_SET); //offset flag number
-	    	fread(key_buffer, table_length, 1, store); 
+	    	fread(key_buffer, key_size, 1, store); 
 	    	// only return valid if I find a key match exists at that location
 	    	if(strcmp(key_buffer, key)==0){ 
 	    		printf("found a match!\n");
@@ -176,7 +177,7 @@ FILE* create_file(char* name){
 
 FILE* access_file(char* name){
 	FILE* store;
-	store = fopen(name, "a+");
+	store = fopen(name, "r+");
 	return store;
 }
 
