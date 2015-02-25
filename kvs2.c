@@ -8,8 +8,8 @@
 
 #define table_size 360
 #define table_length 512
-	#define key_size 25
-	#define value_size 75
+#define key_size 25
+	
 const int MAGIC_NUM = 0xdeadd00d;
 
 // Jason - I ended up not using this. I don't know if it is possible the way we were thinking
@@ -39,7 +39,7 @@ int insert(FILE* store, char* key, void* value, int length){
 		return -1;
 	}
 	//CONFIRM THIS CHECK IS DONE PROPERLY
-	if(sizeof(char)*strlen(key)+length > table_length){ 
+	if(key_size+length > table_length){ 
 		printf("Error: Data is too large.\n");
 		return -1;
 	}
@@ -49,7 +49,7 @@ int insert(FILE* store, char* key, void* value, int length){
 	int m = MAGIC_NUM;
 	int* magic = &m;
 	fwrite(magic, sizeof(MAGIC_NUM), 1, store);
-	fwrite(key, sizeof(key), 1, store);
+	fwrite(key, key_size, 1, store);
 	fwrite(value, length, 1, store);
 	return 0;
 }
@@ -98,7 +98,6 @@ int main(){
 	}
 	int val_len = sizeof(int)*5;
 	int* val_ptr = &val_len;
-
 	insert(store, "nameb", val, val_len);
 	read_int_array(store,"nameb", val_len);
 	//fetch(store, "nameb", val, val_ptr);
@@ -126,7 +125,7 @@ FILE* access_file(char* name){
 //TODO: Confirm or improve.
 void populate(FILE* store){
 	char filler = 0;
-	int multiply = table_length/sizeof(char);
+	int multiply = table_length;
 	fwrite(&filler, sizeof(char)*multiply, table_size, store);
 }
 
@@ -145,8 +144,8 @@ int h_read(FILE* store, void* result, char* key, int length){
 	//skip the magic number (this +4 is horrible)
 	fseek(store, (index*table_length)+4, SEEK_SET);
 	//read in key
-	fread(key_buffer, sizeof(key), 1, store); //needs to be fixed size of key
-	printf("1 key: %s\n",buffer);
+	fread(key_buffer, key_size, 1, store);
+	printf("1 key: %s\n",key_buffer);
 	//check if read fails?
 	fread(result, length, 1, store);
 	return 0;
