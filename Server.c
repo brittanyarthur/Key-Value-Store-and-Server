@@ -16,6 +16,8 @@ typedef struct sockaddr_in sockaddr_in;
 
 int main(int argc , char *argv[])
 {
+  (void)argc;
+  (void)argv;
   // create socket
 	int port = 10732;
 	printf( "creating socket on port %d\n", port );
@@ -126,7 +128,7 @@ int AcceptConnections(int sock_fd){
 
 int SendData(int sock_fd, int newSocket, int data_recieved)
 {
-
+    (void)sock_fd;
     //Finally, a message can be sent!
     char buffer[256];
     if(data_recieved == 1){

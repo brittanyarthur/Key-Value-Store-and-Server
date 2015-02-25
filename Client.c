@@ -13,6 +13,8 @@ int WriteData(int sock_fd);
 
 int main( int argc, char * argv[] )
 {
+   (void)argc;
+   (void)argv;
    int remote_port =  10732;
    const char* remote_IP = "127.0.0.1";
    int sock_fd = OpenSocket(remote_port, remote_IP); 
