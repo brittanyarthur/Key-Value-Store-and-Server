@@ -180,8 +180,6 @@ Returns: 0 on success, -1 on error.
 */
 int initExistingFile(int length, int size){
 
-	printf("INIT EXISTING FILE\n");
-
 	if(	fscanf(store, "lenFile=%d\n", &lenFile) <= 0 ||
 		fscanf(store, "numEntries=%d\n", &numEntries) <= 0 ||
 		fscanf(store, "lenEntry=%d\n", &lenEntry) <= 0 ||
@@ -190,6 +188,13 @@ int initExistingFile(int length, int size){
 	) {
 		fprintf(stderr, "Couldn't read header.\n");
 		return -1;
+	}
+
+	//save the length of the human-readable index
+	if(numEntries==1){
+		lenIndex = 1; //edge case, log10(0) fucks up
+	} else {
+		lenIndex = (int)log10(numEntries-1)+1;
 	}
 
 
@@ -210,13 +215,6 @@ int initExistingFile(int length, int size){
 
 	//save where the end of the header is
 	hashTableStart = ftell(store);
-
-	//save the length of the human-readable index
-	if(numEntries==1){
-		lenIndex = 1; //edge case, log10(0) fucks up
-	} else {
-		lenIndex = (int)log10(numEntries-1)+1;
-	}
 
 
 
@@ -366,7 +364,7 @@ int main() {
 	store = NULL;
 
 	//31 and 12 are example numbers. length, numEntry
-	if(initialize("example.store", 3, 99) == -1) {
+	if(initialize("example.store", 3, 5) == -1) {
 		fprintf(stderr, "Couldn't initialize.\n");
 		return EXIT_FAILURE;
 	}
