@@ -114,6 +114,9 @@ int main(){
 	int* val_ptr = &val_len;
 	insert(store, "nameb", val, val_len);
 	read_int_array(store,"nameb", val_len);
+	insert(store, "jason", "heron", sizeof("heron"));
+	read_char_array(store, "jason", sizeof("heron"));
+
 	//fetch(store, "nameb", val, val_ptr);
 	fclose(store);
 	free(val);
@@ -162,20 +165,17 @@ void read_int_array(FILE* store, char* key, int length){
 		printf("result[%d] = %d\n",i,result[i]);
 	}
 }
-/*
+
 void read_char_array(FILE* store, char* key, int length){
 	char result[100];
 	for(int k = 0; k < 5; k++){
 		result[k] = '\0'; //fill result with zeros
 	}
 	fetch(store, result, key, length);
-	printf("2 value: \n");
-	for(int i = 0; i < 5; i++){
-		printf("result[%d] = %d\n",i,result[i]);
-	}
+	printf("2 value: %s\n",result);
 
 }
-*/
+
 
 
 
