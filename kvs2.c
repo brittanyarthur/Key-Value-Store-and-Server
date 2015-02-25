@@ -112,6 +112,7 @@ int main(){
 	}
 	int val_len = sizeof(int)*5;
 	int* val_ptr = &val_len;
+	(void)val_ptr;
 	//insert(store, "nameb", val, val_len);
 	read_int_array(store,"nameb", val_len);
 	//fetch(store, "nameb", val, val_ptr);
@@ -147,6 +148,7 @@ void populate(FILE* store){
 /*-----------------SECOND CLASS AND TODO FUNCTIONS---------------------------*/
 
 int delete(char* key){
+	(void)key;
 	return 0;
 }
 
