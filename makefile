@@ -28,4 +28,4 @@ clean:
 	@rm -rf *.dSYM
 
 spotless: clean
-	@rm -f example.store
+	@rm -f example.store hashtable

@@ -6,10 +6,10 @@
 #include <string.h>
 #include "kvs2.h"
 
-#define table_size 360
-#define table_length 512
-	#define key_size 25
-	#define value_size 75
+#define table_size 5
+#define table_length 500
+#define key_size 20
+	
 const int MAGIC_NUM = 0xdeadd00d;
 
 // Jason - I ended up not using this. I don't know if it is possible the way we were thinking
@@ -39,7 +39,7 @@ int insert(FILE* store, char* key, void* value, int length){
 		return -1;
 	}
 	//CONFIRM THIS CHECK IS DONE PROPERLY
-	if(sizeof(char)*strlen(key)+length > table_length){ 
+	if(key_size+length > table_length){ 
 		printf("Error: Data is too large.\n");
 		return -1;
 	}
@@ -49,7 +49,7 @@ int insert(FILE* store, char* key, void* value, int length){
 	int m = MAGIC_NUM;
 	int* magic = &m;
 	fwrite(magic, sizeof(MAGIC_NUM), 1, store);
-	fwrite(key, sizeof(key), 1, store);
+	fwrite(key, key_size, 1, store);
 	fwrite(value, length, 1, store);
 	return 0;
 }
@@ -98,10 +98,9 @@ int main(){
 	}
 	int val_len = sizeof(int)*5;
 	int* val_ptr = &val_len;
-
-	insert(store, "nameb", val, val_len);
-	h_read(store,"nameb", val_len);
-	fetch(store, "nameb", val, val_ptr);
+	//insert(store, "nameb", val, val_len);
+	//h_read(store,"nameb", val_len);
+	//fetch(store, "nameb", val, val_ptr);
 	fclose(store);
 	free(val);
 	return 0;
@@ -126,7 +125,7 @@ FILE* access_file(char* name){
 //TODO: Confirm or improve.
 void populate(FILE* store){
 	char filler = 0;
-	int multiply = table_length/sizeof(char);
+	int multiply = table_length;
 	fwrite(&filler, sizeof(char)*multiply, table_size, store);
 }
 
@@ -143,7 +142,7 @@ int h_read(FILE* store, char* key, int length){
 	//skip the magic number
 	fseek(store, (index*table_length)+4, SEEK_SET);
 
-	fread(buffer, sizeof(key), 1, store);
+	fread(buffer, key_size, 1, store);
 	printf("1 key: %s\n",buffer);
 
 	//fread(buffer, length, 1, store);
