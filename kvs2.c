@@ -6,9 +6,9 @@
 #include <string.h>
 #include "kvs2.h"
 
-#define table_size 5
-#define table_length 500
-#define key_size 20
+#define table_size 360
+#define table_length 512
+#define key_size 25
 	
 const int MAGIC_NUM = 0xdeadd00d;
 
@@ -98,9 +98,9 @@ int main(){
 	}
 	int val_len = sizeof(int)*5;
 	int* val_ptr = &val_len;
-	//insert(store, "nameb", val, val_len);
-	//h_read(store,"nameb", val_len);
-	//fetch(store, "nameb", val, val_ptr);
+	insert(store, "nameb", val, val_len);
+	h_read(store,"nameb", val_len);
+	fetch(store, "nameb", val, val_ptr);
 	fclose(store);
 	free(val);
 	return 0;
