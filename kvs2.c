@@ -164,7 +164,7 @@ int main(){
 /*------------------------HELPER FUNCTIONS--------------------------------*/
 
 FILE* create_file(char* name){
-	FILE* store = fopen(name, "w+");
+	FILE* store = fopen(name, "w+"); 
 	populate(store);
 	return store;
 }
