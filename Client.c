@@ -181,8 +181,13 @@ char* do_init(){
    fgets(size_buffer, sizeof(size_buffer), stdin);
 
    //send to brit function
-   printf("Init: %s , %s, %s \n",name_buffer, length_buffer, size_buffer);
-   return "brit_response_here";
+
+   //printf("Init: %s , %s, %s \n",name_buffer, length_buffer, size_buffer);
+   printf("About to build packet\n");
+   char* cmd = "init";
+   char* result = BuildPacket(cmd, name_buffer, length_buffer, size_buffer, "", "");
+   printf("%s",result);
+   return result;
 
 }
 
@@ -202,6 +207,7 @@ char* BuildPacket(char* cmd, char* name, char* length, char* size, char* key, ch
    *cmd = tolower(*cmd);
    cmd[strlen(cmd)-1] = '\0'; //had to strip off newline character
    if(strcmp(cmd, "init") == 0){
+      printf("found init\n");
       //confirm that only the needed arguments are given
       if(name != NULL && length!= NULL && size != NULL && strcmp(key, "") == 0 && strcmp(value, "") == 0){
          printf("Correct\n");
