@@ -44,12 +44,12 @@ int main(){
 
 //collision on same key
 int insert_test1(FILE* file){
-	char* key = "brit";
+	char* key = "brit"; 
 	char first_result[max_value_size]; //not sure what size, so i made it max size of value
 	char second_result[max_value_size];
 	int length;
 	int* len = &length;
-
+ 
 	//insert <brittany, arthur>
 	insert(file, key, "arthur", sizeof("arthur"));
 	//get brit's last name
@@ -82,9 +82,9 @@ int insert_test2(FILE* file){
 
 	//insert mango - it has in index of 351
 	char* key = "mango";
-	insert(file, key, "fruit", sizeof("fruit"));
+	insert(file, key, "fruit", sizeof("fruit")); 
 	//insert key2 - it also has in index of 351
-	char* key2 = "F0NyhpjvIQesn34czPqQibmVA";
+	char* key2 = "YD4U8LRvpX8MNX9ygULp5sqJ";
 	insert(file, key2, "key2value", sizeof("key2value"));
 
 	//get the value of mango - expected: value exists
@@ -113,7 +113,7 @@ int print_matching_index(FILE* file){
 	unsigned int index = hash(key)%table_size;
 	char key_matching_index[key_size];
 	for(;;){
-		rand_str(key_matching_index, key_size);
+		rand_str(key_matching_index, key_size-1);
 		if ((hash(key_matching_index)%table_size)==index){
 			printf("key 1: %s\n", key);
 			printf("key 2: %s\n", key_matching_index);
