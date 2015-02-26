@@ -29,6 +29,9 @@ testing : $(OBJECTS)
 bigTest: $(BIGTESTOBJ)
 	gcc $(BIGTESTOBJ) -o bigTest ${flags}
 
+bigKvsTest.o : bigKvsTest.c
+	gcc -c bigKvsTest.c ${flags}	
+
 kvs2.o : kvs2.c
 	gcc -c kvs2.c ${flags}
 
