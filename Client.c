@@ -10,6 +10,11 @@
 int OpenSocket(int remote_port, const char* remote_IP);
 int RecieveData(int sock_fd);
 int WriteData(int sock_fd);
+char* do_insert();
+char* do_delete();
+char* do_lookup();
+char* do_init();
+int parse_command_response(char* response);
 
 int main( int argc, char * argv[] )
 {
@@ -69,20 +74,110 @@ int OpenSocket(int port, const char* remote_IP)
 }
 
 int WriteData(int sock_fd){
-   printf("\nWould you like to know what the weather is like? write 'yes' or 'no'?\n");
-   char buffer[256];
-   memset(buffer,'\0',strlen(buffer));
-   fgets(buffer, sizeof(buffer), stdin); //dont do this
-   if(strcmp(buffer, "quit\n") == 0){
+   char* write_buffer;
+   printf("\n[I]nsert, [D]elete, [L]ookup, [S]etup? : ");
+   char command_buffer[256];
+   memset(command_buffer,'\0',strlen(command_buffer));
+   fgets(command_buffer, sizeof(command_buffer), stdin);
+   if(strcmp(command_buffer, "quit\n") == 0){
       printf("EXITING NOW\n");
       close(sock_fd);
    }
-   int result_status = write(sock_fd, buffer, strlen(buffer));
+   switch(parse_command_response(command_buffer)){
+      case 0:
+         write_buffer = do_insert(); break;
+      case 1:
+         write_buffer = do_delete(); break;
+      case 2:
+         write_buffer = do_lookup(); break;
+      case 3:
+         write_buffer = do_init(); break;
+      case -1:
+         printf("Invalid command\n");
+         return 0;
+
+   }
+   printf("writing to server: %s\n", write_buffer);
+   int result_status = write(sock_fd, write_buffer, strlen(write_buffer));
    if(result_status < 0){
       printf("An error occured sending data from the client to the server.\n");
       return -1;
    }
    return 0;
+}
+
+int parse_command_response(char* command_response){
+   if(strcmp(command_response, "I\n") == 0){
+      printf("User said insert\n");
+      return 0;
+   }else if(strcmp(command_response, "D\n") == 0){
+      printf("User said delete\n");
+      return 1;
+   }else if(strcmp(command_response, "L\n") == 0){
+      printf("User said lookup\n");
+      return 2;
+   }else if(strcmp(command_response, "S\n") == 0){
+      printf("User said setup\n");
+      return 3;
+   }
+   return -1;
+}
+
+char* do_insert(){
+   printf("\nKey: ");
+   char key_buffer[256];
+   memset(key_buffer,'\0',strlen(key_buffer));
+   fgets(key_buffer, sizeof(key_buffer), stdin);
+   printf("\nValue: ");
+   char value_buffer[256];
+   memset(value_buffer,'\0',strlen(value_buffer));
+   fgets(value_buffer, sizeof(value_buffer), stdin);
+
+   //send to brit function
+   printf("Insert: %s , %s \n",key_buffer,value_buffer);
+   return "brit_response_here";
+}
+
+char* do_delete(){
+   printf("\nKey: ");
+   char key_buffer[256];
+   memset(key_buffer,'\0',strlen(key_buffer));
+   fgets(key_buffer, sizeof(key_buffer), stdin);
+
+   //send to brit function
+   printf("Delete: %s \n",key_buffer);
+   return "brit_response_here";
+}
+
+char* do_lookup(){
+   printf("\nKey: ");
+   char key_buffer[256];
+   memset(key_buffer,'\0',strlen(key_buffer));
+   fgets(key_buffer, sizeof(key_buffer), stdin);
+
+   //send to brit function
+   printf("Lookup: %s \n",key_buffer);
+   return "brit_response_here";
+}
+
+char* do_init(){
+   printf("\nTable Name: ");
+   char name_buffer[256];
+   memset(name_buffer,'\0',strlen(name_buffer));
+   fgets(name_buffer, sizeof(name_buffer), stdin);
+   printf("\nTable Length: ");
+   char length_buffer[256];
+   memset(length_buffer,'\0',strlen(length_buffer));
+   fgets(length_buffer, sizeof(length_buffer), stdin);
+   printf("\nTable Size: ");
+   char size_buffer[256];
+   memset(size_buffer,'\0',strlen(size_buffer));
+   fgets(size_buffer, sizeof(size_buffer), stdin);
+
+   //send to brit function
+   printf("Init: %s , %s, %s \n",name_buffer, length_buffer, size_buffer);
+   return "brit_response_here";
+
 }
 
 int RecieveData(int sock_fd){

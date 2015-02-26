@@ -82,6 +82,9 @@ int RecieveData(int newSocket){
         return -1;
     }else{
        printf("Data recieved from client is: %s\n",reply_buffer);
+       //parse_client_data(reply_buffer);
+       
+       //change this parser
        if(strcmp(reply_buffer, "no\n") == 0){
            return 1; // 1 maps to no
        } else if(strcmp(reply_buffer, "yes\n") == 0){
