@@ -179,15 +179,25 @@ FILE* access_file(char* name){
 //continue point: Assume this works. Assume structures put null ptrs at end.
 //TODO: Confirm or improve.
 void populate(FILE* store){
+	printf("hello\n");
 	char filler = 0;
 	int multiply = table_length - sizeof(INVALID);
+	//size_t size = sizeof(char)*multiply;
 	int invalid_value = INVALID;
 	int* invalid = &invalid_value;
+	//int inv = sizeof(char)*multiply;
+	printf("size of thing is %lu\n",sizeof(char)*multiply);
+
+	unsigned long size = sizeof(INVALID)*50;
 
 	for(int i = 0; i < table_size; i++){
 		//every slot will begin with "invalid" at initialize
  		fwrite(invalid, sizeof(INVALID), 1, store);
-		fwrite(&filler, sizeof(char)*multiply, 1, store);
+ 		for(int k = 0; k < multiply; k++){
+ 			fwrite(&filler, sizeof(char), 1, store);
+ 		}
+ 		//fwrite(&filler, size, 1, store);
+		//fwrite(&filler, sizeof(char)*multiply, 1, store);
 	}
 }
 

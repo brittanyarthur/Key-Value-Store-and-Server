@@ -10,8 +10,8 @@ int insert_test2(FILE* file);
 int print_matching_index(FILE* file);
 void rand_str(char *dest, size_t length);
 
-int main(){ return 0;
-	FILE* my_data = initialize("hashtable");
+int main(){ 
+	FILE* my_data = initialize("hashtable");return 0;
 	if(insert_test1(my_data)){
 		// expected result: the
 		printf("TEST 1 PASS: collision on the same key.\n");
