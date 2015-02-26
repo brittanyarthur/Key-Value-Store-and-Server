@@ -76,8 +76,8 @@ int OpenSocket(int port, const char* remote_IP)
 }
 
 int WriteData(int sock_fd){
-   char* write_buffer;
-   printf("\n[I]nsert, [D]elete, [L]ookup, [S]etup? : ");
+   //Ask user for action
+   printf("\n[I]nsert: add a key/value pair to keystore.\n[D]elete: delete a key/value pair from keystore.\n[L]ookup: lookup value in keystore.\n[S]etup: configure keystore.\n: ");
    char command_buffer[256];
    memset(command_buffer,'\0',strlen(command_buffer));
    fgets(command_buffer, sizeof(command_buffer), stdin);
@@ -85,6 +85,8 @@ int WriteData(int sock_fd){
       printf("EXITING NOW\n");
       close(sock_fd);
    }
+   //Parse user action decision
+   char* write_buffer;
    switch(parse_command_response(command_buffer)){
       case 0:
          write_buffer = do_insert(); break;
@@ -97,14 +99,10 @@ int WriteData(int sock_fd){
       case -1:
          printf("Invalid command\n");
          return 0;
-
    }
+   //Send formed packet to server
    printf("writing to server: %s\n", write_buffer);
    int result_status = write(sock_fd, write_buffer, strlen(write_buffer));
-   /*
-   BuildPacket(buffer, "", "", "","","");
-   int result_status = write(sock_fd, buffer, strlen(buffer));
-   */
    if(result_status < 0){
       printf("An error occured sending data from the client to the server.\n");
       return -1;
@@ -161,9 +159,16 @@ char* do_lookup(){
    memset(key_buffer,'\0',strlen(key_buffer));
    fgets(key_buffer, sizeof(key_buffer), stdin);
 
+   char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
+   int cmdsize = strlen(key_buffer) + strlen(formatter) + 4 + 1;
+   char* packet = malloc(cmdsize);
+   snprintf(packet, cmdsize, "<cmd>lookup</cmd><name></name><length></length><size></size><key>%s</key><value></value>", key_buffer);
+   printf("packet is %s\n", packet);
+   return packet;
+
    //send to brit function
-   printf("Lookup: %s \n",key_buffer);
-   return BuildPacket("lookup", "", "", "", key_buffer, "");
+   //printf("Lookup: %s \n",key_buffer);
+   //return BuildPacket("lookup", "", "", "", key_buffer, "");
 }
 
 char* do_init(){
@@ -180,11 +185,17 @@ char* do_init(){
    memset(size_buffer,'\0',strlen(size_buffer));
    fgets(size_buffer, sizeof(size_buffer), stdin);
 
+
+   char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
+   int cmdsize = strlen(name_buffer) + strlen(length_buffer) + strlen(size_buffer) + strlen(formatter) + 4 + 1;
+   char* packet = malloc(cmdsize);
+   snprintf(packet, cmdsize, "<cmd>init</cmd><name>%s</name><length>%s</length><size>%s</size><key></key><value></value>", name_buffer, length_buffer, size_buffer);
+   printf("packet is %s\n", packet);
+   return packet;
+
    //send to brit function
-
-   printf("Init: %s , %s, %s \n",name_buffer, length_buffer, size_buffer);
-   return BuildPacket("init", name_buffer, length_buffer, size_buffer, "", "");
-
+   //printf("Init: %s , %s, %s \n",name_buffer, length_buffer, size_buffer);
+   //return BuildPacket("init", name_buffer, length_buffer, size_buffer, "", "");
 }
 
 int RecieveData(int sock_fd){
