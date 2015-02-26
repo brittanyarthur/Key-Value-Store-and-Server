@@ -15,7 +15,8 @@ int main(int argc, char** argv){
 		return EXIT_FAILURE;
 	}
 
-	int randNum, result, bytesRead, numMatch, numFail = 0;
+	int randNum, result, bytesRead, numMatch, numFail, idxIns, idxFetch;
+	randNum = result = bytesRead = numMatch = numFail = idxIns = idxFetch = 0;
 
 	FILE* table = initialize("bigTestTable");
 	assert(table != NULL);
@@ -32,20 +33,21 @@ int main(int argc, char** argv){
 		sprintf(keyBuff, "%d", i);
 
 		//insert
-		insert(table, keyBuff, &randNum, sz);
-		//printf("Wrote %d in %d bytes.\n", randNum, sz);
+		idxIns = insert(table, keyBuff, &randNum, sz);
+		//printf("Wrote %d in %d bytes to   slot %d.\n", randNum, sz, idxIns);
 
 		//fetch
-		fetch(table, &result, keyBuff, &bytesRead);
-		//printf("Read  %d in %d bytes.\n", result, bytesRead);
+		idxFetch = fetch(table, &result, keyBuff, &bytesRead);
+		//printf("Read  %d in %d bytes from slot %d.\n", result, bytesRead, idxFetch);
 
 		//interpert result
-		if(randNum == result) {
+		if(randNum == result && idxFetch == idxIns) {
 			numMatch++;
 		} else {
 			numFail++;
-			printf("FAIL: wrote %d, got %d back.\n", randNum, result);
+			printf("FAIL: wrote %d to slot %d, got %d from slot %d.\n", randNum, idxIns, result, idxFetch);
 		}
+
 	}
 
 	//print result

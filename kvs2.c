@@ -38,6 +38,9 @@ FILE* initialize(char* name){
 }
 
 //pass
+/**
+Now returns index like it should!
+*/
 int insert(FILE* store, char* key, void* value, int length){
 	if(key == NULL || value == NULL){
 		printf("Error: Cannot insert null values into hashtable.\n");
@@ -59,7 +62,7 @@ int insert(FILE* store, char* key, void* value, int length){
 	fwrite(key, key_size, 1, store); //insert key
 	fwrite(len_ptr, sizeof(int), 1, store); //insert length
 	fwrite(value, length, 1, store); //insert value
-	return 0;
+	return index;
 }
 
 //pass //note: while condition can be a condition to check for a full hash table
@@ -116,7 +119,7 @@ int fetch(FILE* store, void* result, char* key, int* length){
 	fread(length, sizeof(int), 1, store);
 	//check if read fails?
 	fread(result, *length, 1, store);
-	return 0;
+	return index;
 }
 
 //pass
