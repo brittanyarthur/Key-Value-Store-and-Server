@@ -187,7 +187,11 @@ void populate(FILE* store){
 	for(int i = 0; i < table_size; i++){
 		//every slot will begin with "invalid" at initialize
  		fwrite(invalid, sizeof(INVALID), 1, store);
-		fwrite(&filler, sizeof(char)*multiply, 1, store);
+ 		for(int k = 0; k < multiply; k++){
+ 			fwrite(&filler, sizeof(char), 1, store);
+ 		}
+ 		//BEFORE THE LOOP. TBD: WHY ISNT THIS EQUIVALENT TO ABOVE?
+		//fwrite(&filler, sizeof(char)*multiply, 1, store); 
 	}
 }
 
