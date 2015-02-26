@@ -141,7 +141,7 @@ char* do_insert(){
 
    //send to brit function
    printf("Insert: %s , %s \n",key_buffer,value_buffer);
-   return "brit_response_here";
+   return BuildPacket("insert", "", "", "", key_buffer, value_buffer);
 }
 
 char* do_delete(){
@@ -152,7 +152,7 @@ char* do_delete(){
 
    //send to brit function
    printf("Delete: %s \n",key_buffer);
-   return "brit_response_here";
+   return BuildPacket("delete", "", "", "", key_buffer, "");
 }
 
 char* do_lookup(){
@@ -163,7 +163,7 @@ char* do_lookup(){
 
    //send to brit function
    printf("Lookup: %s \n",key_buffer);
-   return "brit_response_here";
+   return BuildPacket("lookup", "", "", "", key_buffer, "");
 }
 
 char* do_init(){
@@ -182,12 +182,8 @@ char* do_init(){
 
    //send to brit function
 
-   //printf("Init: %s , %s, %s \n",name_buffer, length_buffer, size_buffer);
-   printf("About to build packet\n");
-   char* cmd = "init";
-   char* result = BuildPacket(cmd, name_buffer, length_buffer, size_buffer, "", "");
-   printf("%s",result);
-   return result;
+   printf("Init: %s , %s, %s \n",name_buffer, length_buffer, size_buffer);
+   return BuildPacket("init", name_buffer, length_buffer, size_buffer, "", "");
 
 }
 
