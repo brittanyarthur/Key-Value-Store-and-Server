@@ -16,7 +16,7 @@ char* do_delete();
 char* do_lookup();
 char* do_init();
 int parse_command_response(char* response);
-char* BuildPacket(char* cmd, char* name, char* length, char* size, char* key, char* value);
+//char* BuildPacket(char* cmd, char* name, char* length, char* size, char* key, char* value);
 
 int main( int argc, char * argv[] )
 {
@@ -137,9 +137,12 @@ char* do_insert(){
    memset(value_buffer,'\0',strlen(value_buffer));
    fgets(value_buffer, sizeof(value_buffer), stdin);
 
-   //send to brit function
-   printf("Insert: %s , %s \n",key_buffer,value_buffer);
-   return BuildPacket("insert", "", "", "", key_buffer, value_buffer);
+   char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
+   int cmdsize = strlen(key_buffer) + strlen(value_buffer) + strlen(formatter) + 4 + 1;
+   char* packet = malloc(cmdsize);
+   snprintf(packet, cmdsize, "<cmd>lookup</cmd><name></name><length></length><size></size><key>%s</key><value>%s</value>", key_buffer, value_buffer);
+   printf("packet is %s\n", packet);
+   return packet;
 }
 
 char* do_delete(){
@@ -148,9 +151,12 @@ char* do_delete(){
    memset(key_buffer,'\0',strlen(key_buffer));
    fgets(key_buffer, sizeof(key_buffer), stdin);
 
-   //send to brit function
-   printf("Delete: %s \n",key_buffer);
-   return BuildPacket("delete", "", "", "", key_buffer, "");
+   char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
+   int cmdsize = strlen(key_buffer) + strlen(formatter) + 4 + 1;
+   char* packet = malloc(cmdsize);
+   snprintf(packet, cmdsize, "<cmd>delete</cmd><name></name><length></length><size></size><key>%s</key><value></value>", key_buffer);
+   printf("packet is %s\n", packet);
+   return packet;
 }
 
 char* do_lookup(){
@@ -165,10 +171,6 @@ char* do_lookup(){
    snprintf(packet, cmdsize, "<cmd>lookup</cmd><name></name><length></length><size></size><key>%s</key><value></value>", key_buffer);
    printf("packet is %s\n", packet);
    return packet;
-
-   //send to brit function
-   //printf("Lookup: %s \n",key_buffer);
-   //return BuildPacket("lookup", "", "", "", key_buffer, "");
 }
 
 char* do_init(){
@@ -185,17 +187,12 @@ char* do_init(){
    memset(size_buffer,'\0',strlen(size_buffer));
    fgets(size_buffer, sizeof(size_buffer), stdin);
 
-
    char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
    int cmdsize = strlen(name_buffer) + strlen(length_buffer) + strlen(size_buffer) + strlen(formatter) + 4 + 1;
    char* packet = malloc(cmdsize);
    snprintf(packet, cmdsize, "<cmd>init</cmd><name>%s</name><length>%s</length><size>%s</size><key></key><value></value>", name_buffer, length_buffer, size_buffer);
    printf("packet is %s\n", packet);
    return packet;
-
-   //send to brit function
-   //printf("Init: %s , %s, %s \n",name_buffer, length_buffer, size_buffer);
-   //return BuildPacket("init", name_buffer, length_buffer, size_buffer, "", "");
 }
 
 int RecieveData(int sock_fd){
@@ -210,6 +207,8 @@ int RecieveData(int sock_fd){
    return 1;
 }
 
+
+/*
 char* BuildPacket(char* cmd, char* name, char* length, char* size, char* key, char* value){
    *cmd = tolower(*cmd);
    cmd[strlen(cmd)-1] = '\0'; //had to strip off newline character
@@ -231,6 +230,7 @@ char* BuildPacket(char* cmd, char* name, char* length, char* size, char* key, ch
     }
     return "";
 }
+*/
 
 
 
