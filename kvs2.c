@@ -11,6 +11,20 @@ const int TOMBSTONE = 0xdeadd00d;
 const int VALID     = 0xad00000b;
 const int INVALID   = 0xda00000b;
 
+
+FILE* initialize(char* name);
+FILE* create_file(char* name);
+FILE* access_file(char* name);
+int fetch(FILE* store, void* result, char* key, int* length);
+void read_int_array(FILE* store, char* key, int length);
+void populate(FILE* store);
+int insert(FILE* store, char* key, void* value, int length);
+void read_char_array(FILE* store, char* key, int length);
+int fetch_probe(FILE* store, char* key);
+int insert_probe(FILE* store, char* key);
+int delete(char* key);
+unsigned long hash(char *str);
+
 //pass
 FILE* initialize(char* name){
 	FILE* store;
@@ -24,6 +38,9 @@ FILE* initialize(char* name){
 }
 
 //pass
+/**
+Now returns index like it should!
+*/
 int insert(FILE* store, char* key, void* value, int length){
 	if(key == NULL || value == NULL){
 		printf("Error: Cannot insert null values into hashtable.\n");
@@ -45,7 +62,7 @@ int insert(FILE* store, char* key, void* value, int length){
 	fwrite(key, key_size, 1, store); //insert key
 	fwrite(len_ptr, sizeof(int), 1, store); //insert length
 	fwrite(value, length, 1, store); //insert value
-	return 0;
+	return index;
 }
 
 //pass //note: while condition can be a condition to check for a full hash table
@@ -102,7 +119,7 @@ int fetch(FILE* store, void* result, char* key, int* length){
 	fread(length, sizeof(int), 1, store);
 	//check if read fails?
 	fread(result, *length, 1, store);
-	return 0;
+	return index;
 }
 
 //pass
