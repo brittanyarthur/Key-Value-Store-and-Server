@@ -10,6 +10,7 @@
 
 flags = -g -O0 -Wall -Wextra -std=gnu99 -lm
 OBJECTS = kvs2.o testing.o
+BIGTESTOBJ = kvs2.o bigKvsTest.o
 
 % : %.c 
 	gcc $< -o $@ ${flags}
@@ -25,6 +26,9 @@ client : Client
 testing : $(OBJECTS)
 	gcc $(OBJECTS) -o testing
 
+bigTest: $(BIGTESTOBJ)
+	gcc $(BIGTESTOBJ) -o bigTest ${flags}
+
 kvs2.o : kvs2.c
 	gcc -c kvs2.c ${flags}
 
@@ -32,9 +36,7 @@ testing.o : testing.c
 	gcc -c testing.c ${flags}
 
 clean:
-	@rm -f Server Client kvs testing *~
-	@rm -rf *.dSYM
-	@rm -f kvs2.o testing.o
+	@rm -f Server Client kvs testing *~ *.o *.dSYM testTable bigTestTable
 
 spotless: clean
-	@rm -f example.store hashtable
+	@rm -f hashtable
