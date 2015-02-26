@@ -197,14 +197,14 @@ FILE* access_file(char* name){
 //TODO: Confirm or improve.
 void populate(FILE* store){
 	char filler = 0;
-	int multiply = table_length - sizeof(INVALID);
+	int remaining_line_size = table_length - sizeof(INVALID);
 	int invalid_value = INVALID;
 	int* invalid = &invalid_value;
 
 	for(int i = 0; i < table_size; i++){
 		//every slot will begin with "invalid" at initialize
  		fwrite(invalid, sizeof(INVALID), 1, store);
- 		for(int k = 0; k < multiply; k++){
+ 		for(int k = 0; k < remaining_line_size; k++){
  			fwrite(&filler, sizeof(char), 1, store);
  		}
  		//BEFORE THE LOOP. TBD: WHY ISNT THIS EQUIVALENT TO ABOVE?
