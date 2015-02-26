@@ -6,10 +6,12 @@
 #include <sys/socket.h>
 #include <arpa/inet.h> //inet_addr
 #include <unistd.h> //sleep
+#include <ctype.h> //tolower()
 
 int OpenSocket(int remote_port, const char* remote_IP);
 int RecieveData(int sock_fd);
 int WriteData(int sock_fd);
+char* BuildPacket(char* cmd, char* name, char* length, char* size, char* key, char* value);
 
 int main( int argc, char * argv[] )
 {
@@ -77,6 +79,7 @@ int WriteData(int sock_fd){
       printf("EXITING NOW\n");
       close(sock_fd);
    }
+   BuildPacket(buffer, "", "", "","","");
    int result_status = write(sock_fd, buffer, strlen(buffer));
    if(result_status < 0){
       printf("An error occured sending data from the client to the server.\n");
@@ -96,6 +99,28 @@ int RecieveData(int sock_fd){
    }
    return 1;
 }
+
+char* BuildPacket(char* cmd, char* name, char* length, char* size, char* key, char* value){
+   *cmd = tolower(*cmd);
+   cmd[strlen(cmd)-1] = '\0'; //had to strip off newline character
+   if(strcmp(cmd, "init") == 0){
+      //confirm that only the needed arguments are given
+      if(name != NULL && length!= NULL && size != NULL && strcmp(key, "") == 0 && strcmp(value, "") == 0){
+         printf("Correct\n");
+         //confirm that length and size can both be converted to ints
+         char* formatter = "<cmd></cmd><name></name><length></length><size></size>";
+         int cmdsize = strlen(name) + strlen(length) + strlen(size) + strlen(formatter) + 4 + 1;
+         char* init_cmd = malloc(cmdsize);
+         snprintf(init_cmd, cmdsize, "<cmd>%s</cmd><name>%s</name><length>%s</length><size>%s</size>", cmd, name, length, size);
+         printf("init_cmd is %s\n", init_cmd);
+         return init_cmd;
+      }else{
+         printf("ERROR: Wrong INIT arguments given\n");
+      }
+    }
+    return "";
+}
+
 
 
 
