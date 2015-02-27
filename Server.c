@@ -12,12 +12,12 @@ int OpenSocket(int port);
 int ListenIncomingConnection(int sock_fd);
 int AcceptConnections(int sock_fd);
 char* RecieveData(int newSocket);
-int SendData(int sock_fd, int newSocket, int data_recieved);
-int parse_client_data(char* reply_buffer);
-int do_init(char* name, char* length, char* size);
-int do_insert(char* key, char* value);
-int do_lookup(char* key);
-int do_delete(char* key);
+int SendData(int sock_fd, int newSocket, char* data_recieved);
+int parse_client_data(char* reply_buffer, int sock_fd, int newSocket);
+int do_init(char* name, char* length, char* size, int sock_fd, int newSocket);
+int do_insert(char* key, char* value, int sock_fd, int newSocket);
+int do_lookup(char* key, int sock_fd, int newSocket);
+int do_delete(char* key, int sock_fd, int newSocket);
 
 #define QUIT       1
 
@@ -107,7 +107,7 @@ char* RecieveData(int newSocket){
     }
 }
 
-int parse_client_data(char* reply_buffer){
+int parse_client_data(char* reply_buffer, int sock_fd, int newSocket){
    char* command = malloc(sizeof(char)*100);
    char* name = malloc(sizeof(char)*100);
    char* length = malloc(sizeof(char)*100);
@@ -121,30 +121,31 @@ int parse_client_data(char* reply_buffer){
    printf("command=\"%s\"\nname=\"%s\"\nlength=\"%s\"\nsize=\"%s\"\nkey=\"%s\"\nvalue=\"%s\"\n", command, name, length, size, key, value);
 
    if(!strcmp(command, "init")){
-      status = do_init(name,length,size);
+      status = do_init(name,length,size, sock_fd, newSocket);
    }else if(!strcmp(command, "insert")){
-      status = do_insert(key,value);
+      status = do_insert(key,value, sock_fd, newSocket);
    }else if(!strcmp(command, "delete")){
-      status = do_delete(key);
+      status = do_delete(key, sock_fd, newSocket);
    }else if(!strcmp(command, "lookup")){
-      status = do_lookup(key);
+      status = do_lookup(key, sock_fd, newSocket);
    }
    return status;
 }
 
-int do_init(char* name, char* length, char* size){
+int do_init(char* name, char* length, char* size, int sock_fd, int newSocket){
 
   return 0;
 }
 
-int do_insert(char* key, char* value){
+int do_insert(char* key, char* value, int sock_fd, int newSocket){
   printf("inserting %s, with %s\n",key,value);
   FILE* my_data = initialize("hashtable");
   insert(my_data, key, value, sizeof(value));
+  fclose(my_data);
   return 0;
 }
 
-int do_lookup(char* key){
+int do_lookup(char* key, int sock_fd, int newSocket){
   printf("look up %s\n",key);
   FILE* my_data = initialize("hashtable");
   char result[max_value_size];
@@ -152,10 +153,12 @@ int do_lookup(char* key){
   int* len = &length;
   fetch(my_data, result, key, len);
   printf("FOUND: %s\n", result);
+  fclose(my_data);
+  SendData(sock_fd, newSocket, result);
   return 0;
 }
 
-int do_delete(char* key){
+int do_delete(char* key, int sock_fd, int newSocket){
 
   return 0;
 }
@@ -183,8 +186,8 @@ int AcceptConnections(int sock_fd){
                return QUIT;
             }
             // 0 maps to other, 1 maps to no, 2 maps to yes
-            int status = parse_client_data(data_recieved); //we can change the return value to a char* but then we would have to allocate memory
-            SendData(sock_fd, newSocket, status);
+            int status = parse_client_data(data_recieved, sock_fd, newSocket); //we can change the return value to a char* but then we would have to allocate memory
+            //SendData(sock_fd, newSocket, status);
          }
          return 0;
       }else{
@@ -194,10 +197,11 @@ int AcceptConnections(int sock_fd){
     }
 }
 
-int SendData(int sock_fd, int newSocket, int data_recieved)
+int SendData(int sock_fd, int newSocket, char* data_recieved)
 {
     (void)sock_fd;
     //Finally, a message can be sent!
+    /*
     char buffer[256];
     if(data_recieved == 1){
        strcpy(buffer,"It must be a study day for you then!"); 
@@ -205,8 +209,8 @@ int SendData(int sock_fd, int newSocket, int data_recieved)
        strcpy(buffer,"Today is BRIGHT."); 
     }else{
        strcpy(buffer,"Nooo you have to answer the question!!"); 
-    }
-    if(send(newSocket,buffer,sizeof(buffer),0) < 0){
+    }*/
+    if(send(newSocket,data_recieved,sizeof(data_recieved),0) < 0){
     	printf("Error sending message\n");
     	return -1;
     }
