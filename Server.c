@@ -140,7 +140,9 @@ int do_init(char* name, char* length, char* size){
 int do_insert(char* key, char* value){
   printf("inserting %s, with %s\n",key,value);
   FILE* my_data = initialize("hashtable");
-  insert(my_data, key, value, sizeof(value));
+  int value_size = (strlen(value) + 1)*sizeof(char);
+  insert(my_data, key, value, value_size);
+  fclose(my_data);
   return 0;
 }
 
@@ -152,6 +154,7 @@ int do_lookup(char* key){
   int* len = &length;
   fetch(my_data, result, key, len);
   printf("FOUND: %s\n", result);
+  fclose(my_data);
   return 0;
 }
 
