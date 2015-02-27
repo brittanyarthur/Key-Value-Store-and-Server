@@ -92,8 +92,11 @@ int WriteData(int sock_fd){
    char* write_buffer;
    while(no_response){ //loop until there is a response
       printf("\n[I]nsert: add a key/value pair to keystore.\n[D]elete: delete a key/value pair from keystore.\n[L]ookup: lookup value in keystore.\n[S]etup: configure keystore.\n[Q]uit: quit: \n");
-      char command_buffer[256];
-      memset(command_buffer,'\0',strlen(command_buffer));
+      
+	char* command_buffer = malloc(256*sizeof(char));
+      //char command_buffer[256];
+      //memset(command_buffer,'\0',strlen(command_buffer));
+      
       fgets(command_buffer, sizeof(command_buffer), stdin);
       command_buffer[strlen(command_buffer)-1] = '\0';
       if(strcmp(command_buffer, "quit") == 0){
@@ -151,13 +154,19 @@ int parse_command_response(char* command_response){
 
 char* do_insert(){
    printf("\nKey: ");
-   char key_buffer[256];
-   memset(key_buffer,'\0',strlen(key_buffer));
+
+   char* key_buffer = malloc(256*sizeof(char));
+   //char key_buffer[256];
+   //memset(key_buffer,'\0',strlen(key_buffer));
+
    fgets(key_buffer, sizeof(key_buffer), stdin);
    key_buffer[strlen(key_buffer)-1] = '\0';
    printf("\nValue: ");
-   char value_buffer[256];
-   memset(value_buffer,'\0',strlen(value_buffer));
+   
+   char* value_buffer = malloc(256*sizeof(char));
+   //char value_buffer[256];
+   //memset(value_buffer,'\0',strlen(value_buffer));
+   
    fgets(value_buffer, sizeof(value_buffer), stdin);
    value_buffer[strlen(value_buffer)-1] = '\0';
 
