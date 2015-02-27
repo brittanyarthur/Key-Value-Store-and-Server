@@ -207,7 +207,6 @@ int AcceptConnections(int sock_fd){
             }
             // 0 maps to other, 1 maps to no, 2 maps to yes
 
-            //INT STATUS COMMEDTED B/C UNUSED
             int status = parse_client_data(data_recieved, sock_fd, newSocket); //we can change the return value to a char* but then we would have to allocate memory
             //SendData(sock_fd, newSocket, status);
          }
