@@ -6,6 +6,7 @@
 #include <arpa/inet.h>  //inet_addr
 #include <unistd.h>     //fork(), access(2)
 #include <sys/wait.h>   //wait()
+#include "kvs2.h"
 
 int OpenSocket(int port);
 int ListenIncomingConnection(int sock_fd);
@@ -13,6 +14,12 @@ int AcceptConnections(int sock_fd);
 char* RecieveData(int newSocket);
 int SendData(int sock_fd, int newSocket, int data_recieved);
 int parse_client_data(char* reply_buffer);
+int do_init(char* name, char* length, char* size);
+int do_insert(char* key, char* value);
+int do_lookup(char* key);
+int do_delete(char* key);
+
+#define QUIT       1
 
 typedef struct sockaddr_in sockaddr_in;
 
@@ -89,12 +96,11 @@ char* RecieveData(int newSocket){
         return "-1";
     }else{
       printf("Data recieved from client is: %s\n",reply_buffer);
-      if(strcmp(reply_buffer, "quit\n") == 0){
+      if(strcmp(reply_buffer, "quit") == 0){
            printf("EXITING NOW\n");
            close(newSocket);
-           return "-1";
+           return "quit";
        }
-       //malloc this shit
        char* returnMe = malloc(sizeof(char)*strlen(reply_buffer));
        strcpy(returnMe, reply_buffer);
        return returnMe; // 0 maps to other
@@ -108,12 +114,50 @@ int parse_client_data(char* reply_buffer){
    char* size = malloc(sizeof(char)*100);
    char* key = malloc(sizeof(char)*100);
    char* value = malloc(sizeof(char)*100); 
+   int status = 0;
 
    sscanf(reply_buffer, "<cmd>%[^<]</cmd><name>%[^<]</name><length>%[^<]</length><size>%[^<]</size><key>%[^<]</key><value>%[^<]</value>",
     command, name, length,size, key, value);
    printf("command=\"%s\"\nname=\"%s\"\nlength=\"%s\"\nsize=\"%s\"\nkey=\"%s\"\nvalue=\"%s\"\n", command, name, length, size, key, value);
 
-   return 1;
+   if(!strcmp(command, "init")){
+      status = do_init(name,length,size);
+   }else if(!strcmp(command, "insert")){
+      status = do_insert(key,value);
+   }else if(!strcmp(command, "delete")){
+      status = do_delete(key);
+   }else if(!strcmp(command, "lookup")){
+      status = do_lookup(key);
+   }
+   return status;
+}
+
+int do_init(char* name, char* length, char* size){
+
+  return 0;
+}
+
+int do_insert(char* key, char* value){
+  printf("inserting %s, with %s\n",key,value);
+  FILE* my_data = initialize("hashtable");
+  insert(my_data, key, value, sizeof(value));
+  return 0;
+}
+
+int do_lookup(char* key){
+  printf("look up %s\n",key);
+  FILE* my_data = initialize("hashtable");
+  char result[max_value_size];
+  int length;
+  int* len = &length;
+  fetch(my_data, result, key, len);
+  printf("FOUND: %s\n", result);
+  return 0;
+}
+
+int do_delete(char* key){
+
+  return 0;
 }
 
 int AcceptConnections(int sock_fd){
@@ -132,8 +176,14 @@ int AcceptConnections(int sock_fd){
          printf("in child!!!\n");
          // loop for an ongoing conversation with the client
          while(1){ 
+            // 0 maps to other, 1 maps to no, 2 maps to yes 
+            char* data_recieved = RecieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
+            if(strcmp(data_recieved, "quit") == 0){
+               printf("User Quitting Now.\n");
+               return QUIT;
+            }
             // 0 maps to other, 1 maps to no, 2 maps to yes
-            int status = parse_client_data(RecieveData(newSocket)); //we can change the return value to a char* but then we would have to allocate memory
+            int status = parse_client_data(data_recieved); //we can change the return value to a char* but then we would have to allocate memory
             SendData(sock_fd, newSocket, status);
          }
          return 0;
