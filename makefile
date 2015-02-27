@@ -10,6 +10,7 @@
 
 flags = -g -O0 -Wall -Wextra -std=gnu99 -lm
 OBJECTS = kvs2.o testing.o
+SERVER_OBJECTS = kvs2.o server.o
 BIGTESTOBJ = kvs2.o bigKvsTest.o
 
 % : %.c 
@@ -17,14 +18,14 @@ BIGTESTOBJ = kvs2.o bigKvsTest.o
 
 all : Server Client testing
 
-server : Server
-	./Server
-
 client : Client
 	./Client
 
 testing : $(OBJECTS)
 	gcc $(OBJECTS) -o testing
+
+Server : $(SERVER_OBJECTS)
+	gcc $(SERVER_OBJECTS) -o server
 
 bigTest: $(BIGTESTOBJ)
 	gcc $(BIGTESTOBJ) -o bigTest ${flags}
@@ -37,6 +38,9 @@ kvs2.o : kvs2.c
 
 testing.o : testing.c
 	gcc -c testing.c ${flags}
+
+server.o : Server.c
+	gcc -c Server.c ${flags}
 
 clean:
 	@rm -f Server Client kvs testing *~ *.o *.dSYM testTable bigTestTable
