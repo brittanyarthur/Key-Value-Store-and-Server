@@ -15,6 +15,7 @@ char* do_insert();
 char* do_delete();
 char* do_lookup();
 char* do_init();
+char* do_quit();
 int parse_command_response(char* response);
 //char* BuildPacket(char* cmd, char* name, char* length, char* size, char* key, char* value);
 
@@ -33,6 +34,7 @@ int main( int argc, char * argv[] )
          write_result = WriteData(sock_fd);
          if(write_result == 1){
             printf("We hope you enjoyed using the hashtable.\n");
+            close(sock_fd);
             return 0;
          }
       }else{
@@ -89,6 +91,7 @@ int OpenSocket(int port, const char* remote_IP)
 int WriteData(int sock_fd){
    //Ask user for action
    int no_response = 1;
+   int quit = 1;
    char* write_buffer;
    while(no_response){ //loop until there is a response
       printf("\n[I]nsert: add a key/value pair to keystore.\n[D]elete: delete a key/value pair from keystore.\n[L]ookup: lookup value in keystore.\n[S]etup: configure keystore.\n[Q]uit: quit: \n");
@@ -112,7 +115,7 @@ int WriteData(int sock_fd){
        case 3:
          write_buffer = do_init(); break;
        case 4:
-         return 1;
+         write_buffer = do_quit(); quit = 0; break;
        case -1:
          printf("Invalid command. Please try again.\n");
          no_response = 1;
@@ -125,6 +128,9 @@ int WriteData(int sock_fd){
    if(result_status < 0){
       printf("An error occured sending data from the client to the server.\n");
       return -1;
+   }
+   if(quit == 0){ //User would like to quit out of server
+      return 1;
    }
    return 0;
 }
@@ -149,6 +155,12 @@ int parse_command_response(char* command_response){
    return -1;
 }
 
+char* do_quit(){
+   char* packet = (char*)malloc(sizeof(char)*4 + 1);
+   strcpy(packet, "quit");
+   return packet;
+}
+
 char* do_insert(){
    printf("\nKey: ");
    char key_buffer[256];
@@ -162,7 +174,8 @@ char* do_insert(){
    value_buffer[strlen(value_buffer)-1] = '\0';
 
    char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
-   int cmdsize = strlen(key_buffer) + strlen(value_buffer) + strlen(formatter) + 4 + 1;
+   int character_additions = strlen("lookup") + 1;
+   int cmdsize = strlen(key_buffer) + strlen(value_buffer) + strlen(formatter) + character_additions;
    char* packet = malloc(cmdsize);
    snprintf(packet, cmdsize, "<cmd>lookup</cmd><name></name><length></length><size></size><key>%s</key><value>%s</value>", key_buffer, value_buffer);
    printf("packet is %s\n", packet);
@@ -177,7 +190,8 @@ char* do_delete(){
    key_buffer[strlen(key_buffer)-1] = '\0';
 
    char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
-   int cmdsize = strlen(key_buffer) + strlen(formatter) + 4 + 1;
+   int character_additions = strlen("delete") + 1;
+   int cmdsize = strlen(key_buffer) + strlen(formatter) + character_additions;
    char* packet = malloc(cmdsize);
    snprintf(packet, cmdsize, "<cmd>delete</cmd><name></name><length></length><size></size><key>%s</key><value></value>", key_buffer);
    printf("packet is %s\n", packet);
@@ -192,7 +206,8 @@ char* do_lookup(){
    key_buffer[strlen(key_buffer)-1] = '\0';
 
    char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
-   int cmdsize = strlen(key_buffer) + strlen(formatter) + 4 + 1;
+   int character_additions = strlen("lookup") + 1;
+   int cmdsize = strlen(key_buffer) + strlen(formatter) + character_additions;
    char* packet = malloc(cmdsize);
    snprintf(packet, cmdsize, "<cmd>lookup</cmd><name></name><length></length><size></size><key>%s</key><value></value>", key_buffer);
    printf("packet is %s\n", packet);

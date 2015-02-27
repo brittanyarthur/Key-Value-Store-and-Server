@@ -12,6 +12,8 @@ int AcceptConnections(int sock_fd);
 int RecieveData(int newSocket);
 int SendData(int sock_fd, int newSocket, int data_recieved);
 
+#define QUIT       1
+
 typedef struct sockaddr_in sockaddr_in;
 
 int main(int argc , char *argv[])
@@ -94,9 +96,10 @@ int RecieveData(int newSocket){
            return 1; // 1 maps to no
        } else if(strcmp(reply_buffer, "yes\n") == 0){
            return 2; // 2 maps to yes
-       } else if(strcmp(reply_buffer, "quit\n") == 0){
+       } else if(strcmp(reply_buffer, "quit") == 0){
            printf("EXITING NOW\n");
            close(newSocket);
+           return QUIT; // 
        }
        return 0; // 0 maps to other
     }
@@ -120,6 +123,10 @@ int AcceptConnections(int sock_fd){
          while(1){ 
             // 0 maps to other, 1 maps to no, 2 maps to yes 
             int data_recieved = RecieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
+            if(data_recieved == 1){
+               printf("User Quitting Now.\n");
+               return QUIT;
+            }
             if(data_recieved == -1){
                 printf("Error recieving data.\n"); 
                 return -1;
