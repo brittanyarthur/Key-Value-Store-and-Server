@@ -161,10 +161,10 @@ char* do_insert(){
    fgets(value_buffer, sizeof(value_buffer), stdin);
    value_buffer[strlen(value_buffer)-1] = '\0';
 
-   char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
-   int cmdsize = strlen(key_buffer) + strlen(value_buffer) + strlen(formatter) + 4 + 1;
-   char* packet = malloc(cmdsize);
-   sprintf(packet, "<cmd>lookup</cmd><name>NONE</name><length>NONE</length><size>NONE</size><key>%s</key><value>%s</value>", key_buffer, value_buffer);
+   char* formatter = "<cmd>insert</cmd><name>NONE</name><length>NONE</length><size>NONE</size><key></key><value></value>";
+   int cmdsize = strlen(key_buffer) + strlen(value_buffer) + strlen(formatter) + 1;
+   char* packet = malloc(cmdsize*sizeof(char));
+   sprintf(packet, "<cmd>insert</cmd><name>NONE</name><length>NONE</length><size>NONE</size><key>%s</key><value>%s</value>", key_buffer, value_buffer);
    printf("packet is %s\n", packet);
    return packet;
 }
@@ -176,8 +176,8 @@ char* do_delete(){
    fgets(key_buffer, sizeof(key_buffer), stdin);
    key_buffer[strlen(key_buffer)-1] = '\0';
 
-   char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
-   int cmdsize = strlen(key_buffer) + strlen(formatter) + 4 + 1;
+   char* formatter = "<cmd>delete</cmd><name>NONE</name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
+   int cmdsize = strlen(key_buffer) + strlen(formatter) + 1;
    char* packet = malloc(cmdsize);
    sprintf(packet, "<cmd>delete</cmd><name>NONE</name><length>NONE</length><size>NONE</size><key>%s</key><value>NONE</value>", key_buffer);
    printf("packet is %s\n", packet);
@@ -191,8 +191,8 @@ char* do_lookup(){
    fgets(key_buffer, sizeof(key_buffer), stdin);
    key_buffer[strlen(key_buffer)-1] = '\0';
 
-   char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
-   int cmdsize = strlen(key_buffer) + strlen(formatter) + 4 + 1;
+   char* formatter = "<cmd>lookup</cmd><name>NONE</name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
+   int cmdsize = strlen(key_buffer) + strlen(formatter) + 1;
 
    //char* packet = malloc(cmdsize*sizeof(char));
    char* packet = malloc(cmdsize); //no
@@ -218,8 +218,8 @@ char* do_init(){
    fgets(size_buffer, sizeof(size_buffer), stdin);
    size_buffer[strlen(size_buffer)-1] = '\0';
 
-   char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
-   int cmdsize = strlen(name_buffer) + strlen(length_buffer) + strlen(size_buffer) + strlen(formatter) + 4 + 1;
+   char* formatter = "<cmd>init</cmd><name></name><length></length><size></size><key>NONE</key><value>NONE</value>";
+   int cmdsize = strlen(name_buffer) + strlen(length_buffer) + strlen(size_buffer) + strlen(formatter) + 1;
    char* packet = malloc(cmdsize);
    sprintf(packet, "<cmd>init</cmd><name>%s</name><length>%s</length><size>%s</size><key>NONE</key><value>NONE</value>", name_buffer, length_buffer, size_buffer);
    printf("packet is %s\n", packet);

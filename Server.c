@@ -113,6 +113,16 @@ int parse_client_data(char* reply_buffer){
     command, name, length,size, key, value);
    printf("command=\"%s\"\nname=\"%s\"\nlength=\"%s\"\nsize=\"%s\"\nkey=\"%s\"\nvalue=\"%s\"\n", command, name, length, size, key, value);
 
+   if(!strcmp(command, "init")){
+
+   }else if(!strcmp(command, "insert")){
+
+   }else if(!strcmp(command, "delete")){
+
+   }else if(!strcmp(command, "lookup")){
+
+   }
+
    return 1;
 }
 
