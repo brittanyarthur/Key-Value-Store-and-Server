@@ -1,4 +1,4 @@
-//Server.c 
+//Server.c
 #include <stdio.h>
 #include <string.h>     //strlen
 #include <sys/socket.h>
@@ -36,15 +36,15 @@ int main(int argc , char *argv[])
        //Accept the incoming connection
        AcceptConnections(sock_fd);
     }
-     
+
     return 0;
 }
 
 int OpenSocket(int port)
-{   
+{
    struct sockaddr_in socketinfo; //https://msdn.microsoft.com/en-us/library/aa917469.aspx
    //create socket
-   int sock_fd = socket( PF_INET, SOCK_STREAM, 0); 
+   int sock_fd = socket( PF_INET, SOCK_STREAM, 0);
    if(sock_fd == -1)
    {
    	  printf("Could not create socket.\n");
@@ -52,11 +52,11 @@ int OpenSocket(int port)
    }
 
    //socket binds to localhost
-   socketinfo.sin_addr.s_addr = inet_addr("127.0.0.1"); 
+   socketinfo.sin_addr.s_addr = inet_addr("127.0.0.1");
    //in internet family
    socketinfo.sin_family = AF_INET;
    //connect socket to the port
-   socketinfo.sin_port = htons(port); 
+   socketinfo.sin_port = htons(port);
 
    //make pointer to socket info
    struct sockaddr_in* info_ptr = &socketinfo;
@@ -113,7 +113,7 @@ int parse_client_data(char* reply_buffer, int sock_fd, int newSocket){
    char* length = malloc(sizeof(char)*100);
    char* size = malloc(sizeof(char)*100);
    char* key = malloc(sizeof(char)*100);
-   char* value = malloc(sizeof(char)*100); 
+   char* value = malloc(sizeof(char)*100);
    int status = 0;
 
    sscanf(reply_buffer, "<cmd>%[^<]</cmd><name>%[^<]</name><length>%[^<]</length><size>%[^<]</size><key>%[^<]</key><value>%[^<]</value>",
@@ -133,6 +133,10 @@ int parse_client_data(char* reply_buffer, int sock_fd, int newSocket){
 }
 
 int do_init(char* name, char* length, char* size, int sock_fd, int newSocket){
+   (void)length;
+   (void)size;
+   (void)sock_fd;
+   (void)newSocket;
   FILE* my_data = initialize(name);
   fclose(my_data);
   return 0;
@@ -159,6 +163,7 @@ int do_insert(char* key, char* value, int sock_fd, int newSocket){
 }
 
 int do_lookup(char* key, int sock_fd, int newSocket){
+   (void)newSocket;
   printf("look up %s\n",key);
   FILE* my_data = initialize("hashtable");
   char result[max_value_size];
@@ -172,6 +177,9 @@ int do_lookup(char* key, int sock_fd, int newSocket){
 }
 
 int do_delete(char* key, int sock_fd, int newSocket){
+   (void)key;
+   (void)sock_fd;
+   (void)newSocket;
 
   return 0;
 }
@@ -190,20 +198,22 @@ int AcceptConnections(int sock_fd){
       if(pid == 0) { //child process
          printf("in child!!!\n");
          // loop for an ongoing conversation with the client
-         while(1){ 
-            // 0 maps to other, 1 maps to no, 2 maps to yes 
+         while(1){
+            // 0 maps to other, 1 maps to no, 2 maps to yes
             char* data_recieved = RecieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
             if(strcmp(data_recieved, "quit") == 0){
                printf("User Quitting Now.\n");
                return QUIT;
             }
             // 0 maps to other, 1 maps to no, 2 maps to yes
-            int status = parse_client_data(data_recieved, sock_fd, newSocket); //we can change the return value to a char* but then we would have to allocate memory
+
+            //INT STATUS COMMEDTED B/C UNUSED
+            //int status = parse_client_data(data_recieved, sock_fd, newSocket); //we can change the return value to a char* but then we would have to allocate memory
             //SendData(sock_fd, newSocket, status);
          }
          return 0;
       }else{
-         //wait(&pid); 
+         //wait(&pid);
          printf("in parent!!!\n");
       }
     }
@@ -217,7 +227,7 @@ int SendData(int sock_fd, int newSocket, char* data_recieved)
     	printf("Error sending message\n");
     	return -1;
     }
-    printf("Message Successfully Sent.\n");	
+    printf("Message Successfully Sent.\n");
     return 0;
 }
 
