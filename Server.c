@@ -19,6 +19,8 @@ int do_insert(char* key, char* value);
 int do_lookup(char* key);
 int do_delete(char* key);
 
+#define QUIT       1
+
 typedef struct sockaddr_in sockaddr_in;
 
 int main(int argc , char *argv[])
@@ -94,12 +96,11 @@ char* RecieveData(int newSocket){
         return "-1";
     }else{
       printf("Data recieved from client is: %s\n",reply_buffer);
-      if(strcmp(reply_buffer, "quit\n") == 0){
+      if(strcmp(reply_buffer, "quit") == 0){
            printf("EXITING NOW\n");
            close(newSocket);
-           return "-1";
+           return "quit";
        }
-       //malloc this shit
        char* returnMe = malloc(sizeof(char)*strlen(reply_buffer));
        strcpy(returnMe, reply_buffer);
        return returnMe; // 0 maps to other
@@ -175,8 +176,14 @@ int AcceptConnections(int sock_fd){
          printf("in child!!!\n");
          // loop for an ongoing conversation with the client
          while(1){ 
+            // 0 maps to other, 1 maps to no, 2 maps to yes 
+            char* data_recieved = RecieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
+            if(strcmp(data_recieved, "quit") == 0){
+               printf("User Quitting Now.\n");
+               return QUIT;
+            }
             // 0 maps to other, 1 maps to no, 2 maps to yes
-            int status = parse_client_data(RecieveData(newSocket)); //we can change the return value to a char* but then we would have to allocate memory
+            int status = parse_client_data(data_recieved); //we can change the return value to a char* but then we would have to allocate memory
             SendData(sock_fd, newSocket, status);
          }
          return 0;
