@@ -8,7 +8,7 @@
 # -lm:     links the math library which is stupid, used in kvs.c
 
 
-flags = -g -O0 -Wall -Wextra -std=gnu99 -lm
+flags = -g -O0 -Wall -Wextra -std=gnu99
 OBJECTS = kvs2.o testing.o
 SERVER_OBJECTS = kvs2.o server.o
 BIGTESTOBJ = kvs2.o bigKvsTest.o
