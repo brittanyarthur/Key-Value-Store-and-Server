@@ -133,7 +133,8 @@ int parse_client_data(char* reply_buffer, int sock_fd, int newSocket){
 }
 
 int do_init(char* name, char* length, char* size, int sock_fd, int newSocket){
-
+  FILE* my_data = initialize(name);
+  fclose(my_data);
   return 0;
 }
 
@@ -141,8 +142,18 @@ int do_insert(char* key, char* value, int sock_fd, int newSocket){
   printf("inserting %s, with %s\n",key,value);
   FILE* my_data = initialize("hashtable");
   insert(my_data, key, value, sizeof(value));
+  char result[max_value_size];
+  int length;
+  int * len = &length;
+  fetch(my_data, result, key, len);
+  if(!strcmp(result, value)){
+    //insert success
+    fclose(my_data);
+    return 0;
+  }
+  //insert failure
   fclose(my_data);
-  return 0;
+  return 1;
 }
 
 int do_lookup(char* key, int sock_fd, int newSocket){
@@ -154,8 +165,7 @@ int do_lookup(char* key, int sock_fd, int newSocket){
   fetch(my_data, result, key, len);
   printf("FOUND: %s\n", result);
   fclose(my_data);
-  SendData(sock_fd, newSocket, result);
-  return 0;
+  return SendData(sock_fd, newSocket, result);
 }
 
 int do_delete(char* key, int sock_fd, int newSocket){
@@ -167,7 +177,6 @@ int AcceptConnections(int sock_fd){
     while(1){
       //Listen for an incoming connection
       if(ListenIncomingConnection(sock_fd) == -1) printf("Error while listening\n");
-
       printf("about to fork 2 processes - child and parent. \n");
       struct sockaddr_in newclient; //accept creates a new socket
       socklen_t size = sizeof newclient;
@@ -201,15 +210,6 @@ int SendData(int sock_fd, int newSocket, char* data_recieved)
 {
     (void)sock_fd;
     //Finally, a message can be sent!
-    /*
-    char buffer[256];
-    if(data_recieved == 1){
-       strcpy(buffer,"It must be a study day for you then!"); 
-    }else if(data_recieved == 2){
-       strcpy(buffer,"Today is BRIGHT."); 
-    }else{
-       strcpy(buffer,"Nooo you have to answer the question!!"); 
-    }*/
     if(send(newSocket,data_recieved,sizeof(data_recieved),0) < 0){
     	printf("Error sending message\n");
     	return -1;
