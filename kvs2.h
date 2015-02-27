@@ -5,6 +5,7 @@ FILE* initialize(char* name);
 
 int fetch(FILE* store, void* result, char* key, int* length);
 int insert(FILE* store, char* key, void* value, int length);
+unsigned long hash(char *str); //REMOVE THIS FROM HEADER 
 
 int delete(char* key);
 

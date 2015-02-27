@@ -149,7 +149,7 @@ char* do_insert(){
    char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
    int cmdsize = strlen(key_buffer) + strlen(value_buffer) + strlen(formatter) + 4 + 1;
    char* packet = malloc(cmdsize);
-   snprintf(packet, cmdsize, "<cmd>lookup</cmd><name></name><length></length><size></size><key>%s</key><value>%s</value>", key_buffer, value_buffer);
+   sprintf(packet, "<cmd>lookup</cmd><name>NONE</name><length>NONE</length><size>NONE</size><key>%s</key><value>%s</value>", key_buffer, value_buffer);
    printf("packet is %s\n", packet);
    return packet;
 }
@@ -164,7 +164,7 @@ char* do_delete(){
    char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
    int cmdsize = strlen(key_buffer) + strlen(formatter) + 4 + 1;
    char* packet = malloc(cmdsize);
-   snprintf(packet, cmdsize, "<cmd>delete</cmd><name></name><length></length><size></size><key>%s</key><value></value>", key_buffer);
+   sprintf(packet, "<cmd>delete</cmd><name>NONE</name><length>NONE</length><size>NONE</size><key>%s</key><value>NONE</value>", key_buffer);
    printf("packet is %s\n", packet);
    return packet;
 }
@@ -178,16 +178,11 @@ char* do_lookup(){
 
    char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
    int cmdsize = strlen(key_buffer) + strlen(formatter) + 4 + 1;
-   char* packet = malloc(cmdsize);
-   snprintf(packet, cmdsize, "<cmd>lookup</cmd><name></name><length></length><size></size><key>%s</key><value></value>", key_buffer);
-   printf("packet=\"%s\".\n", packet);
 
-
-   char* commandType = malloc(sizeof(char)*100);
-   sscanf(packet, "<cmd>%s</cmd><name></name><length></length><size></size><key></key><value></value>", commandType);
-   printf("commandType=\"%s\".\n", commandType);
-
-   //printf("packet is %s\n", packet);
+   //char* packet = malloc(cmdsize*sizeof(char));
+   char* packet = malloc(cmdsize); //no
+   sprintf(packet, "<cmd>lookup</cmd><name>NONE</name><length>NONE</length><size>NONE</size><key>%s</key><value>NONE</value>", key_buffer);
+   printf("packet is %s\n", packet);
    return packet;
 }
 
@@ -211,7 +206,7 @@ char* do_init(){
    char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
    int cmdsize = strlen(name_buffer) + strlen(length_buffer) + strlen(size_buffer) + strlen(formatter) + 4 + 1;
    char* packet = malloc(cmdsize);
-   snprintf(packet, cmdsize, "<cmd>init</cmd><name>%s</name><length>%s</length><size>%s</size><key></key><value></value>", name_buffer, length_buffer, size_buffer);
+   sprintf(packet, "<cmd>init</cmd><name>%s</name><length>%s</length><size>%s</size><key>NONE</key><value>NONE</value>", name_buffer, length_buffer, size_buffer);
    printf("packet is %s\n", packet);
    return packet;
 }
