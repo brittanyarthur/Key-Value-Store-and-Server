@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>     //strlen
 #include <sys/socket.h>
+#include <stdlib.h>
 #include <arpa/inet.h>  //inet_addr
 #include <unistd.h>     //fork(), access(2)
 #include <sys/wait.h>   //wait()
@@ -9,8 +10,9 @@
 int OpenSocket(int port);
 int ListenIncomingConnection(int sock_fd);
 int AcceptConnections(int sock_fd);
-int RecieveData(int newSocket);
+char* RecieveData(int newSocket);
 int SendData(int sock_fd, int newSocket, int data_recieved);
+int parse_client_data(char* reply_buffer);
 
 #define QUIT       1
 
@@ -76,7 +78,7 @@ int ListenIncomingConnection(int sock_fd){
     return 0;
 }
 
-int RecieveData(int newSocket){
+char* RecieveData(int newSocket){
     printf("about to recieve data\n");
     //get the incoming message from the client.
     char reply_buffer[256];
@@ -86,23 +88,34 @@ int RecieveData(int newSocket){
     if(recv(newSocket, reply_buffer, 256, 0) < 0)
     {
         printf("Failed to recieve message.\n");
-        return -1;
+        return "-1";
     }else{
-       printf("Data recieved from client is: %s\n",reply_buffer);
-       //parse_client_data(reply_buffer);
-       
-       //change this parser
-       if(strcmp(reply_buffer, "no\n") == 0){
-           return 1; // 1 maps to no
-       } else if(strcmp(reply_buffer, "yes\n") == 0){
-           return 2; // 2 maps to yes
-       } else if(strcmp(reply_buffer, "quit") == 0){
+      printf("Data recieved from client is: %s\n",reply_buffer);
+      if(strcmp(reply_buffer, "quit\n") == 0){
            printf("EXITING NOW\n");
            close(newSocket);
-           return QUIT; // 
+           return "-1";
        }
-       return 0; // 0 maps to other
+       //malloc this shit
+       char* returnMe = malloc(sizeof(char)*strlen(reply_buffer));
+       strcpy(returnMe, reply_buffer);
+       return returnMe; // 0 maps to other
     }
+}
+
+int parse_client_data(char* reply_buffer){
+   char* command = malloc(sizeof(char)*100);
+   char* name = malloc(sizeof(char)*100);
+   char* length = malloc(sizeof(char)*100);
+   char* size = malloc(sizeof(char)*100);
+   char* key = malloc(sizeof(char)*100);
+   char* value = malloc(sizeof(char)*100); 
+
+   sscanf(reply_buffer, "<cmd>%[^<]</cmd><name>%[^<]</name><length>%[^<]</length><size>%[^<]</size><key>%[^<]</key><value>%[^<]</value>",
+    command, name, length,size, key, value);
+   printf("command=\"%s\"\nname=\"%s\"\nlength=\"%s\"\nsize=\"%s\"\nkey=\"%s\"\nvalue=\"%s\"\n", command, name, length, size, key, value);
+
+   return 1;
 }
 
 int AcceptConnections(int sock_fd){
@@ -127,11 +140,9 @@ int AcceptConnections(int sock_fd){
                printf("User Quitting Now.\n");
                return QUIT;
             }
-            if(data_recieved == -1){
-                printf("Error recieving data.\n"); 
-                return -1;
-            }
-            SendData(sock_fd, newSocket, data_recieved);
+            // 0 maps to other, 1 maps to no, 2 maps to yes
+            int status = parse_client_data(data_recieved); //we can change the return value to a char* but then we would have to allocate memory
+            SendData(sock_fd, newSocket, status);
          }
          return 0;
       }else{

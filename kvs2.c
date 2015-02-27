@@ -222,7 +222,7 @@ int delete(char* key){
 
 //pass
 void read_int_array(FILE* store, char* key, int length){
-	length=length; //prevent unused parameter warning
+	(void)length; //prevent unused parameter warning
 	int result[5];
 	for(int k = 0; k < 5; k++){
 		result[k] = 0; //fill result with zeros
@@ -238,7 +238,7 @@ void read_int_array(FILE* store, char* key, int length){
 
 //pass
 void read_char_array(FILE* store, char* key, int length){
-	length=length; //prevent unused parameter warning
+	(void)length; //prevent unused parameter warning
 	char result[100];
 	int len_storage = 0;
 	int *len_ptr = &len_storage;

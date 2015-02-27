@@ -42,6 +42,8 @@ int main(){
 	return 0;
 }
 
+
+
 //collision on same key
 int insert_test1(FILE* file){
 	char* key = "brit"; 
@@ -108,7 +110,7 @@ int insert_test2(FILE* file){
 //---------------------- TEST HELPER FUNCTIONS --------------------
 
 int print_matching_index(FILE* file){
-	file=file; 	//prevent unused parameter warning
+	(void)file; 	//prevent unused parameter warning
 	char* key = "mango";
 	unsigned int index = hash(key)%table_size;
 	char key_matching_index[key_size];
