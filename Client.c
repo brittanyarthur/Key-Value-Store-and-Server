@@ -207,8 +207,6 @@ char* do_lookup(){
 
    char* formatter = "<cmd>lookup</cmd><name>NONE</name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
    int cmdsize = strlen(key_buffer) + strlen(formatter) + 1;
-   int character_additions = strlen("lookup") + 1;
-   int cmdsize = strlen(key_buffer) + strlen(formatter) + character_additions;
    char* packet = malloc(cmdsize);
    sprintf(packet, "<cmd>lookup</cmd><name>NONE</name><length>NONE</length><size>NONE</size><key>%s</key><value>NONE</value>", key_buffer);
 
@@ -236,6 +234,7 @@ char* do_init(){
    char* formatter = "<cmd>init</cmd><name></name><length></length><size></size><key>NONE</key><value>NONE</value>";
    int cmdsize = strlen(name_buffer) + strlen(length_buffer) + strlen(size_buffer) + strlen(formatter) + 1;
    char* packet = malloc(cmdsize);
+   
    sprintf(packet, "<cmd>init</cmd><name>%s</name><length>%s</length><size>%s</size><key>NONE</key><value>NONE</value>", name_buffer, length_buffer, size_buffer);
    printf("packet is %s\n", packet);
    return packet;
