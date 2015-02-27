@@ -5,12 +5,10 @@
 # -Wall:   all warnings
 # -Wextra: even more warnings. Can be annoying or helpful.
 # -std=gnu99: uses a reasonable version of C
-# -lm:     links the math library which is stupid, used in kvs.c
-
 
 flags = -g -O0 -Wall -Wextra -std=gnu99
 OBJECTS = kvs2.o testing.o
-SERVER_OBJECTS = kvs2.o server.o
+SERVER_OBJECTS = kvs2.o Server.o
 BIGTESTOBJ = kvs2.o bigKvsTest.o
 
 % : %.c 
@@ -39,7 +37,7 @@ kvs2.o : kvs2.c
 testing.o : testing.c
 	gcc -c testing.c ${flags}
 
-server.o : Server.c
+Server.o: Server.c
 	gcc -c Server.c ${flags}
 
 clean:

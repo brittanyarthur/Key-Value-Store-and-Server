@@ -101,7 +101,7 @@ char* RecieveData(int newSocket){
            close(newSocket);
            return "quit";
        }
-       char* returnMe = malloc(sizeof(char)*strlen(reply_buffer));
+       char* returnMe = calloc(strlen(reply_buffer)+5, sizeof(char));
        strcpy(returnMe, reply_buffer);
        return returnMe; // 0 maps to other
     }
