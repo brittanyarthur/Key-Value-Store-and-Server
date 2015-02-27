@@ -149,13 +149,13 @@ int do_insert(char* key, char* value, int sock_fd, int newSocket){
   if(!strcmp(result, value)){
     //insert success
     fclose(my_data);
-    char* result = "INSERT SUCCESS!";
-    return SendData(sock_fd, newSocket, result);
+    char* response = "INSERT SUCCESS!";
+    return SendData(sock_fd, newSocket, response);
   }
   //insert failure
   fclose(my_data);
-  char* result = "INSERT FAILURE";
-  return SendData(sock_fd, newSocket, result);
+  char* response = "INSERT FAILURE";
+  return SendData(sock_fd, newSocket, response);
 }
 
 int do_lookup(char* key, int sock_fd, int newSocket){
