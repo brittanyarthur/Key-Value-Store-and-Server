@@ -60,13 +60,19 @@ int OpenSocket(int port, const char* remote_IP)
    }
 
    // Set IP address
+   // inet_addr interprets character string and returns binary rep of internet address
    remote_server.sin_addr.s_addr = inet_addr(remote_IP); 
    // Address family = Internet 
    remote_server.sin_family = AF_INET;
    // Set port number. htons function creates proper bigendian byte order for networking.
-   remote_server.sin_port = htons( (unsigned short) port ); 
+   remote_server.sin_port = htons(port); 
 
-   if (connect(sock_fd, (struct sockaddr*) &remote_server, sizeof(remote_server)) < 0 )
+   //make pointer to socket info
+   struct sockaddr_in* info_ptr = &remote_server;
+   //convert type
+   struct sockaddr* address_info = (struct sockaddr*)info_ptr;
+
+   if (connect(sock_fd, address_info, sizeof(remote_server)) < 0 )
    {
          printf( "Failed to connect to remote server.\n" );
          return -1;
@@ -81,7 +87,8 @@ int WriteData(int sock_fd){
    char command_buffer[256];
    memset(command_buffer,'\0',strlen(command_buffer));
    fgets(command_buffer, sizeof(command_buffer), stdin);
-   if(strcmp(command_buffer, "quit\n") == 0){
+   command_buffer[strlen(command_buffer)-1] = '\0';
+   if(strcmp(command_buffer, "quit") == 0){
       printf("EXITING NOW\n");
       close(sock_fd);
    }
@@ -111,16 +118,16 @@ int WriteData(int sock_fd){
 }
 
 int parse_command_response(char* command_response){
-   if(strcmp(command_response, "I\n") == 0){
+   if(strcmp(command_response, "I") == 0){
       printf("User said insert\n");
       return 0;
-   }else if(strcmp(command_response, "D\n") == 0){
+   }else if(strcmp(command_response, "D") == 0){
       printf("User said delete\n");
       return 1;
-   }else if(strcmp(command_response, "L\n") == 0){
+   }else if(strcmp(command_response, "L") == 0){
       printf("User said lookup\n");
       return 2;
-   }else if(strcmp(command_response, "S\n") == 0){
+   }else if(strcmp(command_response, "S") == 0){
       printf("User said setup\n");
       return 3;
    }
@@ -132,10 +139,12 @@ char* do_insert(){
    char key_buffer[256];
    memset(key_buffer,'\0',strlen(key_buffer));
    fgets(key_buffer, sizeof(key_buffer), stdin);
+   key_buffer[strlen(key_buffer)-1] = '\0';
    printf("\nValue: ");
    char value_buffer[256];
    memset(value_buffer,'\0',strlen(value_buffer));
    fgets(value_buffer, sizeof(value_buffer), stdin);
+   value_buffer[strlen(value_buffer)-1] = '\0';
 
    char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
    int cmdsize = strlen(key_buffer) + strlen(value_buffer) + strlen(formatter) + 4 + 1;
@@ -150,6 +159,7 @@ char* do_delete(){
    char key_buffer[256];
    memset(key_buffer,'\0',strlen(key_buffer));
    fgets(key_buffer, sizeof(key_buffer), stdin);
+   key_buffer[strlen(key_buffer)-1] = '\0';
 
    char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
    int cmdsize = strlen(key_buffer) + strlen(formatter) + 4 + 1;
@@ -164,6 +174,7 @@ char* do_lookup(){
    char key_buffer[256];
    memset(key_buffer,'\0',strlen(key_buffer));
    fgets(key_buffer, sizeof(key_buffer), stdin);
+   key_buffer[strlen(key_buffer)-1] = '\0';
 
    char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
    int cmdsize = strlen(key_buffer) + strlen(formatter) + 4 + 1;
@@ -185,14 +196,17 @@ char* do_init(){
    char name_buffer[256];
    memset(name_buffer,'\0',strlen(name_buffer));
    fgets(name_buffer, sizeof(name_buffer), stdin);
+   name_buffer[strlen(name_buffer)-1] = '\0';
    printf("\nTable Length: ");
    char length_buffer[256];
    memset(length_buffer,'\0',strlen(length_buffer));
    fgets(length_buffer, sizeof(length_buffer), stdin);
+   length_buffer[strlen(length_buffer)-1] = '\0';
    printf("\nTable Size: ");
    char size_buffer[256];
    memset(size_buffer,'\0',strlen(size_buffer));
    fgets(size_buffer, sizeof(size_buffer), stdin);
+   size_buffer[strlen(size_buffer)-1] = '\0';
 
    char* formatter = "<cmd></cmd><name></name><length></length><size></size><key></key><value></value>";
    int cmdsize = strlen(name_buffer) + strlen(length_buffer) + strlen(size_buffer) + strlen(formatter) + 4 + 1;

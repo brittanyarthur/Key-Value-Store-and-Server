@@ -47,10 +47,15 @@ int OpenSocket(int port)
    //in internet family
    socketinfo.sin_family = AF_INET;
    //connect socket to the port
-   socketinfo.sin_port = htons( port ); 
+   socketinfo.sin_port = htons(port); 
+
+   //make pointer to socket info
+   struct sockaddr_in* info_ptr = &socketinfo;
+   //convert type
+   struct sockaddr* address_info = (struct sockaddr*)info_ptr;
 
    //bind this remote server socket to port
-   if (bind( sock_fd, (struct sockaddr*) &socketinfo, sizeof(socketinfo) ) < 0 )
+   if (bind( sock_fd, address_info, sizeof(socketinfo) ) < 0 )
    {
       printf( "Failed to bind socket.\n" );
       return -1;
