@@ -149,11 +149,13 @@ int do_insert(char* key, char* value, int sock_fd, int newSocket){
   if(!strcmp(result, value)){
     //insert success
     fclose(my_data);
-    return 0;
+    char* result = "INSERT SUCCESS!";
+    return SendData(sock_fd, newSocket, result);
   }
   //insert failure
   fclose(my_data);
-  return 1;
+  char* result = "INSERT FAILURE";
+  return SendData(sock_fd, newSocket, result);
 }
 
 int do_lookup(char* key, int sock_fd, int newSocket){
@@ -165,7 +167,8 @@ int do_lookup(char* key, int sock_fd, int newSocket){
   fetch(my_data, result, key, len);
   printf("FOUND: %s\n", result);
   fclose(my_data);
-  return SendData(sock_fd, newSocket, result);
+  SendData(sock_fd, newSocket, result);
+  return 0;
 }
 
 int do_delete(char* key, int sock_fd, int newSocket){
