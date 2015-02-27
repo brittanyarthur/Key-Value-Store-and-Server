@@ -60,13 +60,19 @@ int OpenSocket(int port, const char* remote_IP)
    }
 
    // Set IP address
+   // inet_addr interprets character string and returns binary rep of internet address
    remote_server.sin_addr.s_addr = inet_addr(remote_IP); 
    // Address family = Internet 
    remote_server.sin_family = AF_INET;
    // Set port number. htons function creates proper bigendian byte order for networking.
-   remote_server.sin_port = htons( (unsigned short) port ); 
+   remote_server.sin_port = htons(port); 
 
-   if (connect(sock_fd, (struct sockaddr*) &remote_server, sizeof(remote_server)) < 0 )
+   //make pointer to socket info
+   struct sockaddr_in* info_ptr = &remote_server;
+   //convert type
+   struct sockaddr* address_info = (struct sockaddr*)info_ptr;
+
+   if (connect(sock_fd, address_info, sizeof(remote_server)) < 0 )
    {
          printf( "Failed to connect to remote server.\n" );
          return -1;
