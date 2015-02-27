@@ -96,7 +96,6 @@ char* RecieveData(int newSocket){
            close(newSocket);
            return "-1";
        }
-       //malloc this shit
        char* returnMe = malloc(sizeof(char)*strlen(reply_buffer));
        strcpy(returnMe, reply_buffer);
        return returnMe; // 0 maps to other
@@ -135,11 +134,11 @@ int AcceptConnections(int sock_fd){
          // loop for an ongoing conversation with the client
          while(1){ 
             // 0 maps to other, 1 maps to no, 2 maps to yes 
-            int data_recieved = RecieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
-            if(data_recieved == 1){
+            char* data_recieved = RecieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
+            /*if(data_recieved == 1){
                printf("User Quitting Now.\n");
                return QUIT;
-            }
+            }*/
             // 0 maps to other, 1 maps to no, 2 maps to yes
             int status = parse_client_data(data_recieved); //we can change the return value to a char* but then we would have to allocate memory
             SendData(sock_fd, newSocket, status);
