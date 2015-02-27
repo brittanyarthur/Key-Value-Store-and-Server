@@ -169,7 +169,14 @@ char* do_lookup(){
    int cmdsize = strlen(key_buffer) + strlen(formatter) + 4 + 1;
    char* packet = malloc(cmdsize);
    snprintf(packet, cmdsize, "<cmd>lookup</cmd><name></name><length></length><size></size><key>%s</key><value></value>", key_buffer);
-   printf("packet is %s\n", packet);
+   printf("packet=\"%s\".\n", packet);
+
+
+   char* commandType = malloc(sizeof(char)*100);
+   sscanf(packet, "<cmd>%s</cmd><name></name><length></length><size></size><key></key><value></value>", commandType);
+   printf("commandType=\"%s\".\n", commandType);
+
+   //printf("packet is %s\n", packet);
    return packet;
 }
 
