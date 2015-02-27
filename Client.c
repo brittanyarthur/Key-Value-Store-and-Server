@@ -83,30 +83,35 @@ int OpenSocket(int port, const char* remote_IP)
 
 int WriteData(int sock_fd){
    //Ask user for action
-   printf("\n[I]nsert: add a key/value pair to keystore.\n[D]elete: delete a key/value pair from keystore.\n[L]ookup: lookup value in keystore.\n[S]etup: configure keystore.\n: ");
-   char command_buffer[256];
-   memset(command_buffer,'\0',strlen(command_buffer));
-   fgets(command_buffer, sizeof(command_buffer), stdin);
-   command_buffer[strlen(command_buffer)-1] = '\0';
-   if(strcmp(command_buffer, "quit") == 0){
-      printf("EXITING NOW\n");
-      close(sock_fd);
-   }
-   //Parse user action decision
+   int no_response = 1;
    char* write_buffer;
-   switch(parse_command_response(command_buffer)){
-      case 0:
-         write_buffer = do_insert(); break;
-      case 1:
+   while(no_response){ //loop until there is a response
+      printf("\n[I]nsert: add a key/value pair to keystore.\n[D]elete: delete a key/value pair from keystore.\n[L]ookup: lookup value in keystore.\n[S]etup: configure keystore.\n: ");
+      char command_buffer[256];
+      memset(command_buffer,'\0',strlen(command_buffer));
+      fgets(command_buffer, sizeof(command_buffer), stdin);
+      command_buffer[strlen(command_buffer)-1] = '\0';
+      if(strcmp(command_buffer, "quit") == 0){
+         printf("EXITING NOW\n");
+         close(sock_fd);
+      }
+      //Parse user action decision
+      no_response = 0;
+      switch(parse_command_response(command_buffer)){
+       case 0:
+            write_buffer = do_insert(); break;
+       case 1:
          write_buffer = do_delete(); break;
-      case 2:
+       case 2:
          write_buffer = do_lookup(); break;
-      case 3:
+       case 3:
          write_buffer = do_init(); break;
-      case -1:
-         printf("Invalid command\n");
-         return 0;
+       case -1:
+         printf("Invalid command. Please try again.\n");
+         no_response = 1;
+      }
    }
+   
    //Send formed packet to server
    printf("writing to server: %s\n", write_buffer);
    int result_status = write(sock_fd, write_buffer, strlen(write_buffer));
