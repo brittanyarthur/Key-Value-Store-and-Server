@@ -91,10 +91,10 @@ char* RecieveData(int newSocket){
         return "-1";
     }else{
       printf("Data recieved from client is: %s\n",reply_buffer);
-      if(strcmp(reply_buffer, "quit\n") == 0){
+      if(strcmp(reply_buffer, "quit") == 0){
            printf("EXITING NOW\n");
            close(newSocket);
-           return "-1";
+           return "quit";
        }
        char* returnMe = malloc(sizeof(char)*strlen(reply_buffer));
        strcpy(returnMe, reply_buffer);
@@ -135,10 +135,10 @@ int AcceptConnections(int sock_fd){
          while(1){ 
             // 0 maps to other, 1 maps to no, 2 maps to yes 
             char* data_recieved = RecieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
-            /*if(data_recieved == 1){
+            if(strcmp(data_recieved, "quit") == 0){
                printf("User Quitting Now.\n");
                return QUIT;
-            }*/
+            }
             // 0 maps to other, 1 maps to no, 2 maps to yes
             int status = parse_client_data(data_recieved); //we can change the return value to a char* but then we would have to allocate memory
             SendData(sock_fd, newSocket, status);
