@@ -169,20 +169,21 @@ char* do_insert(){
    printf("\nKey: ");
 
    char* key_buffer = calloc(256, sizeof(char)); //calloc zeroes memory for you!
-   //char key_buffer[256];
-   //memset(key_buffer,'\0',strlen(key_buffer));
+
 
    fgets(key_buffer, sizeof(key_buffer), stdin);
-   //key_buffer[strlen(key_buffer)-1] = '\0';
+
+   //strip trailing newline. see http://stackoverflow.com/a/2693826
    strtok(key_buffer, "\n");
+
    printf("\nValue: ");
 
    char* value_buffer = calloc(256, sizeof(char)); //calloc zeroes memory for you!
-   //char value_buffer[256];
-   //memset(value_buffer,'\0',strlen(value_buffer));
+
 
    fgets(value_buffer, sizeof(value_buffer), stdin);
-   //value_buffer[strlen(value_buffer)-1] = '\0';
+
+   //strip trailing newline. see http://stackoverflow.com/a/2693826
    strtok(value_buffer, "\n");
 
    char* formatter = "<cmd>insert</cmd><name>NONE</name><length>NONE</length><size>NONE</size><key></key><value></value>";
@@ -254,7 +255,10 @@ char* do_init(){
 
 
 int RecieveData(int sock_fd){
-   unsigned char reply_buffer[256];
+   //unsigned char reply_buffer[256];
+
+   char* reply_buffer = calloc(sizeof(char), 50);
+
    // recv() will block until there is some data to read.
    if(recv(sock_fd, reply_buffer, 256, 0) < 0)
    {
