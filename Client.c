@@ -241,7 +241,7 @@ char* do_init(){
 }
 
 int RecieveData(int sock_fd){
-   unsigned char reply_buffer[256];
+   char* reply_buffer = calloc(sizeof(char), 50);
    // recv() will block until there is some data to read.
    if(recv(sock_fd, reply_buffer, 256, 0) < 0)
    {

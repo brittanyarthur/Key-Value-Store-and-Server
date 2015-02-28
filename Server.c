@@ -101,6 +101,10 @@ char* RecieveData(int newSocket){
            close(newSocket);
            return "quit";
        }
+       if(!strcmp(reply_buffer, "")){
+       printf("Exit from killed client.\n");
+       return "quit";
+       }
        char* returnMe = malloc(sizeof(char)*strlen(reply_buffer));
        strcpy(returnMe, reply_buffer);
        return returnMe; // 0 maps to other
@@ -208,7 +212,7 @@ int SendData(int sock_fd, int newSocket, char* data_recieved)
 {
     (void)sock_fd;
     //Finally, a message can be sent!
-    if(send(newSocket,data_recieved,sizeof(data_recieved),0) < 0){
+    if(send(newSocket,data_recieved,strlen(data_recieved),0) < 0){
     	printf("Error sending message\n");
     	return -1;
     }
