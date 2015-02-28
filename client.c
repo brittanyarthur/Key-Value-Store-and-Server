@@ -97,8 +97,7 @@ int WriteData(int sock_fd){
    char* write_buffer;
    while(no_response){ //loop until there is a response
       printf("\n[I]nsert: add a key/value pair to keystore.\n[D]elete: delete a key/value pair from keystore.\n[L]ookup: lookup value in keystore.\n[S]etup: configure keystore.\n[Q]uit: quit: \n");
-      char command_buffer[256];
-      memset(command_buffer,'\0',strlen(command_buffer));
+      char* command_buffer = calloc(256, sizeof(char));
       fgets(command_buffer, sizeof(command_buffer), stdin);
       command_buffer[strlen(command_buffer)-1] = '\0';
       if(strcmp(command_buffer, "quit") == 0){
@@ -163,26 +162,24 @@ int parse_command_response(char* command_response){
 }
 
 char* do_quit(){
-   char* packet = (char*)malloc(sizeof(char)*4 + 1);
+   char* packet = calloc(sizeof(char), 4 + 1);
    strcpy(packet, "quit");
    return packet;
 }
 
 char* do_insert(){
    printf("\nKey: ");
-   char key_buffer[256];
-   memset(key_buffer,'\0',strlen(key_buffer));
+   char* key_buffer = calloc(256, sizeof(char));
    fgets(key_buffer, sizeof(key_buffer), stdin);
    key_buffer[strlen(key_buffer)-1] = '\0';
    printf("\nValue: ");
-   char value_buffer[256];
-   memset(value_buffer,'\0',strlen(value_buffer));
+   char* value_buffer = calloc(256, sizeof(char));
    fgets(value_buffer, sizeof(value_buffer), stdin);
    value_buffer[strlen(value_buffer)-1] = '\0';
 
    char* formatter = "<cmd>insert</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value></value>";
    int cmdsize = strlen(key_buffer) + strlen(value_buffer) + strlen(formatter) + strlen(table_name) + 1;
-   char* packet = malloc(cmdsize*sizeof(char));
+   char* packet = calloc(cmdsize, sizeof(char));
    sprintf(packet, "<cmd>insert</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>%s</key><value>%s</value>",table_name, key_buffer, value_buffer);
 
    printf("packet is %s\n", packet);
@@ -191,15 +188,14 @@ char* do_insert(){
 
 char* do_delete(){
    printf("\nKey: ");
-   char key_buffer[256];
-   memset(key_buffer,'\0',strlen(key_buffer));
+   char* key_buffer = calloc(256, sizeof(char));
    fgets(key_buffer, sizeof(key_buffer), stdin);
    key_buffer[strlen(key_buffer)-1] = '\0';
 
    char* formatter = "<cmd>delete</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
    int cmdsize = strlen(key_buffer) + strlen(formatter) + strlen(table_name) + 1;
 
-   char* packet = malloc(cmdsize);
+   char* packet = calloc(cmdsize, sizeof(char));
    sprintf(packet, "<cmd>delete</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>%s</key><value>NONE</value>", table_name, key_buffer);
    printf("packet is %s\n", packet);
    return packet;
@@ -207,15 +203,14 @@ char* do_delete(){
 
 char* do_lookup(){
    printf("\nKey: ");
-   char key_buffer[256];
-   memset(key_buffer,'\0',strlen(key_buffer));
+   char* key_buffer = calloc(256, sizeof(char));
    fgets(key_buffer, sizeof(key_buffer), stdin);
    key_buffer[strlen(key_buffer)-1] = '\0';
 
    char* formatter = "<cmd>lookup</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
    int cmdsize = strlen(key_buffer) + strlen(formatter) + strlen(table_name) + 1;
    //int character_additions = strlen("lookup") + 1; //unused
-   char* packet = malloc(cmdsize);
+   char* packet = calloc(cmdsize, sizeof(char));
    sprintf(packet, "<cmd>lookup</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>%s</key><value>NONE</value>", table_name, key_buffer);
 
    printf("packet is %s\n", packet);
@@ -224,12 +219,13 @@ char* do_lookup(){
 
 char* do_init(){
    printf("\nTable Name: ");
-   char name_buffer[256];
-   memset(name_buffer,'\0',strlen(name_buffer));
+   char* name_buffer = calloc(256, sizeof(char));
+
+
    fgets(name_buffer, sizeof(name_buffer), stdin);
    name_buffer[strlen(name_buffer)-1] = '\0';
 
-   table_name = malloc(sizeof(char)*strlen(name_buffer));
+   table_name = calloc(sizeof(char), strlen(name_buffer));
    strcpy(table_name, name_buffer);
 
    //this assumes table is on client side, will work for assignment but is wrong
@@ -238,7 +234,7 @@ char* do_init(){
    printf("Found pre-existing table, CONNECTING\n");
    char* formatter = "<cmd>init</cmd><name></name><length>NONE</length><size>NONE</size><key>NONE</key><value>NONE</value>";
    int cmdsize = strlen(name_buffer) + strlen(formatter) + 1;
-   char* packet = malloc(cmdsize);
+   char* packet = calloc(cmdsize, sizeof(char));
    sprintf(packet, "<cmd>init</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>NONE</key><value>NONE</value>", name_buffer);
    printf("packet is %s\n", packet);
    return packet;
@@ -247,19 +243,17 @@ char* do_init(){
    //file doesn't exist
    printf("CREATING NEW TABLE\n");
    printf("\nLength of entry: "); //entry
-   char length_buffer[256];
-   memset(length_buffer,'\0',strlen(length_buffer));
+   char* length_buffer = calloc(256, sizeof(char));
    fgets(length_buffer, sizeof(length_buffer), stdin);
    length_buffer[strlen(length_buffer)-1] = '\0';
    printf("\nNumber of entries: "); //num entries
-   char size_buffer[256];
-   memset(size_buffer,'\0',strlen(size_buffer));
+   char* size_buffer = calloc(256, sizeof(char));
    fgets(size_buffer, sizeof(size_buffer), stdin);
    size_buffer[strlen(size_buffer)-1] = '\0';
 
    char* formatter = "<cmd>init</cmd><name></name><length></length><size></size><key>NONE</key><value>NONE</value>";
    int cmdsize = strlen(name_buffer) + strlen(length_buffer) + strlen(size_buffer) + strlen(formatter) + 1;
-   char* packet = malloc(cmdsize);
+   char* packet = calloc(cmdsize, sizeof(char));
    sprintf(packet, "<cmd>init</cmd><name>%s</name><length>%s</length><size>%s</size><key>NONE</key><value>NONE</value>", name_buffer, length_buffer, size_buffer);
    printf("packet is %s\n", packet);
    return packet;

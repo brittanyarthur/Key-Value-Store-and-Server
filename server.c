@@ -105,19 +105,19 @@ char* RecieveData(int newSocket){
        printf("Exit from killed client.\n");
        return "quit";
        }
-       char* returnMe = malloc(sizeof(char)*strlen(reply_buffer));
+       char* returnMe = calloc(sizeof(char), strlen(reply_buffer));
        strcpy(returnMe, reply_buffer);
-       return returnMe; // 0 maps to other
+       return returnMe; // 0 maps to otherĿ
     }
 }
 
 char* parse_client_data(char* reply_buffer){
-   char* command = malloc(sizeof(char)*100);
-   char* name = malloc(sizeof(char)*100);
-   char* length = malloc(sizeof(char)*100);
-   char* size = malloc(sizeof(char)*100);
-   char* key = malloc(sizeof(char)*100);
-   char* value = malloc(sizeof(char)*100);
+   char* command = calloc(sizeof(char), 100);
+   char* name = calloc(sizeof(char), 100);
+   char* length = calloc(sizeof(char), 100);
+   char* size = calloc(sizeof(char), 100);
+   char* key = calloc(sizeof(char), 100);
+   char* value = calloc(sizeof(char), 100);
 
    sscanf(reply_buffer, "<cmd>%[^<]</cmd><name>%[^<]</name><length>%[^<]</length><size>%[^<]</size><key>%[^<]</key><value>%[^<]</value>",
     command, name, length,size, key, value);
@@ -163,7 +163,7 @@ char* do_insert(char* name, char* key, char* value){
 char* do_lookup(char* name, char* key){
   printf("look up %s\n",key);
   FILE* my_data = initialize(name);
-  char* result = malloc(max_value_size*sizeof(char));
+  char* result = calloc(max_value_size, sizeof(char));
   int length;
   int* len = &length;
   if(fetch(my_data, result, key, len) == -1)

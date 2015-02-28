@@ -49,7 +49,7 @@ int insert(FILE* store, char* key, void* value, int length){
 	//get the table length using metadata that is stored in the hash table
 	int entry_length = get_table_entry_length(store);
 	//printf("entry_length is : %d \n\n\n", entry_length);
-	int entry_count = get_table_entry_count(store, entry_length);
+	//int entry_count = get_table_entry_count(store, entry_length);
 	//printf("entry_count is : %d \n\n\n", entry_count);
 
 	if(key == NULL || value == NULL){
@@ -229,7 +229,7 @@ void populate(FILE* store, int table_entry_count, int table_entry_length){
  			fwrite(&filler, sizeof(char), 1, store);
  		}
  		//BEFORE THE LOOP. TBD: WHY ISNT THIS EQUIVALENT TO ABOVE?
-		//fwrite(&filler, sizeof(char)*multiply, 1, store); 
+		//fwrite(&filler, sizeof(char)*multiply, 1, store);
 	}
 
 	insert_meta_data(store, TABLE_ENTRY_LENGTH, table_entry_length, table_entry_length, 0);
@@ -240,20 +240,20 @@ void insert_meta_data(FILE* store, char* key, int value, int table_entry_length,
 	//insert table_entry_count and table_entry_length into the hashtable
 	//storing at index 0 and at index 1
 	//first storing entry length
-	fseek(store, index*table_entry_length, SEEK_SET); 
+	fseek(store, index*table_entry_length, SEEK_SET);
 	//insert metaflag
-	int meta_value_flag = METADATA; 
+	int meta_value_flag = METADATA;
 	int* meta_value_flag_ptr = &meta_value_flag;
 	fwrite(meta_value_flag_ptr, sizeof(METADATA), 1, store);
 	//insert key
 	int keysize = (strlen(key)+1)*sizeof(char);
-	fwrite(key, keysize, 1, store); 
+	fwrite(key, keysize, 1, store);
 	//insert length of value
 	int val_len = sizeof(int);
 	int* val_len_ptr = &val_len;
 	fwrite(val_len_ptr, sizeof(int), 1, store);
 	//insert value
-	int meta_value = value; 
+	int meta_value = value;
 	int* meta_value_ptr = &meta_value;
 	fwrite(meta_value_ptr, sizeof(int), 1, store);
 }
@@ -261,7 +261,7 @@ void insert_meta_data(FILE* store, char* key, int value, int table_entry_length,
 int get_table_entry_length(FILE* store){
 	//offset = sizeof entry_key + sizeof flag + sizeof value
 	int offset = sizeof(METADATA) + (strlen(TABLE_ENTRY_LENGTH)+1)*sizeof(char) + sizeof(int);
-	fseek(store, offset, SEEK_SET); 
+	fseek(store, offset, SEEK_SET);
 	int entry_len = 0;
 	int* entry_len_ptr = &entry_len;
 	fread(entry_len_ptr, sizeof(int), 1, store);
@@ -271,7 +271,7 @@ int get_table_entry_length(FILE* store){
 int get_table_entry_count(FILE* store, int entry_length){
 	//offset = sizeof entry_key + sizeof flag + sizeof value + skip the old entry
 	int offset = sizeof(METADATA) + (strlen(TABLE_ENTRY_COUNT)+1)*sizeof(char) + sizeof(int) + entry_length;
-	fseek(store, offset, SEEK_SET); 
+	fseek(store, offset, SEEK_SET);
 	int entry_ct = 0;
 	int* entry_ct_ptr = &entry_ct;
 	fread(entry_ct_ptr, sizeof(int), 1, store);
@@ -290,7 +290,7 @@ int delete(FILE* store, char* key){
 
 	/*mark magic number as DEADD00D*/
 	fseek(store, index*entry_length, SEEK_SET);
-	int tombstone_flag = TOMBSTONE; 
+	int tombstone_flag = TOMBSTONE;
 	int* tombstone_flag_ptr = &tombstone_flag;
 	fwrite(tombstone_flag_ptr, sizeof(TOMBSTONE), 1, store);
 
