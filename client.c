@@ -40,13 +40,15 @@ int main( int argc, char * argv[] )
             return 0;
          }
       }else{
-         printf("Error: file descriptor error");
+         printf("Error: file descriptor error\n");
+         exit(EXIT_FAILURE);
       }
       if(write_result != -1){
          recieve_result = RecieveData(sock_fd);
       }
       if(recieve_result == -1){
          printf("An Error has occured.\n");
+         exit(EXIT_FAILURE);
       }
    }
    return 0;
