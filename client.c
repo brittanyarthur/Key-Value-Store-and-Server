@@ -96,6 +96,7 @@ int WriteData(int sock_fd){
    int quit = 1;
    char* write_buffer;
    while(no_response){ //loop until there is a response
+      printf("\n****TABLE: %s****", table_name);
       printf("\n[I]nsert: add a key/value pair to keystore.\n[D]elete: delete a key/value pair from keystore.\n[L]ookup: lookup value in keystore.\n[S]etup: configure keystore.\n[Q]uit: quit: \n");
       char* command_buffer = calloc(256, sizeof(char));
       fgets(command_buffer, sizeof(command_buffer), stdin);
@@ -129,7 +130,7 @@ int WriteData(int sock_fd){
     }
 
    //Send formed packet to server
-   printf("writing to server: %s\n", write_buffer);
+   //printf("writing to server: %s\n", write_buffer);
    int result_status = write(sock_fd, write_buffer, strlen(write_buffer));
    if(result_status < 0){
       printf("An error occured sending data from the client to the server.\n");
@@ -182,7 +183,7 @@ char* do_insert(){
    char* packet = calloc(cmdsize, sizeof(char));
    sprintf(packet, "<cmd>insert</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>%s</key><value>%s</value>",table_name, key_buffer, value_buffer);
 
-   printf("packet is %s\n", packet);
+   //printf("packet is %s\n", packet);
    return packet;
 }
 
@@ -197,7 +198,7 @@ char* do_delete(){
 
    char* packet = calloc(cmdsize, sizeof(char));
    sprintf(packet, "<cmd>delete</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>%s</key><value>NONE</value>", table_name, key_buffer);
-   printf("packet is %s\n", packet);
+   //printf("packet is %s\n", packet);
    return packet;
 }
 
@@ -213,7 +214,7 @@ char* do_lookup(){
    char* packet = calloc(cmdsize, sizeof(char));
    sprintf(packet, "<cmd>lookup</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>%s</key><value>NONE</value>", table_name, key_buffer);
 
-   printf("packet is %s\n", packet);
+   //printf("packet is %s\n", packet);
    return packet;
 }
 
@@ -236,7 +237,7 @@ char* do_init(){
    int cmdsize = strlen(name_buffer) + strlen(formatter) + 1;
    char* packet = calloc(cmdsize, sizeof(char));
    sprintf(packet, "<cmd>init</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>NONE</key><value>NONE</value>", name_buffer);
-   printf("packet is %s\n", packet);
+   //printf("packet is %s\n", packet);
    return packet;
 
    }else{
@@ -255,7 +256,7 @@ char* do_init(){
    int cmdsize = strlen(name_buffer) + strlen(length_buffer) + strlen(size_buffer) + strlen(formatter) + 1;
    char* packet = calloc(cmdsize, sizeof(char));
    sprintf(packet, "<cmd>init</cmd><name>%s</name><length>%s</length><size>%s</size><key>NONE</key><value>NONE</value>", name_buffer, length_buffer, size_buffer);
-   printf("packet is %s\n", packet);
+   //printf("packet is %s\n", packet);
    return packet;
    }
 }
