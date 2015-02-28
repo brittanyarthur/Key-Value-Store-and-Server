@@ -43,7 +43,7 @@ FILE* initialize(char* name, int size, int length) {
 		store = access_file(name);
 	else
 		//file does not exist
-		store = create_file(name, 0, 0);
+		store = create_file(name, size, length);
 	return store;
 }
 
@@ -232,7 +232,7 @@ Returns: pointer to file stream of the hashtable.
 */
 FILE* create_file(char* name, int size, int length) {
 	FILE* store = fopen(name, "w+");
-	populate(store, table_size, table_length);
+	populate(store, size, length);
 	return store;
 }
 

@@ -181,9 +181,11 @@ char* parse_client_data(char* reply_buffer) {
 sounds legit
 */
 char* do_init(char* name, char* length, char* size) {
-	(void)name;
-	(void)length;
-	(void)size;
+	printf("INITIALIZING TABLE IN DO_INIT\n");
+  int t_size = atoi(size);
+  int t_length = atoi(length);
+  FILE* my_data = initialize(name, t_size, t_length);
+  fclose(my_data);
 	return "[201] INIT SUCCESS";
 }
 
