@@ -21,7 +21,6 @@ char* do_insert();
 char* do_delete();
 char* do_lookup();
 char* do_init();
-char* do_quit();
 
 /** Stores the filename of the currently opened hashtable */
 char* table_name;
@@ -195,16 +194,7 @@ int writeData(int sock_fd) {
 }
 
 
-/**
 
-Returns: packet with only "quit".
-*/
-char* do_quit() {
-	char* packet = calloc(sizeof(char), 4 + 1);
-	assert(packet != NULL);
-	strcpy(packet, "quit");
-	return packet;
-}
 
 /**
 
