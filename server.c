@@ -165,13 +165,13 @@ char* parse_client_data(char* reply_buffer) {
 		   command, name, length,size, key, value);
 	printf("command=\"%s\"\nname=\"%s\"\nlength=\"%s\"\nsize=\"%s\"\nkey=\"%s\"\nvalue=\"%s\"\n", command, name, length, size, key, value);
 
-	if(!strcmp(command, "init")) {
+	if(strcmp(command, "init") == 0) {
 		return do_init(name, length, size);
-	} else if(!strcmp(command, "insert")) {
+	} else if(strcmp(command, "insert") == 0) {
 		return do_insert(name, key, value);
-	} else if(!strcmp(command, "delete")) {
+	} else if(strcmp(command, "delete") == 0) {
 		return do_delete(name, key);
-	} else if(!strcmp(command, "lookup")) {
+	} else if(strcmp(command, "lookup") == 0) {
 		return do_lookup(name, key);
 	}
 	return "[513] LUL WUT?"; //from assignment spec
