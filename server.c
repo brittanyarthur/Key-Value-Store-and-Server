@@ -86,9 +86,8 @@ int ListenIncomingConnection(int sock_fd){
 char* RecieveData(int newSocket){
     printf("about to recieve data\n");
     //get the incoming message from the client.
-    char reply_buffer[256];
-    //clear buffer before writing to it
-    memset(reply_buffer, 0, sizeof(reply_buffer));
+    char* reply_buffer = calloc(256, sizeof(char));
+
     // recv() will block until there is some data to read.
     if(recv(newSocket, reply_buffer, 256, 0) < 0)
     {
@@ -105,9 +104,8 @@ char* RecieveData(int newSocket){
        printf("Exit from killed client.\n");
        return "quit";
        }
-       char* returnMe = calloc(sizeof(char), strlen(reply_buffer));
-       strcpy(returnMe, reply_buffer);
-       return returnMe; // 0 maps to otherĿ
+
+       return reply_buffer; // 0 maps to otherĿ
     }
 }
 
