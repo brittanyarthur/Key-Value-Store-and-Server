@@ -13,8 +13,7 @@ const int INVALID   = 0xda00000b;
 const int METADATA  = 0xdaa0000b;
 
 
-FILE* initialize(char* name);
-FILE* create_file(char* name);
+FILE* create_file(char* name, int table_size, int table_length);
 FILE* access_file(char* name);
 int fetch(FILE* store, void* result, char* key, int* length);
 void read_int_array(FILE* store, char* key, int length);
@@ -30,15 +29,26 @@ int get_table_entry_count(FILE* store, int entry_length);
 unsigned long hash(char *str);
 
 //pass
-FILE* initialize(char* name){
+FILE* initialize(char* name, int table_size, int table_length){
 	FILE* store;
-	if(access(name, W_OK ) != -1)
+	if(access(name, W_OK ) != -1){
 		//file exists
+		printf("file exists");
 		store = access_file(name);
-	else
+	}
+	else{
 		//file does not exist
-		store = create_file(name);
+		printf("file doesn't exist");
+		store = create_file(name, table_size, table_length);
+	}
 	return store;
+}
+
+
+int get_table_max_value(FILE* store){
+	int entry_length = get_table_entry_length(store);
+	int max_value = entry_length - key_size - flag_size;
+	return max_value;
 }
 
 //pass
@@ -198,7 +208,7 @@ int main(){
 
 /*------------------------HELPER FUNCTIONS--------------------------------*/
 
-FILE* create_file(char* name){
+FILE* create_file(char* name, int table_size, int table_length){
 	FILE* store = fopen(name, "w+");
 	populate(store, table_size, table_length);
 	return store;

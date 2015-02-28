@@ -135,16 +135,21 @@ char* parse_client_data(char* reply_buffer){
 }
 
 char* do_init(char* name, char* length, char* size){
-
-  return "INIT SUCCESS";
+  if(!strcmp(length,"NONE")){
+    return "INIT FIND";
+  }
+    initialize(name, atoi(size), atoi(length));
+    //could add error for fail to init
+    return "INIT CREATE";
 }
 
 char* do_insert(char* name, char* key, char* value){
   printf("inserting %s, with %s\n",key,value);
-  FILE* my_data = initialize(name);
+  //this assumes user does setup before anything else, change it
+  FILE* my_data = initialize(name, 0, 0);
   int value_size = (strlen(value) + 1)*sizeof(char);
   insert(my_data, key, value, value_size);
-  char result[max_value_size];
+  char result[get_table_max_value(my_data)];
   int length;
   int * len = &length;
   fetch(my_data, result, key, len);
@@ -159,8 +164,9 @@ char* do_insert(char* name, char* key, char* value){
 
 char* do_lookup(char* name, char* key){
   printf("look up %s\n",key);
-  FILE* my_data = initialize(name);
-  char* result = malloc(max_value_size*sizeof(char));
+  //this assumes user does setup before anything else, change it
+  FILE* my_data = initialize(name, 0, 0);
+  char* result = malloc(get_table_max_value(my_data)*sizeof(char));
   int length;
   int* len = &length;
   if(fetch(my_data, result, key, len) == -1)
