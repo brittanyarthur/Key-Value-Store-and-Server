@@ -101,12 +101,7 @@ char* RecieveData(int newSocket){
            close(newSocket);
            return "quit";
        }
-
-       if(!strcmp(reply_buffer, "")){
-         printf("Exit from killed client.\n");
-         return "quit";
-       }
-       char* returnMe = calloc(strlen(reply_buffer)+5, sizeof(char));
+       char* returnMe = malloc(sizeof(char)*strlen(reply_buffer));
        strcpy(returnMe, reply_buffer);
        return returnMe; // 0 maps to other
     }
@@ -142,9 +137,6 @@ int do_init(char* name, char* length, char* size){
 
 char* do_insert(char* key, char* value){
   printf("inserting %s, with %s\n",key,value);
-
- // char* response = calloc(sizeof(char), 50);
-
   FILE* my_data = initialize("hashtable");
   int value_size = (strlen(value) + 1)*sizeof(char);
   insert(my_data, key, value, value_size);
@@ -155,12 +147,9 @@ char* do_insert(char* key, char* value){
   fclose(my_data);
   if(!strcmp(result, value)){
     //insert success
-
-    //response = "INSERT SUCCESS";
     return "INSERT_SUCCESS";
   }
   //insert failure
-  //response = "INSERT FAILURE";
   return "INSERT FAILURE";
 }
 
@@ -190,10 +179,8 @@ int AcceptConnections(int sock_fd){
       struct sockaddr_in newclient; //accept creates a new socket
       socklen_t size = sizeof newclient;
       int newSocket = 0;
-
       //waiting to accept a connection
       newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
-
       int pid = fork();
       if(pid == 0) { //child process
          printf("in child!!!\n");
@@ -210,9 +197,8 @@ int AcceptConnections(int sock_fd){
             SendData(sock_fd, newSocket, status);
          }
          return 0;
-
-      }else{ //parent process
-         //wait(&pid);
+      }else{
+         //wait(&pid); 
          printf("in parent!!!\n");
       }
     }
@@ -222,7 +208,7 @@ int SendData(int sock_fd, int newSocket, char* data_recieved)
 {
     (void)sock_fd;
     //Finally, a message can be sent!
-    if(send(newSocket,data_recieved,strlen(data_recieved),0) < 0){
+    if(send(newSocket,data_recieved,sizeof(data_recieved),0) < 0){
     	printf("Error sending message\n");
     	return -1;
     }
