@@ -24,7 +24,7 @@ void read_char_array(FILE* store, char* key, int length);
 int fetch_probe(FILE* store, char* key);
 int insert_probe(FILE* store, char* key);
 void insert_meta_data(FILE* store, char* key, int value, int table_entry_length, int index);
-int delete(char* key);
+int delete(FILE* store, char* key);
 int get_table_entry_length(FILE* store);
 int get_table_entry_count(FILE* store, int entry_length);
 unsigned long hash(char *str);
@@ -56,11 +56,12 @@ int insert(FILE* store, char* key, void* value, int length){
 		printf("Error: Cannot insert null values into hashtable.\n");
 		return -1;
 	}
-	if(key_size+length+sizeof(TOMBSTONE) > entry_length){
+	if(key_size+length+sizeof(TOMBSTONE) > (unsigned long)entry_length){
 		printf("Error: Data is too large.\n");
 		return -1;
 	}
 	int index = insert_probe(store, key);
+	printf("INSERTING INTO: %d\n", index);
 
 	fseek(store, index*entry_length, SEEK_SET);
 
@@ -126,6 +127,7 @@ int fetch(FILE* store, void* result, char* key, int* length){
 	char key_buffer[entry_length]; //needs to be fixed size of key
 	//TODO: need to probe here
 	int index = fetch_probe(store, key);
+	printf("FETCH PROBE RETURNED in fetch! index %d\n", index);
 
 	fseek(store, (index*entry_length)+sizeof(TOMBSTONE), SEEK_SET);
 	//read in key
@@ -171,6 +173,7 @@ int fetch_probe(FILE* store, char* key){
 	}while(*magic == TOMBSTONE || *magic == VALID); //search until there is a "null" slot
 
 	free(magic);
+	printf("DID NOT FIND %s\n",key);
 	return -1;
 }
 /*
@@ -278,12 +281,19 @@ int get_table_entry_count(FILE* store, int entry_length){
 
 /*-----------------SECOND CLASS AND TODO FUNCTIONS---------------------------*/
 
-int delete(char* key){
+int delete(FILE* store, char* key){
+	int entry_length = get_table_entry_length(store);
 	/*probe for valid entry with matching key*/
-	/*mark magic number as DEADD00D*/
-	/*done*/
+	int index = fetch_probe(store, key);
+	printf("FETCH PROBE FOUND! index %d\n", index);
+	printf("DELETING %s\n",key);
 
-	(void)key;
+	/*mark magic number as DEADD00D*/
+	fseek(store, index*entry_length, SEEK_SET);
+	int tombstone_flag = TOMBSTONE; 
+	int* tombstone_flag_ptr = &tombstone_flag;
+	fwrite(tombstone_flag_ptr, sizeof(TOMBSTONE), 1, store);
+
 	return 0;
 }
 

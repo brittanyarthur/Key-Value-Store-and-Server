@@ -88,7 +88,7 @@ char* RecieveData(int newSocket){
     //get the incoming message from the client.
     char reply_buffer[256];
     //clear buffer before writing to it
-    memset(reply_buffer, 0, sizeof(reply_buffer)); //<<<< We may need to do this in other places !
+    memset(reply_buffer, 0, sizeof(reply_buffer)); 
     // recv() will block until there is some data to read.
     if(recv(newSocket, reply_buffer, 256, 0) < 0)
     {
@@ -171,9 +171,10 @@ char* do_lookup(char* name, char* key){
 }
 
 char* do_delete(char* name, char* key){
+   FILE* my_data = initialize(name);
   //should be all we need
-  delete(key);
-
+  delete(my_data, key);
+  fclose(my_data);
   //does lookup return something bad when it finds nothing?
   //if so we can use that to test and return a success value
   return "DELETE SUCCESS";
