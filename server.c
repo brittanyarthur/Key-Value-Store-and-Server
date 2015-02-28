@@ -20,13 +20,19 @@ char* do_insert(char* name, char* key, char* value);
 char* do_lookup(char* name, char* key);
 char* do_delete(char* name, char* key);
 
-#define QUIT       1
+#define QUIT 1
 
 typedef struct sockaddr_in sockaddr_in;
+
+typedef enum {IN_USE, FREE} mutex_type;
+mutex_type mutex;
 
 int main(int argc , char *argv[]) {
 	(void)argc;
 	(void)argv;
+
+	mutex = FREE;
+
 	// create socket
 	int port = 10732;
 	printf( "creating socket on port %d\n", port );
@@ -136,7 +142,7 @@ char* parse_client_data(char* reply_buffer) {
 	} else if(!strcmp(command, "lookup")) {
 		return do_lookup(name, key);
 	}
-	return "!!parse_client_data broke!!";
+	return "[513] LUL WUT?"; //from assignment spec
 }
 
 char* do_init(char* name, char* length, char* size) {
@@ -147,7 +153,10 @@ char* do_init(char* name, char* length, char* size) {
 }
 
 char* do_insert(char* name, char* key, char* value) {
-	printf("inserting %s, with %s\n",key,value);
+   if(mutex == IN_USE) return "[400] IN USE";
+   mutex = IN_USE;
+
+	printf("inserting %s, with %s\n",key,value);git
 	FILE* my_data = initialize(name);
 	int value_size = (strlen(value) + 1)*sizeof(char);
 	insert(my_data, key, value, value_size);
@@ -158,30 +167,42 @@ char* do_insert(char* name, char* key, char* value) {
 	fclose(my_data);
 	if(!strcmp(result, value)) {
 		//insert success
+		mutex = FREE;
 		return "[201] INSERT_SUCCESS";
 	}
 	//insert failure
-	return "[404] INSERT FAILURE";
+	mutex = FREE;
+	return "[400] INSERT FAILURE";
 }
 
 char* do_lookup(char* name, char* key) {
+   if(mutex == IN_USE) return "[400] IN USE";
+   mutex = IN_USE;
+
 	printf("look up %s\n",key);
 	FILE* my_data = initialize(name);
 	char* result = calloc(max_value_size, sizeof(char));
 	assert(result != NULL);
 	int length;
 	int* len = &length;
-	if(fetch(my_data, result, key, len) == -1)
+	if(fetch(my_data, result, key, len) == -1) {
+      mutex = FREE;
 		return "[404] KEY NOT FOUND";
+   }
 	printf("[200] FOUND: %s\n", result);
 	fclose(my_data);
+	mutex = FREE;
 	return result;
 }
 
 char* do_delete(char* name, char* key) {
+   if(mutex == IN_USE) return "[400] IN USE";
+   mutex = IN_USE;
+
 	FILE* my_data = initialize(name);
 	delete(my_data, key);
 	fclose(my_data);
+	 mutex = FREE;
 	return "[201] DELETE SUCCESS";
 }
 
@@ -235,15 +256,3 @@ int SendData(int sock_fd, int newSocket, char* data_recieved) {
 	printf("Message Successfully Sent.\n");
 	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
