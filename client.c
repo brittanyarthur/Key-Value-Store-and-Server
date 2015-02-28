@@ -97,39 +97,50 @@ int WriteData(int sock_fd){
    int no_response = 1;
    int quit = 1;
    char* write_buffer;
+   char* command_buffer;
+
    while(no_response){ //loop until there is a response
+
       printf("\n****TABLE: %s****", table_name);
-      printf("\n[I]nsert: add a key/value pair to keystore.\n[D]elete: delete a key/value pair from keystore.\n[L]ookup: lookup value in keystore.\n[S]etup: configure keystore.\n[Q]uit: quit: \n");
-      char* command_buffer = calloc(256, sizeof(char));
+      printf("\n[I]nsert: add a key/value pair to keystore.\n[D]elete: delete a key/value pair from keystore.\n[L]ookup: lookup value in keystore.\n[S]etup: configure keystore.\n[Q]uit: quit \n");
+
+      command_buffer = calloc(256, sizeof(char));
       fgets(command_buffer, 256, stdin);
       strtok(command_buffer, "\n"); //strip trailing newline
-      if(strcmp(command_buffer, "quit") == 0){
+
+      if(strcmp(command_buffer, "quit") == 0 || !strcmp(command_buffer, "Q")){
          printf("EXITING NOW\n");
          close(sock_fd);
+         return 1;
       }
+
       //Parse user action decision
       no_response = 0;
       if(table_name == NULL){
          printf("You've gotsta set up your hashtable!\n");
          write_buffer = do_init();
       }else{
-      switch(parse_command_response(command_buffer)){
-       case 0:
-            write_buffer = do_insert(); break;
-       case 1:
-         write_buffer = do_delete(); break;
-       case 2:
-         write_buffer = do_lookup(); break;
-       case 3:
-         write_buffer = do_init(); break;
-       case 4:
-         write_buffer = do_quit(); quit = 0; break;
-       case -1:
-         printf("Invalid command. Please try again.\n");
-         no_response = 1;
+         switch(parse_command_response(command_buffer)){
+          case 0:
+               write_buffer = do_insert(); break;
+          case 1:
+            write_buffer = do_delete(); break;
+          case 2:
+            write_buffer = do_lookup(); break;
+          case 3:
+            write_buffer = do_init(); break;
+          case 4:
+            write_buffer = do_quit(); quit = 0; printf("> saw Q.\n <"); break;
+          case -1:
+            printf("Invalid command. Please try again.\n");
+            no_response = 1;
+         }
       }
-   }
     }
+
+   if(quit == 0){ //User would like to quit out of server
+         return 1;
+      }
 
    //Send formed packet to server
    //printf("writing to server: %s\n", write_buffer);
@@ -138,9 +149,7 @@ int WriteData(int sock_fd){
       printf("An error occured sending data from the client to the server.\n");
       return -1;
    }
-   if(quit == 0){ //User would like to quit out of server
-      return 1;
-   }
+
    return 0;
 }
 
