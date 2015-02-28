@@ -16,7 +16,6 @@ char* do_delete();
 char* do_lookup();
 char* do_init();
 char* do_quit();
-int parse_command_response(char* response);
 //char* BuildPacket(char* cmd, char* name, char* length, char* size, char* key, char* value);
 char* table_name = NULL;
 
@@ -98,17 +97,20 @@ int WriteData(int sock_fd){
    int quit = 1;
    char* write_buffer;
    char* command_buffer;
+   char com;
 
    while(no_response){ //loop until there is a response
 
       printf("\n****TABLE: %s****", table_name);
       printf("\n[I]nsert: add a key/value pair to keystore.\n[D]elete: delete a key/value pair from keystore.\n[L]ookup: lookup value in keystore.\n[S]etup: configure keystore.\n[Q]uit: quit \n");
 
-      command_buffer = calloc(256, sizeof(char));
-      fgets(command_buffer, 256, stdin);
+      command_buffer = calloc(5, sizeof(char));
+      fgets(command_buffer, 5, stdin);
       strtok(command_buffer, "\n"); //strip trailing newline
 
-      if(strcmp(command_buffer, "quit") == 0 || !strcmp(command_buffer, "Q")){
+      com = tolower(command_buffer[0]); //get the only character
+
+      if(com == 'q'){
          printf("EXITING NOW\n");
          close(sock_fd);
          return 1;
@@ -120,21 +122,27 @@ int WriteData(int sock_fd){
          printf("You've gotsta set up your hashtable!\n");
          write_buffer = do_init();
       }else{
-         switch(parse_command_response(command_buffer)){
-          case 0:
+
+         switch(com){
+            case 'i':
                write_buffer = do_insert(); break;
-          case 1:
-            write_buffer = do_delete(); break;
-          case 2:
-            write_buffer = do_lookup(); break;
-          case 3:
-            write_buffer = do_init(); break;
-          case 4:
-            write_buffer = do_quit(); quit = 0; printf("> saw Q.\n <"); break;
-          case -1:
-            printf("Invalid command. Please try again.\n");
-            no_response = 1;
+
+            case 'd':
+               write_buffer = do_delete(); break;
+
+            case 'l':
+               write_buffer = do_lookup(); break;
+
+            case 's':
+               write_buffer = do_init(); break;
+
+            default:
+               printf("Invalid command. Please try again.\n");
+               no_response = 1;
+               break;
          }
+
+
       }
     }
 
@@ -153,25 +161,7 @@ int WriteData(int sock_fd){
    return 0;
 }
 
-int parse_command_response(char* command_response){
-   if(strcmp(command_response, "I") == 0){
-      printf("User said insert\n");
-      return 0;
-   }else if(strcmp(command_response, "D") == 0){
-      printf("User said delete\n");
-      return 1;
-   }else if(strcmp(command_response, "L") == 0){
-      printf("User said lookup\n");
-      return 2;
-   }else if(strcmp(command_response, "S") == 0){
-      printf("User said setup\n");
-      return 3;
-   }else if(strcmp(command_response, "Q") == 0){
-      printf("User said quit\n");
-      return 4;
-   }
-   return -1;
-}
+
 
 char* do_quit(){
    char* packet = calloc(sizeof(char), 4 + 1);
