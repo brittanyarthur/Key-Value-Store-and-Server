@@ -132,7 +132,7 @@ char* recieveData(int newSocket) {
 			close(newSocket);
 			return "quit";
 		}
-		if(!strcmp(reply_buffer, "")) {
+		if(strcmp(reply_buffer, "") == 0) {
 			printf("Exit from killed client.\n");
 			return "quit";
 		}
@@ -208,7 +208,7 @@ char* do_insert(char* name, char* key, char* value) {
 	int * len = &length;
 	fetch(my_data, result, key, len);
 	fclose(my_data);
-	if(!strcmp(result, value)) {
+	if(strcmp(result, value) == 0) {
 		//insert success
 		mutex = FREE;
 		return "[201] INSERT_SUCCESS";
