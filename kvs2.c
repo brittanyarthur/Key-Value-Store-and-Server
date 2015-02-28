@@ -62,9 +62,9 @@ Returns: the index it was inserted in, or -1 if error.
 int insert(FILE* store, char* key, void* value, int length) {
 	//get the table length using metadata that is stored in the hash table
 	int entry_length = get_table_entry_length(store);
-	//printf("entry_length is : %d \n\n\n", entry_length);
-	//int entry_count = get_table_entry_count(store, entry_length);
-	//printf("entry_count is : %d \n\n\n", entry_count);
+	printf("entry_length is : %d \n\n\n", entry_length);
+	int entry_count = get_table_entry_count(store, entry_length);
+	printf("entry_count is : %d \n\n\n", entry_count);
 
 	if(key == NULL || value == NULL) {
 		printf("Error: Cannot insert null values into hashtable.\n");
