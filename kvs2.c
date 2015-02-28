@@ -24,7 +24,7 @@ void read_char_array(FILE* store, char* key, int length);
 int fetch_probe(FILE* store, char* key);
 int insert_probe(FILE* store, char* key);
 void insert_meta_data(FILE* store, char* key, int value, int table_entry_length, int index);
-int delete(char* key);
+int delete(FILE* store, char* key);
 int get_table_entry_length(FILE* store);
 int get_table_entry_count(FILE* store, int entry_length);
 unsigned long hash(char *str);
@@ -56,7 +56,7 @@ int insert(FILE* store, char* key, void* value, int length){
 		printf("Error: Cannot insert null values into hashtable.\n");
 		return -1;
 	}
-	if(key_size+length+sizeof(TOMBSTONE) > entry_length){
+	if(key_size+length+sizeof(TOMBSTONE) > (unsigned long)entry_length){
 		printf("Error: Data is too large.\n");
 		return -1;
 	}
@@ -278,12 +278,17 @@ int get_table_entry_count(FILE* store, int entry_length){
 
 /*-----------------SECOND CLASS AND TODO FUNCTIONS---------------------------*/
 
-int delete(char* key){
+int delete(FILE* store, char* key){
+	int entry_length = get_table_entry_length(store);
 	/*probe for valid entry with matching key*/
+	int index = fetch_probe(store, key);
+	
 	/*mark magic number as DEADD00D*/
-	/*done*/
+	fseek(store, index*entry_length, SEEK_SET);
+	int tombstone_flag = TOMBSTONE; 
+	int* tombstone_flag_ptr = &tombstone_flag;
+	fwrite(tombstone_flag_ptr, sizeof(TOMBSTONE), 1, store);
 
-	(void)key;
 	return 0;
 }
 
