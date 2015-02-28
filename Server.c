@@ -6,6 +6,7 @@
 #include <arpa/inet.h>  //inet_addr
 #include <unistd.h>     //fork(), access(2)
 #include <sys/wait.h>   //wait()
+#include <semaphore.h> // semophore()
 #include "kvs2.h"
 
 int OpenSocket(int port);
@@ -20,6 +21,8 @@ char* do_lookup(char* name, char* key);
 char* do_delete(char* name, char* key);
 
 #define QUIT       1
+
+sem_t sem;
 
 typedef struct sockaddr_in sockaddr_in;
 
@@ -132,6 +135,7 @@ char* parse_client_data(char* reply_buffer){
    }else if(!strcmp(command, "lookup")){
       return do_lookup(name, key);
    }
+   return "";
 }
 
 char* do_init(char* name, char* length, char* size){
@@ -171,16 +175,28 @@ char* do_lookup(char* name, char* key){
 }
 
 char* do_delete(char* name, char* key){
-   FILE* my_data = initialize(name);
-  //should be all we need
+  FILE* my_data = initialize(name);
   delete(my_data, key);
   fclose(my_data);
-  //does lookup return something bad when it finds nothing?
-  //if so we can use that to test and return a success value
   return "DELETE SUCCESS";
 }
 
+//init:      init the semophore  http://man7.org/linux/man-pages/man3/sem_init.3.html
+//wait:      lock by decrement   http://man7.org/linux/man-pages/man3/sem_wait.3.html
+//post:      unlock by increment http://man7.org/linux/man-pages/man3/sem_post.3.html
+//get value: http://man7.org/linux/man-pages/man3/sem_getvalue.3.html
+
 int AcceptConnections(int sock_fd){
+    sem_t* semop = &sem;
+    if(sem_init(&sem, 1, 1) == -1){
+      printf("ERROR INITIALIZING SEMOPHORE\n");
+    }
+    int v = -1;
+    int* semp_val = &v;
+    sem_getvalue(&sem, semp_val);
+    printf("SEMOPHORE VALUE IS: %d\n",*semp_val);
+
+
     while(1){
       //Listen for an incoming connection
       if(ListenIncomingConnection(sock_fd) == -1) printf("Error while listening\n");
