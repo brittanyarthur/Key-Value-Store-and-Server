@@ -14,7 +14,7 @@ name: the name of the hashtable.
 
 Returns: pointer to file stream of the hashtable.
 */
-FILE* initialize(char* name);
+FILE* initialize(char* name, int size, int length);
 
 /**
 Get a key-value pair from the hashtable.

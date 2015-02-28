@@ -199,7 +199,7 @@ char* do_insert(char* name, char* key, char* value) {
    mutex = IN_USE;
 
 	printf("inserting %s, with %s\n",key,value);
-	FILE* my_data = initialize(name);
+	FILE* my_data = initialize(name, 0, 0);
 	int value_size = (strlen(value) + 1)*sizeof(char);
 	insert(my_data, key, value, value_size);
 	char result[max_value_size];
@@ -229,7 +229,7 @@ char* do_lookup(char* name, char* key) {
    mutex = IN_USE;
 
 	printf("look up %s\n",key);
-	FILE* my_data = initialize(name);
+	FILE* my_data = initialize(name, 0, 0);
 	char* result = calloc(max_value_size, sizeof(char));
 	assert(result != NULL);
 	int length;
@@ -254,7 +254,7 @@ char* do_delete(char* name, char* key) {
    if(mutex == IN_USE) return "[400] IN USE";
    mutex = IN_USE;
 
-	FILE* my_data = initialize(name);
+	FILE* my_data = initialize(name, 0, 0);
 	delete(my_data, key);
 	fclose(my_data);
 	 mutex = FREE;

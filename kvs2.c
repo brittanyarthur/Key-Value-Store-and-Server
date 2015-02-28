@@ -36,7 +36,7 @@ name: the name of the hashtable.
 
 Returns: pointer to file stream of the hashtable.
 */
-FILE* initialize(char* name) {
+FILE* initialize(char* name, int size, int length) {
 	FILE* store;
 	if(access(name, W_OK ) != -1)
 		//file exists
