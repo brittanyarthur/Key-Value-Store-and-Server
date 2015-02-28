@@ -27,7 +27,7 @@ int main( int argc, char * argv[] )
    (void)argv;
    int remote_port =  10732;
    const char* remote_IP = "127.0.0.1";
-   int sock_fd = OpenSocket(remote_port, remote_IP); 
+   int sock_fd = OpenSocket(remote_port, remote_IP);
    printf("Socket has been opened\n");
    int write_result = 0;
    int recieve_result = 0;
@@ -53,8 +53,8 @@ int main( int argc, char * argv[] )
 }
 
 int OpenSocket(int port, const char* remote_IP)
-{   
-   struct sockaddr_in remote_server; 
+{
+   struct sockaddr_in remote_server;
    //create socket
    //INFO: SOCK_DGRAM is used for UDP packets, SOCK_STREAM for TCP.
    //INFO: AF_INET refers to addresses from the internet, IP addresses specifically. PF_INET refers to anything in the protocol, usually sockets/ports.
@@ -69,11 +69,11 @@ int OpenSocket(int port, const char* remote_IP)
 
    // Set IP address
    // inet_addr interprets character string and returns binary rep of internet address
-   remote_server.sin_addr.s_addr = inet_addr(remote_IP); 
-   // Address family = Internet 
+   remote_server.sin_addr.s_addr = inet_addr(remote_IP);
+   // Address family = Internet
    remote_server.sin_family = AF_INET;
    // Set port number. htons function creates proper bigendian byte order for networking.
-   remote_server.sin_port = htons(port); 
+   remote_server.sin_port = htons(port);
 
    //make pointer to socket info
    struct sockaddr_in* info_ptr = &remote_server;
@@ -128,7 +128,7 @@ int WriteData(int sock_fd){
       }
    }
     }
-   
+
    //Send formed packet to server
    printf("writing to server: %s\n", write_buffer);
    int result_status = write(sock_fd, write_buffer, strlen(write_buffer));
@@ -214,7 +214,7 @@ char* do_lookup(){
 
    char* formatter = "<cmd>lookup</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
    int cmdsize = strlen(key_buffer) + strlen(formatter) + strlen(table_name) + 1;
-   int character_additions = strlen("lookup") + 1;
+   //int character_additions = strlen("lookup") + 1; //unused
    char* packet = malloc(cmdsize);
    sprintf(packet, "<cmd>lookup</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>%s</key><value>NONE</value>", table_name, key_buffer);
 
@@ -246,12 +246,12 @@ char* do_init(){
    }else{
    //file doesn't exist
    printf("CREATING NEW TABLE\n");
-   printf("\nTable Length: ");
+   printf("\nLength of entry: "); //entry
    char length_buffer[256];
    memset(length_buffer,'\0',strlen(length_buffer));
    fgets(length_buffer, sizeof(length_buffer), stdin);
    length_buffer[strlen(length_buffer)-1] = '\0';
-   printf("\nTable Size: ");
+   printf("\nNumber of entries: "); //num entries
    char size_buffer[256];
    memset(size_buffer,'\0',strlen(size_buffer));
    fgets(size_buffer, sizeof(size_buffer), stdin);
