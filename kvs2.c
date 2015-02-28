@@ -279,6 +279,10 @@ int get_table_entry_count(FILE* store, int entry_length){
 /*-----------------SECOND CLASS AND TODO FUNCTIONS---------------------------*/
 
 int delete(char* key){
+	/*probe for valid entry with matching key*/
+	/*mark magic number as DEADD00D*/
+	/*done*/
+
 	(void)key;
 	return 0;
 }
