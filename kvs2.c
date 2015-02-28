@@ -18,7 +18,7 @@ const int INVALID   = 0xda00000b;
 const int METADATA  = 0xdaa0000b;
 
 /** FUNCTION PROTOTYPES */
-FILE* create_file(char* name);
+FILE* create_file(char* name, int size, int length);
 FILE* access_file(char* name);
 void populate(FILE* store, int table_entry_count, int table_entry_size);
 int fetch_probe(FILE* store, char* key);
@@ -43,7 +43,7 @@ FILE* initialize(char* name) {
 		store = access_file(name);
 	else
 		//file does not exist
-		store = create_file(name);
+		store = create_file(name, 0, 0);
 	return store;
 }
 
@@ -230,7 +230,7 @@ name: filename of the table to create.
 
 Returns: pointer to file stream of the hashtable.
 */
-FILE* create_file(char* name) {
+FILE* create_file(char* name, int size, int length) {
 	FILE* store = fopen(name, "w+");
 	populate(store, table_size, table_length);
 	return store;
