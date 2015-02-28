@@ -43,7 +43,7 @@ int main() {
 
 	// create socket
 	int port = 10732;
-	printf( "creating socket on port %d\n", port );
+	printf( "Creating socket on port %d\n", port );
 	int sock_fd = openSocket(port); //bind
 	if(sock_fd != -1) {
 		printf("Connected\n");
@@ -133,11 +133,11 @@ char* recieveData(int newSocket) {
 			return "quit";
 		}
 		if(!strcmp(reply_buffer, "")) {
-			printf("Exit from killed client.\n");
+			printf("Client killed.\n");
 			return "quit";
 		}
 
-		return reply_buffer; // 0 maps to otherĿ
+		return reply_buffer; // 0 maps to other
 	}
 }
 
@@ -277,25 +277,29 @@ int acceptConnections(int sock_fd) {
 
 	while(1) {
 		//Listen for an incoming connection
-		if(listenIncomingConnection(sock_fd) == -1) printf("Error while listening\n");
+		if(listenIncomingConnection(sock_fd) == -1) printf("Error while listening.\n");
 
-		printf("about to fork 2 processes - child and parent. \n");
 		struct sockaddr_in newclient; //accept creates a new socket
 		socklen_t size = sizeof newclient;
 		int newSocket = 0;
+
 		//waiting to accept a connection
 		newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
+
 		int pid = fork();
 		if(pid == 0) { //child process
-			printf("in child!!!\n");
+
 			// loop for an ongoing conversation with the client
 			while(1) {
+
 				// 0 maps to other, 1 maps to no, 2 maps to yes
 				char* data_recieved = recieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
+
 				if(strcmp(data_recieved, "quit") == 0) {
-					printf("User Quitting Now.\n");
+					printf("User quitting now.\n");
 					return QUIT;
 				}
+
 				// 0 maps to other, 1 maps to no, 2 maps to yes
 				char* status = parse_client_data(data_recieved); //we can change the return value to a char* but then we would have to allocate memory
 				sendData(sock_fd, newSocket, status);
@@ -303,7 +307,7 @@ int acceptConnections(int sock_fd) {
 			return 0;
 		} else {
 			//wait(&pid);
-			printf("in parent!!!\n");
+
 		}
 	}
 }
