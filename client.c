@@ -99,8 +99,8 @@ int WriteData(int sock_fd){
       printf("\n****TABLE: %s****", table_name);
       printf("\n[I]nsert: add a key/value pair to keystore.\n[D]elete: delete a key/value pair from keystore.\n[L]ookup: lookup value in keystore.\n[S]etup: configure keystore.\n[Q]uit: quit: \n");
       char* command_buffer = calloc(256, sizeof(char));
-      fgets(command_buffer, sizeof(command_buffer), stdin);
-      command_buffer[strlen(command_buffer)-1] = '\0';
+      fgets(command_buffer, 256, stdin);
+      strtok(command_buffer, "\n"); //strip trailing newline
       if(strcmp(command_buffer, "quit") == 0){
          printf("EXITING NOW\n");
          close(sock_fd);
@@ -171,12 +171,12 @@ char* do_quit(){
 char* do_insert(){
    printf("\nKey: ");
    char* key_buffer = calloc(256, sizeof(char));
-   fgets(key_buffer, sizeof(key_buffer), stdin);
-   key_buffer[strlen(key_buffer)-1] = '\0';
+   fgets(key_buffer, 256, stdin);
+   strtok(key_buffer, "\n"); //strip trailing newline
    printf("\nValue: ");
    char* value_buffer = calloc(256, sizeof(char));
-   fgets(value_buffer, sizeof(value_buffer), stdin);
-   value_buffer[strlen(value_buffer)-1] = '\0';
+   fgets(value_buffer, 256, stdin);
+   strtok(value_buffer, "\n"); //strip trailing newline
 
    char* formatter = "<cmd>insert</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value></value>";
    int cmdsize = strlen(key_buffer) + strlen(value_buffer) + strlen(formatter) + strlen(table_name) + 1;
@@ -190,8 +190,8 @@ char* do_insert(){
 char* do_delete(){
    printf("\nKey: ");
    char* key_buffer = calloc(256, sizeof(char));
-   fgets(key_buffer, sizeof(key_buffer), stdin);
-   key_buffer[strlen(key_buffer)-1] = '\0';
+   fgets(key_buffer, 256, stdin);
+   strtok(key_buffer, "\n"); //strip trailing newline
 
    char* formatter = "<cmd>delete</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
    int cmdsize = strlen(key_buffer) + strlen(formatter) + strlen(table_name) + 1;
@@ -205,8 +205,8 @@ char* do_delete(){
 char* do_lookup(){
    printf("\nKey: ");
    char* key_buffer = calloc(256, sizeof(char));
-   fgets(key_buffer, sizeof(key_buffer), stdin);
-   key_buffer[strlen(key_buffer)-1] = '\0';
+   fgets(key_buffer,256, stdin);
+   strtok(key_buffer, "\n"); //strip trailing newline
 
    char* formatter = "<cmd>lookup</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
    int cmdsize = strlen(key_buffer) + strlen(formatter) + strlen(table_name) + 1;
@@ -223,14 +223,13 @@ char* do_init(){
    char* name_buffer = calloc(256, sizeof(char));
 
 
-   fgets(name_buffer, sizeof(name_buffer), stdin);
-   name_buffer[strlen(name_buffer)-1] = '\0';
+   fgets(name_buffer, 256, stdin);
+   strtok(name_buffer, "\n"); //strip trailing newline
 
-   table_name = calloc(sizeof(char), strlen(name_buffer));
-   strcpy(table_name, name_buffer);
+
 
    //this assumes table is on client side, will work for assignment but is wrong
-   if(access(table_name, W_OK) != -1){
+   if(access(name_buffer, W_OK) != -1){
    //file exists
    printf("Found pre-existing table, CONNECTING\n");
    char* formatter = "<cmd>init</cmd><name></name><length>NONE</length><size>NONE</size><key>NONE</key><value>NONE</value>";
@@ -245,12 +244,12 @@ char* do_init(){
    printf("CREATING NEW TABLE\n");
    printf("\nLength of entry: "); //entry
    char* length_buffer = calloc(256, sizeof(char));
-   fgets(length_buffer, sizeof(length_buffer), stdin);
-   length_buffer[strlen(length_buffer)-1] = '\0';
+   fgets(length_buffer, 256, stdin);
+   strtok(length_buffer, "\n"); //strip trailing newline
    printf("\nNumber of entries: "); //num entries
    char* size_buffer = calloc(256, sizeof(char));
-   fgets(size_buffer, sizeof(size_buffer), stdin);
-   size_buffer[strlen(size_buffer)-1] = '\0';
+   fgets(size_buffer, 256, stdin);
+   strtok(size_buffer, "\n"); //strip trailing newline
 
    char* formatter = "<cmd>init</cmd><name></name><length></length><size></size><key>NONE</key><value>NONE</value>";
    int cmdsize = strlen(name_buffer) + strlen(length_buffer) + strlen(size_buffer) + strlen(formatter) + 1;
@@ -262,7 +261,7 @@ char* do_init(){
 }
 
 int RecieveData(int sock_fd){
-   char* reply_buffer = calloc(sizeof(char), 50);
+   char* reply_buffer = calloc(sizeof(char), 256);
    // recv() will block until there is some data to read.
    if(recv(sock_fd, reply_buffer, 256, 0) < 0)
    {
