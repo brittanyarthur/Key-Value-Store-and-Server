@@ -156,7 +156,7 @@ char* do_insert(char* name, char* key, char* value) {
    if(mutex == IN_USE) return "[400] IN USE";
    mutex = IN_USE;
 
-	printf("inserting %s, with %s\n",key,value);git
+	printf("inserting %s, with %s\n",key,value);
 	FILE* my_data = initialize(name);
 	int value_size = (strlen(value) + 1)*sizeof(char);
 	insert(my_data, key, value, value_size);
