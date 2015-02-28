@@ -139,7 +139,7 @@ char* do_init(char* name, char* length, char* size){
    (void)name;
    (void)length;
    (void)size;
-  return "INIT SUCCESS";
+  return "[201] INIT SUCCESS";
 }
 
 char* do_insert(char* name, char* key, char* value){
@@ -154,10 +154,10 @@ char* do_insert(char* name, char* key, char* value){
   fclose(my_data);
   if(!strcmp(result, value)){
     //insert success
-    return "INSERT_SUCCESS";
+    return "[201] INSERT_SUCCESS";
   }
   //insert failure
-  return "INSERT FAILURE";
+  return "[404] INSERT FAILURE";
 }
 
 char* do_lookup(char* name, char* key){
@@ -167,8 +167,8 @@ char* do_lookup(char* name, char* key){
   int length;
   int* len = &length;
   if(fetch(my_data, result, key, len) == -1)
-    return "KEY NOT FOUND";
-  printf("FOUND: %s\n", result);
+    return "[404] KEY NOT FOUND";
+  printf("[200] FOUND: %s\n", result);
   fclose(my_data);
   return result;
 }
@@ -177,7 +177,7 @@ char* do_delete(char* name, char* key){
   FILE* my_data = initialize(name);
   delete(my_data, key);
   fclose(my_data);
-  return "DELETE SUCCESS";
+  return "[201] DELETE SUCCESS";
 }
 
 //init:      init the semophore  http://man7.org/linux/man-pages/man3/sem_init.3.html
