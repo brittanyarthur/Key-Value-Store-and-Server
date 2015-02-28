@@ -31,7 +31,7 @@ int get_table_entry_count(FILE* store, int entry_length);
 unsigned long hash(char *str);
 
 //pass
-FILE* initialize(char* name){
+FILE* initialize(char* name) {
 	FILE* store;
 	if(access(name, W_OK ) != -1)
 		//file exists
@@ -46,18 +46,18 @@ FILE* initialize(char* name){
 /**
 Now returns index like it should!
 */
-int insert(FILE* store, char* key, void* value, int length){
+int insert(FILE* store, char* key, void* value, int length) {
 	//get the table length using metadata that is stored in the hash table
 	int entry_length = get_table_entry_length(store);
 	//printf("entry_length is : %d \n\n\n", entry_length);
 	//int entry_count = get_table_entry_count(store, entry_length);
 	//printf("entry_count is : %d \n\n\n", entry_count);
 
-	if(key == NULL || value == NULL){
+	if(key == NULL || value == NULL) {
 		printf("Error: Cannot insert null values into hashtable.\n");
 		return -1;
 	}
-	if(key_size+length+sizeof(TOMBSTONE) > (unsigned long)entry_length){
+	if(key_size+length+sizeof(TOMBSTONE) > (unsigned long)entry_length) {
 		printf("Error: Data is too large.\n");
 		return -1;
 	}
@@ -80,7 +80,7 @@ int insert(FILE* store, char* key, void* value, int length){
 //pass //note: while condition can be a condition to check for a full hash table
 //find the location to insert the new pair. if the key is encountered, return that index.
 //or else, find the closes null index to the index that was found through the hash
-int insert_probe(FILE* store, char* key){
+int insert_probe(FILE* store, char* key) {
 	//found index for new key
 	int entry_length = get_table_entry_length(store);
 	int entry_count = get_table_entry_count(store, entry_length);
@@ -91,30 +91,30 @@ int insert_probe(FILE* store, char* key){
 	assert(flag != NULL);
 	fseek(store, index*entry_length, SEEK_SET);
 
-	do{
+	do {
 		*flag = 0;
-	    fread(flag, sizeof(TOMBSTONE), 1, store); //read in possible flag number
-	    if(*flag == VALID){
-	    	//printf("found valid data!\n");
-	    	fseek(store, (index*entry_length)+4, SEEK_SET); //offset flag number
-	    	fread(key_buffer, key_size, 1, store);
-	    	// only return valid if I find a key match exists at that location
-	    	if(strcmp(key_buffer, key)==0){
-	    		//printf("found a match!\n");
-		    	return index; // return the index to insert and replace
-	    	}
-	    	// if not the key - just keep going, keep looking for a place to insert
-	    }else if(*flag == INVALID){
-	    	//printf("found invalid data!\n");
-	    	return index; // return the index to insert
-	    }else if(*flag == TOMBSTONE){
-	    	//printf("found tombstone!\n");
-	    	return index; // return the index to insert
-	    }
-	    ++index;
-	    index = index > entry_count ? 0 : index;
-	    fseek(store, index*entry_length, SEEK_SET); //find location of next flag number
-	}while(*flag == TOMBSTONE || *flag == VALID); //search until there is a "null" slot
+		fread(flag, sizeof(TOMBSTONE), 1, store); //read in possible flag number
+		if(*flag == VALID) {
+			//printf("found valid data!\n");
+			fseek(store, (index*entry_length)+4, SEEK_SET); //offset flag number
+			fread(key_buffer, key_size, 1, store);
+			// only return valid if I find a key match exists at that location
+			if(strcmp(key_buffer, key)==0) {
+				//printf("found a match!\n");
+				return index; // return the index to insert and replace
+			}
+			// if not the key - just keep going, keep looking for a place to insert
+		} else if(*flag == INVALID) {
+			//printf("found invalid data!\n");
+			return index; // return the index to insert
+		} else if(*flag == TOMBSTONE) {
+			//printf("found tombstone!\n");
+			return index; // return the index to insert
+		}
+		++index;
+		index = index > entry_count ? 0 : index;
+		fseek(store, index*entry_length, SEEK_SET); //find location of next flag number
+	} while(*flag == TOMBSTONE || *flag == VALID); //search until there is a "null" slot
 
 	free(flag);
 	return -1; // this should never be reached if hashtable isn't 100% full.
@@ -123,7 +123,7 @@ int insert_probe(FILE* store, char* key){
 //pass
 //read needs to use probe to find key in table
 //return the slot location of where the value is stored. or else -1.
-int fetch(FILE* store, void* result, char* key, int* length){
+int fetch(FILE* store, void* result, char* key, int* length) {
 	int entry_length = get_table_entry_length(store);
 
 	char key_buffer[entry_length]; //needs to be fixed size of key
@@ -143,7 +143,7 @@ int fetch(FILE* store, void* result, char* key, int* length){
 
 //pass
 //find the slot number that matches the key. or else, return -1.
-int fetch_probe(FILE* store, char* key){
+int fetch_probe(FILE* store, char* key) {
 	int entry_length = get_table_entry_length(store);
 	int entry_count = get_table_entry_count(store, entry_length);
 
@@ -153,27 +153,27 @@ int fetch_probe(FILE* store, char* key){
 	assert(magic != NULL);
 	fseek(store, index*entry_length, SEEK_SET);
 
-	do{
+	do {
 		*magic = 0;
-	    fread(magic, sizeof(TOMBSTONE), 1, store); //read in possible magic number
-	    if(*magic == VALID){
-	    	//printf("found valid data!\n");
-	    	fseek(store, (index*entry_length)+4, SEEK_SET); //offset magic number
-	    	fread(key_buffer, key_size, 1, store);
-	    	if(strcmp(key_buffer, key)==0){ //check for a key match at this index
-	    		//printf("found a match!\n");
-		    	return index;
-	    	}
-	    }else if(*magic == INVALID){
-	    	//printf("found invalid data!\n");
-	    	return -1;
-	    }else if(*magic == TOMBSTONE){
-	    	//printf("found tombstone!\n");
-	    }
-	    ++index;
-	    index = index > entry_count ? 0 : index;
-	    fseek(store, index*entry_length, SEEK_SET); //find location of next magic number
-	}while(*magic == TOMBSTONE || *magic == VALID); //search until there is a "null" slot
+		fread(magic, sizeof(TOMBSTONE), 1, store); //read in possible magic number
+		if(*magic == VALID) {
+			//printf("found valid data!\n");
+			fseek(store, (index*entry_length)+4, SEEK_SET); //offset magic number
+			fread(key_buffer, key_size, 1, store);
+			if(strcmp(key_buffer, key)==0) { //check for a key match at this index
+				//printf("found a match!\n");
+				return index;
+			}
+		} else if(*magic == INVALID) {
+			//printf("found invalid data!\n");
+			return -1;
+		} else if(*magic == TOMBSTONE) {
+			//printf("found tombstone!\n");
+		}
+		++index;
+		index = index > entry_count ? 0 : index;
+		fseek(store, index*entry_length, SEEK_SET); //find location of next magic number
+	} while(*magic == TOMBSTONE || *magic == VALID); //search until there is a "null" slot
 
 	free(magic);
 	printf("DID NOT FIND %s\n",key);
@@ -204,13 +204,13 @@ int main(){
 
 /*------------------------HELPER FUNCTIONS--------------------------------*/
 
-FILE* create_file(char* name){
+FILE* create_file(char* name) {
 	FILE* store = fopen(name, "w+");
 	populate(store, table_size, table_length);
 	return store;
 }
 
-FILE* access_file(char* name){
+FILE* access_file(char* name) {
 	FILE* store;
 	store = fopen(name, "r+");
 	return store;
@@ -219,19 +219,19 @@ FILE* access_file(char* name){
 //pass
 //continue point: Assume this works. Assume structures put null ptrs at end.
 //TODO: Confirm or improve.
-void populate(FILE* store, int table_entry_count, int table_entry_length){
+void populate(FILE* store, int table_entry_count, int table_entry_length) {
 	char filler = 0;
 	int remaining_line_size = table_entry_length - sizeof(INVALID);
 	int invalid_value = INVALID;
 	int* invalid = &invalid_value;
 
-	for(int i = 0; i < table_entry_count; i++){
+	for(int i = 0; i < table_entry_count; i++) {
 		//every slot will begin with "invalid" at initialize
- 		fwrite(invalid, sizeof(INVALID), 1, store);
- 		for(int k = 0; k < remaining_line_size; k++){
- 			fwrite(&filler, sizeof(char), 1, store);
- 		}
- 		//BEFORE THE LOOP. TBD: WHY ISNT THIS EQUIVALENT TO ABOVE?
+		fwrite(invalid, sizeof(INVALID), 1, store);
+		for(int k = 0; k < remaining_line_size; k++) {
+			fwrite(&filler, sizeof(char), 1, store);
+		}
+		//BEFORE THE LOOP. TBD: WHY ISNT THIS EQUIVALENT TO ABOVE?
 		//fwrite(&filler, sizeof(char)*multiply, 1, store);
 	}
 
@@ -239,7 +239,7 @@ void populate(FILE* store, int table_entry_count, int table_entry_length){
 	insert_meta_data(store, TABLE_ENTRY_COUNT, table_entry_count, table_entry_length, 1);
 }
 
-void insert_meta_data(FILE* store, char* key, int value, int table_entry_length, int index){
+void insert_meta_data(FILE* store, char* key, int value, int table_entry_length, int index) {
 	//insert table_entry_count and table_entry_length into the hashtable
 	//storing at index 0 and at index 1
 	//first storing entry length
@@ -261,7 +261,7 @@ void insert_meta_data(FILE* store, char* key, int value, int table_entry_length,
 	fwrite(meta_value_ptr, sizeof(int), 1, store);
 }
 
-int get_table_entry_length(FILE* store){
+int get_table_entry_length(FILE* store) {
 	//offset = sizeof entry_key + sizeof flag + sizeof value
 	int offset = sizeof(METADATA) + (strlen(TABLE_ENTRY_LENGTH)+1)*sizeof(char) + sizeof(int);
 	fseek(store, offset, SEEK_SET);
@@ -271,7 +271,7 @@ int get_table_entry_length(FILE* store){
 	return entry_len;
 }
 
-int get_table_entry_count(FILE* store, int entry_length){
+int get_table_entry_count(FILE* store, int entry_length) {
 	//offset = sizeof entry_key + sizeof flag + sizeof value + skip the old entry
 	int offset = sizeof(METADATA) + (strlen(TABLE_ENTRY_COUNT)+1)*sizeof(char) + sizeof(int) + entry_length;
 	fseek(store, offset, SEEK_SET);
@@ -284,7 +284,7 @@ int get_table_entry_count(FILE* store, int entry_length){
 
 /*-----------------SECOND CLASS AND TODO FUNCTIONS---------------------------*/
 
-int delete(FILE* store, char* key){
+int delete(FILE* store, char* key) {
 	int entry_length = get_table_entry_length(store);
 	/*probe for valid entry with matching key*/
 	int index = fetch_probe(store, key);
@@ -301,28 +301,28 @@ int delete(FILE* store, char* key){
 }
 
 //pass
-void read_int_array(FILE* store, char* key, int length){
+void read_int_array(FILE* store, char* key, int length) {
 	(void)length; //prevent unused parameter warning
 	int result[5];
-	for(int k = 0; k < 5; k++){
+	for(int k = 0; k < 5; k++) {
 		result[k] = 0; //fill result with zeros
 	}
 	int len_storage = 0;
 	int *len_ptr = &len_storage;
 	fetch(store, result, key, len_ptr);
 	printf("2 value: \n");
-	for(int i = 0; i < 5; i++){
+	for(int i = 0; i < 5; i++) {
 		printf("result[%d] = %d\n",i,result[i]);
 	}
 }
 
 //pass
-void read_char_array(FILE* store, char* key, int length){
+void read_char_array(FILE* store, char* key, int length) {
 	(void)length; //prevent unused parameter warning
 	char result[100];
 	int len_storage = 0;
 	int *len_ptr = &len_storage;
-	for(int k = 0; k < 5; k++){
+	for(int k = 0; k < 5; k++) {
 		result[k] = '\0'; //fill result with zeros
 	}
 	fetch(store, result, key, len_ptr);
