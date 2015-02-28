@@ -1,3 +1,9 @@
+/*
+* Brittany Arthur (bharthur)
+* Jason Heron (jheron)
+* Peter Froud (pfroud)
+*/
+
 #ifndef KVS2_H_
 #define KVS2_H_
 
@@ -5,7 +11,7 @@ FILE* initialize(char* name);
 
 int fetch(FILE* store, void* result, char* key, int* length);
 int insert(FILE* store, char* key, void* value, int length);
-unsigned long hash(char *str); //REMOVE THIS FROM HEADER 
+unsigned long hash(char *str); //REMOVE THIS FROM HEADER
 int delete(FILE* store, char* key);
 
 
