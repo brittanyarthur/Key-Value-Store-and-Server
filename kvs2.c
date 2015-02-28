@@ -26,6 +26,7 @@ int insert_probe(FILE* store, char* key);
 void insert_meta_data(FILE* store, char* key, int value, int table_entry_length, int index);
 int delete(char* key);
 int get_table_entry_length(FILE* store);
+int get_table_entry_count(FILE* store, int entry_length);
 unsigned long hash(char *str);
 
 //pass
@@ -46,8 +47,10 @@ Now returns index like it should!
 */
 int insert(FILE* store, char* key, void* value, int length){
 	//get the table length using metadata that is stored in the hash table
-	int entrylen = get_table_entry_length(store);
-	printf("entrylen is : %d \n\n\n", entrylen);
+	int entry_length = get_table_entry_length(store);
+	printf("entry_length is : %d \n\n\n", entry_length);
+	int entry_count = get_table_entry_count(store, entry_length);
+	printf("entry_count is : %d \n\n\n", entry_count);
 
 	if(key == NULL || value == NULL){
 		printf("Error: Cannot insert null values into hashtable.\n");
@@ -252,6 +255,16 @@ int get_table_entry_length(FILE* store){
 	int* entry_len_ptr = &entry_len;
 	fread(entry_len_ptr, sizeof(int), 1, store);
 	return entry_len;
+}
+
+int get_table_entry_count(FILE* store, int entry_length){
+	//offset = sizeof entry_key + sizeof flag + sizeof value + skip the old entry
+	int offset = sizeof(METADATA) + (strlen(TABLE_ENTRY_COUNT)+1)*sizeof(char) + sizeof(int) + entry_length;
+	fseek(store, offset, SEEK_SET); 
+	int entry_ct = 0;
+	int* entry_ct_ptr = &entry_ct;
+	fread(entry_ct_ptr, sizeof(int), 1, store);
+	return entry_ct;
 }
 
 
