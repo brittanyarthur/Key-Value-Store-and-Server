@@ -1,4 +1,4 @@
-//Server.c 
+//Server.c
 #include <stdio.h>
 #include <string.h>     //strlen
 #include <sys/socket.h>
@@ -39,15 +39,15 @@ int main(int argc , char *argv[])
        //Accept the incoming connection
        AcceptConnections(sock_fd);
     }
-     
+
     return 0;
 }
 
 int OpenSocket(int port)
-{   
+{
    struct sockaddr_in socketinfo; //https://msdn.microsoft.com/en-us/library/aa917469.aspx
    //create socket
-   int sock_fd = socket( PF_INET, SOCK_STREAM, 0); 
+   int sock_fd = socket( PF_INET, SOCK_STREAM, 0);
    if(sock_fd == -1)
    {
    	  printf("Could not create socket.\n");
@@ -55,11 +55,11 @@ int OpenSocket(int port)
    }
 
    //socket binds to localhost //address in network byte order
-   socketinfo.sin_addr.s_addr = inet_addr("127.0.0.1"); 
+   socketinfo.sin_addr.s_addr = inet_addr("127.0.0.1");
    //in internet family
    socketinfo.sin_family = AF_INET;
    //connect socket to the port
-   socketinfo.sin_port = htons(port); 
+   socketinfo.sin_port = htons(port);
 
    //make pointer to socket info
    struct sockaddr_in* info_ptr = &socketinfo;
@@ -91,7 +91,7 @@ char* RecieveData(int newSocket){
     //get the incoming message from the client.
     char reply_buffer[256];
     //clear buffer before writing to it
-    memset(reply_buffer, 0, sizeof(reply_buffer)); 
+    memset(reply_buffer, 0, sizeof(reply_buffer));
     // recv() will block until there is some data to read.
     if(recv(newSocket, reply_buffer, 256, 0) < 0)
     {
@@ -108,19 +108,19 @@ char* RecieveData(int newSocket){
        printf("Exit from killed client.\n");
        return "quit";
        }
-       char* returnMe = malloc(sizeof(char)*strlen(reply_buffer));
+       char* returnMe = calloc(sizeof(char), strlen(reply_buffer));
        strcpy(returnMe, reply_buffer);
-       return returnMe; // 0 maps to other
+       return returnMe; // 0 maps to otherĿ
     }
 }
 
 char* parse_client_data(char* reply_buffer){
-   char* command = malloc(sizeof(char)*100);
-   char* name = malloc(sizeof(char)*100);
-   char* length = malloc(sizeof(char)*100);
-   char* size = malloc(sizeof(char)*100);
-   char* key = malloc(sizeof(char)*100);
-   char* value = malloc(sizeof(char)*100); 
+   char* command = calloc(sizeof(char), 100);
+   char* name = calloc(sizeof(char), 100);
+   char* length = calloc(sizeof(char), 100);
+   char* size = calloc(sizeof(char), 100);
+   char* key = calloc(sizeof(char), 100);
+   char* value = calloc(sizeof(char), 100);
 
    sscanf(reply_buffer, "<cmd>%[^<]</cmd><name>%[^<]</name><length>%[^<]</length><size>%[^<]</size><key>%[^<]</key><value>%[^<]</value>",
     command, name, length,size, key, value);
@@ -135,11 +135,13 @@ char* parse_client_data(char* reply_buffer){
    }else if(!strcmp(command, "lookup")){
       return do_lookup(name, key);
    }
-   return "";
+   return "!!parse_client_data broke!!";
 }
 
 char* do_init(char* name, char* length, char* size){
-
+   (void)name;
+   (void)length;
+   (void)size;
   return "INIT SUCCESS";
 }
 
@@ -164,7 +166,7 @@ char* do_insert(char* name, char* key, char* value){
 char* do_lookup(char* name, char* key){
   printf("look up %s\n",key);
   FILE* my_data = initialize(name);
-  char* result = malloc(max_value_size*sizeof(char));
+  char* result = calloc(max_value_size, sizeof(char));
   int length;
   int* len = &length;
   if(fetch(my_data, result, key, len) == -1)
@@ -211,8 +213,8 @@ int AcceptConnections(int sock_fd){
       if(pid == 0) { //child process
          printf("in child!!!\n");
          // loop for an ongoing conversation with the client
-         while(1){ 
-            // 0 maps to other, 1 maps to no, 2 maps to yes 
+         while(1){
+            // 0 maps to other, 1 maps to no, 2 maps to yes
             char* data_recieved = RecieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
             if(strcmp(data_recieved, "quit") == 0){
                printf("User Quitting Now.\n");
@@ -224,7 +226,7 @@ int AcceptConnections(int sock_fd){
          }
          return 0;
       }else{
-         //wait(&pid); 
+         //wait(&pid);
          printf("in parent!!!\n");
       }
     }
@@ -238,7 +240,7 @@ int SendData(int sock_fd, int newSocket, char* data_recieved)
     	printf("Error sending message\n");
     	return -1;
     }
-    printf("Message Successfully Sent.\n");	
+    printf("Message Successfully Sent.\n");
     return 0;
 }
 

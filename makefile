@@ -16,15 +16,13 @@ BIGTESTOBJ = kvs2.o bigKvsTest.o
 % : %.c 
 	gcc $< -o $@ ${flags}
 
-all : Server Client testing
+all : server client testing
 
-client : Client
-	./Client
 
 testing : $(OBJECTS)
 	gcc $(OBJECTS) -o testing
 
-Server : $(SERVER_OBJECTS)
+server : $(SERVER_OBJECTS)
 	gcc $(SERVER_OBJECTS) -o server
 
 bigTest: $(BIGTESTOBJ)
@@ -39,11 +37,11 @@ kvs2.o : kvs2.c
 testing.o : testing.c
 	gcc -c testing.c ${flags}
 
-server.o : Server.c
-	gcc -c Server.c ${flags}
+server.o : server.c
+	gcc -c server.c ${flags}
 
 clean:
-	@rm -f Server Client kvs testing *~ *.o *.dSYM testTable bigTestTable
+	@rm -f server client kvs testing *~ *.o *.dSYM testTable bigTestTable bigTest *.save
 
 spotless: clean
 	@rm -f hashtable
