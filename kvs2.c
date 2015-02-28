@@ -30,7 +30,9 @@ int get_table_entry_length(FILE* store);
 int get_table_entry_count(FILE* store, int entry_length);
 unsigned long hash(char *str);
 
-//pass
+/**
+
+*/
 FILE* initialize(char* name) {
 	FILE* store;
 	if(access(name, W_OK ) != -1)
@@ -80,6 +82,9 @@ int insert(FILE* store, char* key, void* value, int length) {
 //pass //note: while condition can be a condition to check for a full hash table
 //find the location to insert the new pair. if the key is encountered, return that index.
 //or else, find the closes null index to the index that was found through the hash
+/**
+
+*/
 int insert_probe(FILE* store, char* key) {
 	//found index for new key
 	int entry_length = get_table_entry_length(store);
@@ -123,6 +128,9 @@ int insert_probe(FILE* store, char* key) {
 //pass
 //read needs to use probe to find key in table
 //return the slot location of where the value is stored. or else -1.
+/**
+
+*/
 int fetch(FILE* store, void* result, char* key, int* length) {
 	int entry_length = get_table_entry_length(store);
 
@@ -143,6 +151,9 @@ int fetch(FILE* store, void* result, char* key, int* length) {
 
 //pass
 //find the slot number that matches the key. or else, return -1.
+/**
+
+*/
 int fetch_probe(FILE* store, char* key) {
 	int entry_length = get_table_entry_length(store);
 	int entry_count = get_table_entry_count(store, entry_length);
@@ -204,12 +215,18 @@ int main(){
 
 /*------------------------HELPER FUNCTIONS--------------------------------*/
 
+/**
+
+*/
 FILE* create_file(char* name) {
 	FILE* store = fopen(name, "w+");
 	populate(store, table_size, table_length);
 	return store;
 }
 
+/**
+
+*/
 FILE* access_file(char* name) {
 	FILE* store;
 	store = fopen(name, "r+");
@@ -219,6 +236,9 @@ FILE* access_file(char* name) {
 //pass
 //continue point: Assume this works. Assume structures put null ptrs at end.
 //TODO: Confirm or improve.
+/**
+
+*/
 void populate(FILE* store, int table_entry_count, int table_entry_length) {
 	char filler = 0;
 	int remaining_line_size = table_entry_length - sizeof(INVALID);
@@ -239,6 +259,9 @@ void populate(FILE* store, int table_entry_count, int table_entry_length) {
 	insert_meta_data(store, TABLE_ENTRY_COUNT, table_entry_count, table_entry_length, 1);
 }
 
+/**
+
+*/
 void insert_meta_data(FILE* store, char* key, int value, int table_entry_length, int index) {
 	//insert table_entry_count and table_entry_length into the hashtable
 	//storing at index 0 and at index 1
@@ -261,6 +284,9 @@ void insert_meta_data(FILE* store, char* key, int value, int table_entry_length,
 	fwrite(meta_value_ptr, sizeof(int), 1, store);
 }
 
+/**
+
+*/
 int get_table_entry_length(FILE* store) {
 	//offset = sizeof entry_key + sizeof flag + sizeof value
 	int offset = sizeof(METADATA) + (strlen(TABLE_ENTRY_LENGTH)+1)*sizeof(char) + sizeof(int);
@@ -271,6 +297,9 @@ int get_table_entry_length(FILE* store) {
 	return entry_len;
 }
 
+/**
+
+*/
 int get_table_entry_count(FILE* store, int entry_length) {
 	//offset = sizeof entry_key + sizeof flag + sizeof value + skip the old entry
 	int offset = sizeof(METADATA) + (strlen(TABLE_ENTRY_COUNT)+1)*sizeof(char) + sizeof(int) + entry_length;
@@ -284,6 +313,9 @@ int get_table_entry_count(FILE* store, int entry_length) {
 
 /*-----------------SECOND CLASS AND TODO FUNCTIONS---------------------------*/
 
+/**
+
+*/
 int delete(FILE* store, char* key) {
 	int entry_length = get_table_entry_length(store);
 	/*probe for valid entry with matching key*/
@@ -301,6 +333,9 @@ int delete(FILE* store, char* key) {
 }
 
 //pass
+/**
+
+*/
 void read_int_array(FILE* store, char* key, int length) {
 	(void)length; //prevent unused parameter warning
 	int result[5];
@@ -317,6 +352,9 @@ void read_int_array(FILE* store, char* key, int length) {
 }
 
 //pass
+/**
+
+*/
 void read_char_array(FILE* store, char* key, int length) {
 	(void)length; //prevent unused parameter warning
 	char result[100];

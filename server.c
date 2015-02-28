@@ -27,6 +27,9 @@ typedef struct sockaddr_in sockaddr_in;
 typedef enum {IN_USE, FREE} mutex_type;
 mutex_type mutex;
 
+/**
+
+*/
 int main(int argc , char *argv[]) {
 	(void)argc;
 	(void)argv;
@@ -46,6 +49,9 @@ int main(int argc , char *argv[]) {
 	return 0;
 }
 
+/**
+
+*/
 int OpenSocket(int port) {
 	struct sockaddr_in socketinfo; //https://msdn.microsoft.com/en-us/library/aa917469.aspx
 	//create socket
@@ -79,6 +85,9 @@ int OpenSocket(int port) {
 	return sock_fd;
 }
 
+/**
+
+*/
 int ListenIncomingConnection(int sock_fd) {
 	//Listen for incoming connections. A max of 1 connection can happen.
 	if(listen(sock_fd,1) < 0) {
@@ -89,6 +98,9 @@ int ListenIncomingConnection(int sock_fd) {
 	return 0;
 }
 
+/**
+
+*/
 char* RecieveData(int newSocket) {
 	printf("about to recieve data\n");
 	//get the incoming message from the client.
@@ -115,6 +127,9 @@ char* RecieveData(int newSocket) {
 	}
 }
 
+/**
+
+*/
 char* parse_client_data(char* reply_buffer) {
 	char* command = calloc(sizeof(char), 100);
 	char* name = calloc(sizeof(char), 100);
@@ -145,6 +160,9 @@ char* parse_client_data(char* reply_buffer) {
 	return "[513] LUL WUT?"; //from assignment spec
 }
 
+/**
+
+*/
 char* do_init(char* name, char* length, char* size) {
 	(void)name;
 	(void)length;
@@ -152,6 +170,9 @@ char* do_init(char* name, char* length, char* size) {
 	return "[201] INIT SUCCESS";
 }
 
+/**
+
+*/
 char* do_insert(char* name, char* key, char* value) {
    if(mutex == IN_USE) return "[400] IN USE";
    mutex = IN_USE;
@@ -175,6 +196,9 @@ char* do_insert(char* name, char* key, char* value) {
 	return "[400] INSERT FAILURE";
 }
 
+/**
+
+*/
 char* do_lookup(char* name, char* key) {
    if(mutex == IN_USE) return "[400] IN USE";
    mutex = IN_USE;
@@ -195,6 +219,9 @@ char* do_lookup(char* name, char* key) {
 	return result;
 }
 
+/**
+
+*/
 char* do_delete(char* name, char* key) {
    if(mutex == IN_USE) return "[400] IN USE";
    mutex = IN_USE;
@@ -211,6 +238,9 @@ char* do_delete(char* name, char* key) {
 //post:      unlock by increment http://man7.org/linux/man-pages/man3/sem_post.3.html
 //get value: http://man7.org/linux/man-pages/man3/sem_getvalue.3.html
 
+/**
+
+*/
 int AcceptConnections(int sock_fd) {
 
 	while(1) {
@@ -246,6 +276,9 @@ int AcceptConnections(int sock_fd) {
 	}
 }
 
+/**
+
+*/
 int SendData(int sock_fd, int newSocket, char* data_recieved) {
 	(void)sock_fd;
 	//Finally, a message can be sent!

@@ -20,7 +20,9 @@ char* do_quit();
 //char* BuildPacket(char* cmd, char* name, char* length, char* size, char* key, char* value);
 char* table_name;
 
+/**
 
+*/
 int main( int argc, char * argv[] ) {
 	(void)argc;
 	(void)argv;
@@ -55,6 +57,9 @@ int main( int argc, char * argv[] ) {
 	return 0;
 }
 
+/**
+
+*/
 int OpenSocket(int port, const char* remote_IP) {
 	struct sockaddr_in remote_server;
 	//create socket
@@ -93,6 +98,9 @@ int OpenSocket(int port, const char* remote_IP) {
 }
 
 //return code 1: quit. -1: error. 0: success.
+/**
+
+*/
 int WriteData(int sock_fd) {
 	//Ask user for action
 	int no_response = 1;
@@ -167,7 +175,9 @@ int WriteData(int sock_fd) {
 }
 
 
+/**
 
+*/
 char* do_quit() {
 	char* packet = calloc(sizeof(char), 4 + 1);
 	assert(packet != NULL);
@@ -175,6 +185,9 @@ char* do_quit() {
 	return packet;
 }
 
+/**
+
+*/
 char* do_insert() {
    char* value_buffer = calloc(256, sizeof(char));
    char* key_buffer = calloc(256, sizeof(char));
@@ -200,6 +213,9 @@ char* do_insert() {
 	return packet;
 }
 
+/**
+
+*/
 char* do_delete() {
 	char* formatter = "<cmd>delete</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
 	char* key_buffer = calloc(256, sizeof(char));
@@ -218,6 +234,9 @@ char* do_delete() {
 	return packet;
 }
 
+/**
+
+*/
 char* do_lookup() {
 	char* formatter = "<cmd>lookup</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
 	char* key_buffer = calloc(256, sizeof(char));
@@ -237,6 +256,9 @@ char* do_lookup() {
 	return packet;
 }
 
+/**
+
+*/
 char* do_init() {
 	char* name_buffer = calloc(256, sizeof(char));
 	assert(name_buffer != NULL);
@@ -289,6 +311,9 @@ char* do_init() {
 	}
 }
 
+/**
+
+*/
 int RecieveData(int sock_fd) {
 	char* reply_buffer = calloc(sizeof(char), 256);
 	assert(reply_buffer != NULL);
