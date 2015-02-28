@@ -61,7 +61,7 @@ port:
 Returns: file descriptor to socket, or -1 if error.
 */
 int openSocket(int port) {
-	struct sockaddr_in socketinfo; //https://msdn.microsoft.com/en-us/library/aa917469.aspx
+	struct sockaddr_in socketinfo; 
 	//create socket
 	int sock_fd = socket( PF_INET, SOCK_STREAM, 0);
 	if(sock_fd == -1) {
@@ -75,7 +75,7 @@ int openSocket(int port) {
 	//in internet family
 	socketinfo.sin_family = AF_INET;
 
-	//connect socket to the port
+	//connect socket to the port in network byte order
 	socketinfo.sin_port = htons(port);
 
 	//make pointer to socket info
@@ -116,7 +116,7 @@ newSocket:
 Returns:
 */
 char* recieveData(int newSocket) {
-	printf("about to recieve data\n");
+	printf("About to recieve data.\n");
 	//get the incoming message from the client.
 	char* reply_buffer = calloc(256, sizeof(char));
 	assert(reply_buffer != NULL);
@@ -181,7 +181,6 @@ char* parse_client_data(char* reply_buffer) {
 sounds legit
 */
 char* do_init(char* name, char* length, char* size) {
-	printf("INITIALIZING TABLE IN DO_INIT\n");
   int t_size = atoi(size);
   int t_length = atoi(length);
   FILE* my_data = initialize(name, t_size, t_length);
@@ -230,7 +229,7 @@ char* do_lookup(char* name, char* key) {
    if(mutex == IN_USE) return "[400] IN USE";
    mutex = IN_USE;
 
-	printf("look up %s\n",key);
+	printf("Looking up: %s\n",key);
 	FILE* my_data = get_hashfile(name);
 	char* result = calloc(max_value_size, sizeof(char));
 	assert(result != NULL);
@@ -279,7 +278,7 @@ int acceptConnections(int sock_fd) {
 		//Listen for an incoming connection
 		if(listenIncomingConnection(sock_fd) == -1) printf("Error while listening\n");
 
-		printf("about to fork 2 processes - child and parent. \n");
+		printf("About to fork. \n");
 		struct sockaddr_in newclient; //accept creates a new socket
 		socklen_t size = sizeof newclient;
 		int newSocket = 0;
@@ -287,7 +286,7 @@ int acceptConnections(int sock_fd) {
 		newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
 		int pid = fork();
 		if(pid == 0) { //child process
-			printf("in child!!!\n");
+			printf("In child process!!!\n");
 			// loop for an ongoing conversation with the client
 			while(1) {
 				// 0 maps to other, 1 maps to no, 2 maps to yes
@@ -303,7 +302,7 @@ int acceptConnections(int sock_fd) {
 			return 0;
 		} else {
 			//wait(&pid);
-			printf("in parent!!!\n");
+			printf("In parent process!!!\n");
 		}
 	}
 }
@@ -319,7 +318,7 @@ int sendData(int sock_fd, int newSocket, char* data_recieved) {
 	(void)sock_fd;
 	//Finally, a message can be sent!
 	if(send(newSocket,data_recieved,strlen(data_recieved),0) < 0) {
-		printf("Error sending message\n");
+		printf("Error Sending Message.\n");
 		return -1;
 	}
 	printf("Message Successfully Sent.\n");
