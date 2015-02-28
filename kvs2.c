@@ -1,4 +1,8 @@
-//kvs2.c
+/*
+* Brittany Arthur (bharthur)
+* Jason Heron (jheron)
+* Peter Froud (pfroud)
+*/
 //size = # of entires, length = # size of each thing
 #include <stdio.h>
 #include <stdlib.h> //malloc()

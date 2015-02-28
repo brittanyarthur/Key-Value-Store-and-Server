@@ -1,4 +1,8 @@
-//Server.c
+/*
+* Brittany Arthur (bharthur)
+* Jason Heron (jheron)
+* Peter Froud (pfroud)
+*/
 #include <stdio.h>
 #include <string.h>     //strlen
 #include <sys/socket.h>

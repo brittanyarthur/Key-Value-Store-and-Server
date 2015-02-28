@@ -1,4 +1,8 @@
-//Clientc.c
+/*
+* Brittany Arthur (bharthur)
+* Jason Heron (jheron)
+* Peter Froud (pfroud)
+*/
 
 #include <stdlib.h> //free()
 #include <string.h>

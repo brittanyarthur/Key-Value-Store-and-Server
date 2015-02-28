@@ -1,4 +1,7 @@
-# makefile for macosx
+#Brittany Arthur (bharthur)
+#Jason Heron (jheron)
+#Peter Froud (pfroud)
+
 # Improved GCC flags:
 # -g:      adds debugging stuff for use with gdb
 # -O0:     turns off optimization
