@@ -18,7 +18,7 @@ char* do_init();
 char* do_quit();
 int parse_command_response(char* response);
 //char* BuildPacket(char* cmd, char* name, char* length, char* size, char* key, char* value);
-char* table_name;
+char* table_name = NULL;
 
 
 int main( int argc, char * argv[] )
@@ -107,6 +107,10 @@ int WriteData(int sock_fd){
       }
       //Parse user action decision
       no_response = 0;
+      if(table_name == NULL){
+         printf("You've gotsta set up your hashtable!\n");
+         write_buffer = do_init();
+      }else{
       switch(parse_command_response(command_buffer)){
        case 0:
             write_buffer = do_insert(); break;
@@ -123,6 +127,7 @@ int WriteData(int sock_fd){
          no_response = 1;
       }
    }
+    }
    
    //Send formed packet to server
    printf("writing to server: %s\n", write_buffer);
