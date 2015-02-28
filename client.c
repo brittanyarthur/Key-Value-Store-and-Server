@@ -174,6 +174,7 @@ int WriteData(int sock_fd) {
 	}
 
 	if(quit == 0) { //User would like to quit out of server
+      printf("QUIT\n");
 		return 1;
 	}
 

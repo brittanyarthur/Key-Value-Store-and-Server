@@ -18,7 +18,7 @@ const int INVALID   = 0xda00000b;
 const int METADATA  = 0xdaa0000b;
 
 /** FUNCTION PROTOTYPES */
-FILE* create_file(char* name);
+FILE* create_file(char* name, int size, int length);
 FILE* access_file(char* name);
 void populate(FILE* store, int table_entry_count, int table_entry_size);
 int fetch_probe(FILE* store, char* key);
@@ -36,14 +36,14 @@ name: the name of the hashtable.
 
 Returns: pointer to file stream of the hashtable.
 */
-FILE* initialize(char* name) {
+FILE* initialize(char* name, int size, int length) {
 	FILE* store;
 	if(access(name, W_OK ) != -1)
 		//file exists
 		store = access_file(name);
 	else
 		//file does not exist
-		store = create_file(name);
+		store = create_file(name, size, length);
 	return store;
 }
 
@@ -62,6 +62,7 @@ Returns: the index it was inserted in, or -1 if error.
 int insert(FILE* store, char* key, void* value, int length) {
 	//get the table length using metadata that is stored in the hash table
 	int entry_length = get_table_entry_length(store);
+	printf("SIZE OF ENTRY IN INSERT IS: %d\n", entry_length);
 	//printf("entry_length is : %d \n\n\n", entry_length);
 	//int entry_count = get_table_entry_count(store, entry_length);
 	//printf("entry_count is : %d \n\n\n", entry_count);
@@ -74,6 +75,7 @@ int insert(FILE* store, char* key, void* value, int length) {
 		printf("Error: Data is too large.\n");
 		return -1;
 	}
+
 	int index = insert_probe(store, key);
 	printf("INSERTING INTO: %d\n", index);
 
@@ -111,6 +113,8 @@ int insert_probe(FILE* store, char* key) {
 	int* flag = malloc(sizeof(int));
 	assert(flag != NULL);
 	fseek(store, index*entry_length, SEEK_SET);
+
+	printf("entry len INSERT PROBLE is %d\n",entry_length);
 
 	do {
 		*flag = 0;
@@ -230,9 +234,12 @@ name: filename of the table to create.
 
 Returns: pointer to file stream of the hashtable.
 */
-FILE* create_file(char* name) {
+FILE* create_file(char* name, int size, int length) {
+printf("CREATE FILE IS CALLED RIGHT NOW \n\n\n\n\n size: %d \n length: %d\n\n", size, length);
+printf("CREATE FILE IS CALLED RIGHT NOW \n\n\n\n\n");
+printf("CREATE FILE IS CALLED RIGHT NOW \n\n\n\n\n");
 	FILE* store = fopen(name, "w+");
-	populate(store, table_size, table_length);
+	populate(store, size, length);
 	return store;
 }
 

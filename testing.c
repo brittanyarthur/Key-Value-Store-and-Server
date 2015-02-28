@@ -11,7 +11,7 @@ int print_matching_index(FILE* file);
 void rand_str(char *dest, size_t length);
 
 int main(){
-	FILE* my_data = initialize("hashtable"); 
+	FILE* my_data = initialize("hashtable", table_size, table_length); 
 	if(insert_test1(my_data)){
 		// expected result: the
 		printf("TEST 1 PASS: collision on the same key.\n");

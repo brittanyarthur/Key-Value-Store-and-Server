@@ -14,11 +14,11 @@
 #include "kvs2.h"
 
 /** FUNCTION PROTOTYPES */
-int OpenSocket(int port);
-int ListenIncomingConnection(int sock_fd);
-int AcceptConnections(int sock_fd);
+int   OpenSocket(int port);
+int   ListenIncomingConnection(int sock_fd);
+int   AcceptConnections(int sock_fd);
 char* RecieveData(int newSocket);
-int SendData(int sock_fd, int newSocket, char* data_recieved);
+int   SendData(int sock_fd, int newSocket, char* data_recieved);
 char* parse_client_data(char* reply_buffer);
 char* do_init(char* name, char* length, char* size);
 char* do_insert(char* name, char* key, char* value);
@@ -181,9 +181,9 @@ char* parse_client_data(char* reply_buffer) {
 sounds legit
 */
 char* do_init(char* name, char* length, char* size) {
-	(void)name;
-	(void)length;
-	(void)size;
+  int t_size = atoi(size);
+  int t_length = atoi(length);
+	initialize(name, t_size, t_length);
 	return "[201] INIT SUCCESS";
 }
 
@@ -199,7 +199,7 @@ char* do_insert(char* name, char* key, char* value) {
    mutex = IN_USE;
 
 	printf("inserting %s, with %s\n",key,value);
-	FILE* my_data = initialize(name);
+	FILE* my_data = initialize(name, 0, 0);
 	int value_size = (strlen(value) + 1)*sizeof(char);
 	insert(my_data, key, value, value_size);
 	char result[max_value_size];
@@ -207,6 +207,7 @@ char* do_insert(char* name, char* key, char* value) {
 	int * len = &length;
 	fetch(my_data, result, key, len);
 	fclose(my_data);
+  printf("Inserted data and closed file\n");
 	if(!strcmp(result, value)) {
 		//insert success
 		mutex = FREE;
@@ -229,7 +230,7 @@ char* do_lookup(char* name, char* key) {
    mutex = IN_USE;
 
 	printf("look up %s\n",key);
-	FILE* my_data = initialize(name);
+	FILE* my_data = initialize(name, 0, 0);
 	char* result = calloc(max_value_size, sizeof(char));
 	assert(result != NULL);
 	int length;
@@ -254,7 +255,7 @@ char* do_delete(char* name, char* key) {
    if(mutex == IN_USE) return "[400] IN USE";
    mutex = IN_USE;
 
-	FILE* my_data = initialize(name);
+	FILE* my_data = initialize(name, 0, 0);
 	delete(my_data, key);
 	fclose(my_data);
 	 mutex = FREE;
