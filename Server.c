@@ -14,10 +14,10 @@ int AcceptConnections(int sock_fd);
 char* RecieveData(int newSocket);
 int SendData(int sock_fd, int newSocket, char* data_recieved);
 char* parse_client_data(char* reply_buffer);
-int do_init(char* name, char* length, char* size);
-char* do_insert(char* key, char* value);
-char* do_lookup(char* key);
-int do_delete(char* key);
+char* do_init(char* name, char* length, char* size);
+char* do_insert(char* name, char* key, char* value);
+char* do_lookup(char* name, char* key);
+char* do_delete(char* name, char* key);
 
 #define QUIT       1
 
@@ -124,24 +124,24 @@ char* parse_client_data(char* reply_buffer){
    printf("command=\"%s\"\nname=\"%s\"\nlength=\"%s\"\nsize=\"%s\"\nkey=\"%s\"\nvalue=\"%s\"\n", command, name, length, size, key, value);
 
    if(!strcmp(command, "init")){
-      return do_init(name,length,size);
+      return do_init(name, length, size);
    }else if(!strcmp(command, "insert")){
-      return do_insert(key,value);
+      return do_insert(name, key, value);
    }else if(!strcmp(command, "delete")){
-      return do_delete(key);
+      return do_delete(name, key);
    }else if(!strcmp(command, "lookup")){
-      return do_lookup(key);
+      return do_lookup(name, key);
    }
 }
 
-int do_init(char* name, char* length, char* size){
+char* do_init(char* name, char* length, char* size){
 
-  return 0;
+  return "INIT SUCCESS";
 }
 
-char* do_insert(char* key, char* value){
+char* do_insert(char* name, char* key, char* value){
   printf("inserting %s, with %s\n",key,value);
-  FILE* my_data = initialize("hashtable");
+  FILE* my_data = initialize(name);
   int value_size = (strlen(value) + 1)*sizeof(char);
   insert(my_data, key, value, value_size);
   char result[max_value_size];
@@ -157,26 +157,27 @@ char* do_insert(char* key, char* value){
   return "INSERT FAILURE";
 }
 
-char* do_lookup(char* key){
+char* do_lookup(char* name, char* key){
   printf("look up %s\n",key);
-  FILE* my_data = initialize("hashtable");
+  FILE* my_data = initialize(name);
   char* result = malloc(max_value_size*sizeof(char));
   int length;
   int* len = &length;
-  fetch(my_data, result, key, len);
+  if(fetch(my_data, result, key, len) == -1)
+    return "KEY NOT FOUND";
   printf("FOUND: %s\n", result);
   fclose(my_data);
   return result;
 }
 
-int do_delete(char* key){
-  FILE* my_data = initialize("hashtable");
+char* do_delete(char* name, char* key){
+   FILE* my_data = initialize(name);
   //should be all we need
   delete(my_data, key);
   fclose(my_data);
   //does lookup return something bad when it finds nothing?
   //if so we can use that to test and return a success value
-  return 0;
+  return "DELETE SUCCESS";
 }
 
 int AcceptConnections(int sock_fd){

@@ -61,6 +61,7 @@ int insert(FILE* store, char* key, void* value, int length){
 		return -1;
 	}
 	int index = insert_probe(store, key);
+	printf("INSERTING INTO: %d\n", index);
 
 	fseek(store, index*entry_length, SEEK_SET);
 
@@ -126,6 +127,7 @@ int fetch(FILE* store, void* result, char* key, int* length){
 	char key_buffer[entry_length]; //needs to be fixed size of key
 	//TODO: need to probe here
 	int index = fetch_probe(store, key);
+	printf("FETCH PROBE RETURNED in fetch! index %d\n", index);
 
 	fseek(store, (index*entry_length)+sizeof(TOMBSTONE), SEEK_SET);
 	//read in key
@@ -171,6 +173,7 @@ int fetch_probe(FILE* store, char* key){
 	}while(*magic == TOMBSTONE || *magic == VALID); //search until there is a "null" slot
 
 	free(magic);
+	printf("DID NOT FIND %s\n",key);
 	return -1;
 }
 /*
@@ -282,7 +285,9 @@ int delete(FILE* store, char* key){
 	int entry_length = get_table_entry_length(store);
 	/*probe for valid entry with matching key*/
 	int index = fetch_probe(store, key);
-	
+	printf("FETCH PROBE FOUND! index %d\n", index);
+	printf("DELETING %s\n",key);
+
 	/*mark magic number as DEADD00D*/
 	fseek(store, index*entry_length, SEEK_SET);
 	int tombstone_flag = TOMBSTONE; 
