@@ -28,13 +28,10 @@ char* do_delete(char* name, char* key);
 #define QUIT 1
 
 typedef struct sockaddr_in sockaddr_in;
-//what is  going on
 
 /** questionable mutex */
 typedef enum {IN_USE, FREE} mutex_type;
 mutex_type mutex;
-
-//what the hell
 
 /**
 
