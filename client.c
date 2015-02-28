@@ -7,6 +7,7 @@
 #include <arpa/inet.h> //inet_addr
 #include <unistd.h> //sleep
 #include <ctype.h> //tolower()
+#include <assert.h>
 
 int OpenSocket(int remote_port, const char* remote_IP);
 int RecieveData(int sock_fd);
@@ -105,6 +106,7 @@ int WriteData(int sock_fd){
       printf("\n[I]nsert: add a key/value pair to keystore.\n[D]elete: delete a key/value pair from keystore.\n[L]ookup: lookup value in keystore.\n[S]etup: configure keystore.\n[Q]uit: quit \n");
 
       command_buffer = calloc(5, sizeof(char));
+      assert(command_buffer != NULL);
       fgets(command_buffer, 5, stdin);
       strtok(command_buffer, "\n"); //strip trailing newline
 
@@ -165,6 +167,7 @@ int WriteData(int sock_fd){
 
 char* do_quit(){
    char* packet = calloc(sizeof(char), 4 + 1);
+   assert(packet != NULL);
    strcpy(packet, "quit");
    return packet;
 }
@@ -172,16 +175,19 @@ char* do_quit(){
 char* do_insert(){
    printf("\nKey: ");
    char* key_buffer = calloc(256, sizeof(char));
+   assert(key_buffer != NULL);
    fgets(key_buffer, 256, stdin);
    strtok(key_buffer, "\n"); //strip trailing newline
    printf("\nValue: ");
    char* value_buffer = calloc(256, sizeof(char));
+   assert(value_buffer != NULL);
    fgets(value_buffer, 256, stdin);
    strtok(value_buffer, "\n"); //strip trailing newline
 
    char* formatter = "<cmd>insert</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value></value>";
    int cmdsize = strlen(key_buffer) + strlen(value_buffer) + strlen(formatter) + strlen(table_name) + 1;
    char* packet = calloc(cmdsize, sizeof(char));
+   assert(packet != NULL);
    sprintf(packet, "<cmd>insert</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>%s</key><value>%s</value>",table_name, key_buffer, value_buffer);
 
    //printf("packet is %s\n", packet);
@@ -191,6 +197,7 @@ char* do_insert(){
 char* do_delete(){
    printf("\nKey: ");
    char* key_buffer = calloc(256, sizeof(char));
+   assert(key_buffer != NULL);
    fgets(key_buffer, 256, stdin);
    strtok(key_buffer, "\n"); //strip trailing newline
 
@@ -198,6 +205,7 @@ char* do_delete(){
    int cmdsize = strlen(key_buffer) + strlen(formatter) + strlen(table_name) + 1;
 
    char* packet = calloc(cmdsize, sizeof(char));
+   assert(packet != NULL);
    sprintf(packet, "<cmd>delete</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>%s</key><value>NONE</value>", table_name, key_buffer);
    //printf("packet is %s\n", packet);
    return packet;
@@ -206,6 +214,7 @@ char* do_delete(){
 char* do_lookup(){
    printf("\nKey: ");
    char* key_buffer = calloc(256, sizeof(char));
+   assert(key_buffer != NULL);
    fgets(key_buffer,256, stdin);
    strtok(key_buffer, "\n"); //strip trailing newline
 
@@ -213,6 +222,7 @@ char* do_lookup(){
    int cmdsize = strlen(key_buffer) + strlen(formatter) + strlen(table_name) + 1;
    //int character_additions = strlen("lookup") + 1; //unused
    char* packet = calloc(cmdsize, sizeof(char));
+   assert(packet != NULL);
    sprintf(packet, "<cmd>lookup</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>%s</key><value>NONE</value>", table_name, key_buffer);
 
    //printf("packet is %s\n", packet);
@@ -222,6 +232,7 @@ char* do_lookup(){
 char* do_init(){
    printf("\nTable Name: ");
    char* name_buffer = calloc(256, sizeof(char));
+   assert(name_buffer != NULL);
 
 
    fgets(name_buffer, 256, stdin);
@@ -236,6 +247,7 @@ char* do_init(){
    char* formatter = "<cmd>init</cmd><name></name><length>NONE</length><size>NONE</size><key>NONE</key><value>NONE</value>";
    int cmdsize = strlen(name_buffer) + strlen(formatter) + 1;
    char* packet = calloc(cmdsize, sizeof(char));
+   assert(packet != NULL);
    sprintf(packet, "<cmd>init</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>NONE</key><value>NONE</value>", name_buffer);
    //printf("packet is %s\n", packet);
    return packet;
@@ -245,16 +257,19 @@ char* do_init(){
    printf("CREATING NEW TABLE\n");
    printf("\nLength of entry: "); //entry
    char* length_buffer = calloc(256, sizeof(char));
+   assert(length_buffer != NULL);
    fgets(length_buffer, 256, stdin);
    strtok(length_buffer, "\n"); //strip trailing newline
    printf("\nNumber of entries: "); //num entries
    char* size_buffer = calloc(256, sizeof(char));
+   assert(size_buffer != NULL);
    fgets(size_buffer, 256, stdin);
    strtok(size_buffer, "\n"); //strip trailing newline
 
    char* formatter = "<cmd>init</cmd><name></name><length></length><size></size><key>NONE</key><value>NONE</value>";
    int cmdsize = strlen(name_buffer) + strlen(length_buffer) + strlen(size_buffer) + strlen(formatter) + 1;
    char* packet = calloc(cmdsize, sizeof(char));
+   assert(packet != NULL);
    sprintf(packet, "<cmd>init</cmd><name>%s</name><length>%s</length><size>%s</size><key>NONE</key><value>NONE</value>", name_buffer, length_buffer, size_buffer);
    //printf("packet is %s\n", packet);
    return packet;
@@ -263,6 +278,7 @@ char* do_init(){
 
 int RecieveData(int sock_fd){
    char* reply_buffer = calloc(sizeof(char), 256);
+   assert(reply_buffer != NULL);
    // recv() will block until there is some data to read.
    if(recv(sock_fd, reply_buffer, 256, 0) < 0)
    {

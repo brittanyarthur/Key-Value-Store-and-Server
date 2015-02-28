@@ -3,6 +3,7 @@
 #include <string.h>     //strlen
 #include <sys/socket.h>
 #include <stdlib.h>
+#include <assert.h>
 #include <arpa/inet.h>  //inet_addr
 #include <unistd.h>     //fork(), access(2)
 #include <sys/wait.h>   //wait()
@@ -87,6 +88,7 @@ char* RecieveData(int newSocket){
     printf("about to recieve data\n");
     //get the incoming message from the client.
     char* reply_buffer = calloc(256, sizeof(char));
+    assert(reply_buffer != NULL);
 
     // recv() will block until there is some data to read.
     if(recv(newSocket, reply_buffer, 256, 0) < 0)
@@ -116,6 +118,12 @@ char* parse_client_data(char* reply_buffer){
    char* size = calloc(sizeof(char), 100);
    char* key = calloc(sizeof(char), 100);
    char* value = calloc(sizeof(char), 100);
+   assert(command != NULL);
+   assert(name != NULL);
+   assert(length != NULL);
+   assert(size != NULL);
+   assert(key != NULL);
+   assert(value != NULL);
 
    sscanf(reply_buffer, "<cmd>%[^<]</cmd><name>%[^<]</name><length>%[^<]</length><size>%[^<]</size><key>%[^<]</key><value>%[^<]</value>",
     command, name, length,size, key, value);
@@ -162,6 +170,7 @@ char* do_lookup(char* name, char* key){
   printf("look up %s\n",key);
   FILE* my_data = initialize(name);
   char* result = calloc(max_value_size, sizeof(char));
+  assert(result != NULL);
   int length;
   int* len = &length;
   if(fetch(my_data, result, key, len) == -1)

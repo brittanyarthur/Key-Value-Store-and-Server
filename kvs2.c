@@ -4,6 +4,7 @@
 #include <stdlib.h> //malloc()
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
 #include "kvs2.h"
 
 //MAGIC NUMBER FLAGS
@@ -87,6 +88,7 @@ int insert_probe(FILE* store, char* key){
 	int index = hash(key)%entry_count;
 	char key_buffer[key_size];
 	int* flag = malloc(sizeof(int));
+	assert(flag != NULL);
 	fseek(store, index*entry_length, SEEK_SET);
 
 	do{
@@ -148,6 +150,7 @@ int fetch_probe(FILE* store, char* key){
 	int index = hash(key)%entry_count;
 	char key_buffer[key_size];
 	int* magic = malloc(sizeof(int));
+	assert(magic != NULL);
 	fseek(store, index*entry_length, SEEK_SET);
 
 	do{
