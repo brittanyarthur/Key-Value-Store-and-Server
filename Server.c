@@ -170,7 +170,11 @@ char* do_lookup(char* key){
 }
 
 int do_delete(char* key){
+  //should be all we need
+  delete(key);
 
+  //does lookup return something bad when it finds nothing?
+  //if so we can use that to test and return a success value
   return 0;
 }
 
