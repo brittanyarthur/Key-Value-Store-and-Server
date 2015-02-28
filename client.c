@@ -14,14 +14,13 @@
 #include <assert.h>
 
 /** FUNCTION PROTOTYPES */
-int OpenSocket(int remote_port, const char* remote_IP);
-int RecieveData(int sock_fd);
-int WriteData(int sock_fd);
+int openSocket(int remote_port, const char* remote_IP);
+int recieveData(int sock_fd);
+int writeData(int sock_fd);
 char* do_insert();
 char* do_delete();
 char* do_lookup();
 char* do_init();
-char* do_quit();
 
 /** Stores the filename of the currently opened hashtable */
 char* table_name;
@@ -34,15 +33,16 @@ int main() {
 
 	table_name = calloc(256, sizeof(char));
 	//table_name = "";
-	int remote_port =  10732;
-	const char* remote_IP = "127.0.0.1";
-	int sock_fd = OpenSocket(remote_port, remote_IP);
+
+	int sock_fd = openSocket(10732, "127.0.0.1");
 	printf("Socket has been opened\n");
+
 	int write_result = 0;
 	int recieve_result = 0;
+
 	while(1) {
 		if(sock_fd != -1) {
-			write_result = WriteData(sock_fd);
+			write_result = writeData(sock_fd);
 			if(write_result == 1) {
 				printf("We hope you enjoyed using the hashtable.\n");
 				close(sock_fd);
@@ -53,7 +53,7 @@ int main() {
 			exit(EXIT_FAILURE);
 		}
 		if(write_result != -1) {
-			recieve_result = RecieveData(sock_fd);
+			recieve_result = recieveData(sock_fd);
 		}
 		if(recieve_result == -1) {
 			printf("An Error has occured.\n");
@@ -71,13 +71,18 @@ remote_IP:
 
 Returns:
 */
-int OpenSocket(int port, const char* remote_IP) {
+int openSocket(int port, const char* remote_IP) {
 	struct sockaddr_in remote_server;
+
 	//create socket
-	//INFO: SOCK_DGRAM is used for UDP packets, SOCK_STREAM for TCP.
-	//INFO: AF_INET refers to addresses from the internet, IP addresses specifically. PF_INET refers to anything in the protocol, usually sockets/ports.
-	//...Passing PF_NET ensures that the connection works right. AF = Address Family. PF = Protocol Family.
-	//http://stackoverflow.com/questions/1593946/what-is-af-inet-and-why-do-i-need-it
+
+	/*
+	AF_INET refers to addresses from the internet, IP addresses specifically. PF_INET refers to anything in the protocol, usually sockets/ports.
+   SOCK_DGRAM is used for UDP packets, SOCK_STREAM for TCP.
+	"...Passing PF_NET ensures that the connection works right. AF = Address Family. PF = Protocol Family."
+	http://stackoverflow.com/questions/1593946/what-is-af-inet-and-why-do-i-need-it
+	*/
+
 	int sock_fd = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ); //socket == file descriptor, thus: mysocket
 	if(sock_fd == -1) {
 		printf("Could not create socket.");
@@ -115,7 +120,7 @@ sock_fd: file descriptor for socket.
 
 Returns: 0 on success; -1 or error, 1 to quit.
 */
-int WriteData(int sock_fd) {
+int writeData(int sock_fd) {
 	//Ask user for action
 	int no_response = 1;
 	int quit = 1;
@@ -189,16 +194,7 @@ int WriteData(int sock_fd) {
 }
 
 
-/**
 
-Returns: packet with only "quit".
-*/
-char* do_quit() {
-	char* packet = calloc(sizeof(char), 4 + 1);
-	assert(packet != NULL);
-	strcpy(packet, "quit");
-	return packet;
-}
 
 /**
 
@@ -336,7 +332,7 @@ sock_fd: file descriptor for socket.
 
 Returns:
 */
-int RecieveData(int sock_fd) {
+int recieveData(int sock_fd) {
 	char* reply_buffer = calloc(sizeof(char), 256);
 	assert(reply_buffer != NULL);
 

@@ -14,11 +14,11 @@
 #include "kvs2.h"
 
 /** FUNCTION PROTOTYPES */
-int OpenSocket(int port);
-int ListenIncomingConnection(int sock_fd);
-int AcceptConnections(int sock_fd);
-char* RecieveData(int newSocket);
-int SendData(int sock_fd, int newSocket, char* data_recieved);
+int openSocket(int port);
+int listenIncomingConnection(int sock_fd);
+int acceptConnections(int sock_fd);
+char* recieveData(int newSocket);
+int sendData(int sock_fd, int newSocket, char* data_recieved);
 char* parse_client_data(char* reply_buffer);
 char* do_init(char* name, char* length, char* size);
 char* do_insert(char* name, char* key, char* value);
@@ -44,11 +44,11 @@ int main() {
 	// create socket
 	int port = 10732;
 	printf( "creating socket on port %d\n", port );
-	int sock_fd = OpenSocket(port); //bind
+	int sock_fd = openSocket(port); //bind
 	if(sock_fd != -1) {
 		printf("Connected\n");
 		//Accept the incoming connection
-		AcceptConnections(sock_fd);
+		acceptConnections(sock_fd);
 	}
 
 	return 0;
@@ -60,7 +60,7 @@ port:
 
 Returns: file descriptor to socket, or -1 if error.
 */
-int OpenSocket(int port) {
+int openSocket(int port) {
 	struct sockaddr_in socketinfo; //https://msdn.microsoft.com/en-us/library/aa917469.aspx
 	//create socket
 	int sock_fd = socket( PF_INET, SOCK_STREAM, 0);
@@ -99,7 +99,7 @@ sock_fd: file descriptor for socket.
 
 Returns:
 */
-int ListenIncomingConnection(int sock_fd) {
+int listenIncomingConnection(int sock_fd) {
 	//Listen for incoming connections. A max of 1 connection can happen.
 	if(listen(sock_fd,1) < 0) {
 		printf("Error\n");
@@ -115,7 +115,7 @@ newSocket:
 
 Returns:
 */
-char* RecieveData(int newSocket) {
+char* recieveData(int newSocket) {
 	printf("about to recieve data\n");
 	//get the incoming message from the client.
 	char* reply_buffer = calloc(256, sizeof(char));
@@ -273,11 +273,11 @@ sock_fd: file descriptor for socket.
 
 Returns:
 */
-int AcceptConnections(int sock_fd) {
+int acceptConnections(int sock_fd) {
 
 	while(1) {
 		//Listen for an incoming connection
-		if(ListenIncomingConnection(sock_fd) == -1) printf("Error while listening\n");
+		if(listenIncomingConnection(sock_fd) == -1) printf("Error while listening\n");
 
 		printf("about to fork 2 processes - child and parent. \n");
 		struct sockaddr_in newclient; //accept creates a new socket
@@ -291,14 +291,14 @@ int AcceptConnections(int sock_fd) {
 			// loop for an ongoing conversation with the client
 			while(1) {
 				// 0 maps to other, 1 maps to no, 2 maps to yes
-				char* data_recieved = RecieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
+				char* data_recieved = recieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
 				if(strcmp(data_recieved, "quit") == 0) {
 					printf("User Quitting Now.\n");
 					return QUIT;
 				}
 				// 0 maps to other, 1 maps to no, 2 maps to yes
 				char* status = parse_client_data(data_recieved); //we can change the return value to a char* but then we would have to allocate memory
-				SendData(sock_fd, newSocket, status);
+				sendData(sock_fd, newSocket, status);
 			}
 			return 0;
 		} else {
@@ -315,7 +315,7 @@ data_received:
 
 Returns:
 */
-int SendData(int sock_fd, int newSocket, char* data_recieved) {
+int sendData(int sock_fd, int newSocket, char* data_recieved) {
 	(void)sock_fd;
 	//Finally, a message can be sent!
 	if(send(newSocket,data_recieved,strlen(data_recieved),0) < 0) {
