@@ -7,11 +7,50 @@
 #ifndef KVS2_H_
 #define KVS2_H_
 
+/**
+Open or create a hashtable.
+
+name: the name of the hashtable.
+
+Returns: pointer to file stream of the hashtable.
+*/
 FILE* initialize(char* name);
 
+/**
+Get a key-value pair from the hashtable.
+
+store: pointer to file stream of the hashtable.
+key: the key of the entry to find.
+value: poitner where value should be written to.
+length: pointer to where the number of bytes should be written to.
+
+Returns: the index the entry was found.
+*/
 int fetch(FILE* store, void* result, char* key, int* length);
+
+/**
+Add a key,value pair to the hashtable.
+
+store: pointer to file stream of the hashtable.
+key: string of the key.
+value: any data of the value.
+length: length, in bytes, of the value.
+
+Returns: the index it was inserted in, or -1 if error.
+*/
 int insert(FILE* store, char* key, void* value, int length);
+
+
 unsigned long hash(char *str); //REMOVE THIS FROM HEADER
+
+/**
+Remove a key-value pair from the hashtable.
+
+store: pointer to file stream of the hashtable.
+key: string of the key to delete.
+
+Returns: 0 on success.
+*/
 int delete(FILE* store, char* key);
 
 
