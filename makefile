@@ -19,7 +19,6 @@ BIGTESTOBJ = kvs2.o bigKvsTest.o
 all : server client testing
 
 
-
 testing : $(OBJECTS)
 	gcc $(OBJECTS) -o testing
 
@@ -42,7 +41,7 @@ server.o : server.c
 	gcc -c server.c ${flags}
 
 clean:
-	@rm -f server client kvs testing *~ *.o *.dSYM testTable bigTestTable bigTest
+	@rm -f server client kvs testing *~ *.o *.dSYM testTable bigTestTable bigTest *.save
 
 spotless: clean
 	@rm -f hashtable
