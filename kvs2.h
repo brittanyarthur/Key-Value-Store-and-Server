@@ -40,7 +40,6 @@ Returns: the index it was inserted in, or -1 if error.
 */
 int insert(FILE* store, char* key, void* value, int length);
 
-
 unsigned long hash(char *str); //REMOVE THIS FROM HEADER
 
 /**

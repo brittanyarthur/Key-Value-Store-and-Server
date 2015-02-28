@@ -11,31 +11,30 @@
 #include <assert.h>
 #include "kvs2.h"
 
-//MAGIC NUMBER FLAGS
+/** FLAGS */
 const int TOMBSTONE = 0xdeadd00d;
 const int VALID     = 0xad00000b;
 const int INVALID   = 0xda00000b;
 const int METADATA  = 0xdaa0000b;
 
-
-FILE* initialize(char* name);
+/** FUNCTION PROTOTYPES */
 FILE* create_file(char* name);
 FILE* access_file(char* name);
-int fetch(FILE* store, void* result, char* key, int* length);
-void read_int_array(FILE* store, char* key, int length);
 void populate(FILE* store, int table_entry_count, int table_entry_size);
-int insert(FILE* store, char* key, void* value, int length);
-void read_char_array(FILE* store, char* key, int length);
 int fetch_probe(FILE* store, char* key);
 int insert_probe(FILE* store, char* key);
 void insert_meta_data(FILE* store, char* key, int value, int table_entry_length, int index);
-int delete(FILE* store, char* key);
 int get_table_entry_length(FILE* store);
 int get_table_entry_count(FILE* store, int entry_length);
 unsigned long hash(char *str);
 
 /**
+Open or create a hashtable.
+Helper functions: create_file() and access_file().
 
+name: the name of the hashtable.
+
+Returns: pointer to file stream of the hashtable.
 */
 FILE* initialize(char* name) {
 	FILE* store;
@@ -48,9 +47,17 @@ FILE* initialize(char* name) {
 	return store;
 }
 
-//pass
+
 /**
-Now returns index like it should!
+Add a key,value pair to the hashtable.
+Helper functions: insert_probe() and get_table_entry_length().
+
+store: pointer to file stream of the hashtable.
+key: string of the key.
+value: any data of the value.
+length: length, in bytes, of the value.
+
+Returns: the index it was inserted in, or -1 if error.
 */
 int insert(FILE* store, char* key, void* value, int length) {
 	//get the table length using metadata that is stored in the hash table
@@ -83,11 +90,16 @@ int insert(FILE* store, char* key, void* value, int length) {
 	return index;
 }
 
-//pass //note: while condition can be a condition to check for a full hash table
-//find the location to insert the new pair. if the key is encountered, return that index.
-//or else, find the closes null index to the index that was found through the hash
+//note: while condition can be a condition to check for a full hash table
 /**
+Helper function to insert().
+Looks through a hashtable for the closest empty index for insertion and returns the index.
+Helper functions: get_table_entry_length() and get_table_entry_count().
 
+store: pointer to file stream of the hashtable.
+key: string of the key.
+
+Returns: index to insert the key into.
 */
 int insert_probe(FILE* store, char* key) {
 	//found index for new key
@@ -129,11 +141,17 @@ int insert_probe(FILE* store, char* key) {
 	return -1; // this should never be reached if hashtable isn't 100% full.
 }
 
-//pass
-//read needs to use probe to find key in table
-//return the slot location of where the value is stored. or else -1.
-/**
 
+/**
+Get a key-value pair from the hashtable.
+Helper functions: fetch_probe() and get_table_entry_length().
+
+store: pointer to file stream of the hashtable.
+key: the key of the entry to find.
+value: pointer where value should be written to.
+length: pointer to where the number of bytes should be written to.
+
+Returns: the index the entry was found.
 */
 int fetch(FILE* store, void* result, char* key, int* length) {
 	int entry_length = get_table_entry_length(store);
@@ -153,10 +171,15 @@ int fetch(FILE* store, void* result, char* key, int* length) {
 	return index;
 }
 
-//pass
-//find the slot number that matches the key. or else, return -1.
 /**
+Helper function to fetch().
+Looks through a hashtable for the key and returns the index.
+Helper functions: get_table_entry_length() and get_table_entry_count().
 
+store: pointer to file stream of the hashtable.
+key: string of the key.
+
+Returns: index of the entry with key, or -1 if not found.
 */
 int fetch_probe(FILE* store, char* key) {
 	int entry_length = get_table_entry_length(store);
@@ -194,33 +217,18 @@ int fetch_probe(FILE* store, char* key) {
 	printf("DID NOT FIND %s\n",key);
 	return -1;
 }
-/*
-int main(){
-	//initialize hash table into file.
-	FILE* store = initialize("hashtable");
-
-	int* val = malloc(sizeof(int)*5); //sample value for testing.
-	for(int i = 0; i < 5; i++){
-		val[i] = i+50;
-	}
-	int val_len = sizeof(int)*5;
-	int* val_ptr = &val_len;
-	insert(store, "nameb", val, val_len);
-	read_int_array(store,"nameb", val_len);
-	insert(store, "jason", "heron", sizeof("heron"));
-	read_char_array(store, "jason", sizeof("heron"));
-
-	//fetch(store, "nameb", val, val_ptr);
-	fclose(store);
-	free(val);
-	return 0;
-}*/
 
 
-/*------------------------HELPER FUNCTIONS--------------------------------*/
+/**------------------------HELPER FUNCTIONS--------------------------------*/
 
 /**
+Helper function to initialize().
+Creates a file to hold the hashtable.
+Helper function: populate().
 
+name: filename of the table to create.
+
+Returns: pointer to file stream of the hashtable.
 */
 FILE* create_file(char* name) {
 	FILE* store = fopen(name, "w+");
@@ -229,7 +237,12 @@ FILE* create_file(char* name) {
 }
 
 /**
+Helper function to initialize().
+Opens a file holding the hashtable.
 
+name: filename of the table to open.
+
+Returns: pointer to file stream of the hashtable.
 */
 FILE* access_file(char* name) {
 	FILE* store;
@@ -237,11 +250,17 @@ FILE* access_file(char* name) {
 	return store;
 }
 
-//pass
-//continue point: Assume this works. Assume structures put null ptrs at end.
-//TODO: Confirm or improve.
-/**
 
+/**
+Helper function to create_file().
+Fills a newly-created hashtable with 0s.
+Helper function: insert_meta_data().
+
+store: pointer to file stream of the hashtable.
+table_entry_count: number of entries in the table.
+table_entry_length: length of each entry.
+
+Returns: nothing.
 */
 void populate(FILE* store, int table_entry_count, int table_entry_length) {
 	char filler = 0;
@@ -264,10 +283,18 @@ void populate(FILE* store, int table_entry_count, int table_entry_length) {
 }
 
 /**
+Helper function to populate().
+Writes the entry length as the 0th entry in the table, and the number of entries as the 1st entry.
 
+store: pointer to file stream of the hashtable.
+key: either TABLE_ENTRY_LENGTH or TABLE_ENTRY_COUNT.
+value:  either the length of each entry or the number of entries in the table.
+table_entry_length: length of each entry, used for seeking.
+index: either 0 or 1.
+
+Returns: nothing.
 */
 void insert_meta_data(FILE* store, char* key, int value, int table_entry_length, int index) {
-	//insert table_entry_count and table_entry_length into the hashtable
 	//storing at index 0 and at index 1
 	//first storing entry length
 	fseek(store, index*table_entry_length, SEEK_SET);
@@ -289,7 +316,12 @@ void insert_meta_data(FILE* store, char* key, int value, int table_entry_length,
 }
 
 /**
+Helper function to insert_probe(), fetch_probe(), insert(), and fetch().
+Reads the entry length from metadata.
 
+store: pointer to file stream of the hashtable.
+
+Returns: the entry length of the hashtable.
 */
 int get_table_entry_length(FILE* store) {
 	//offset = sizeof entry_key + sizeof flag + sizeof value
@@ -302,7 +334,13 @@ int get_table_entry_length(FILE* store) {
 }
 
 /**
+Helper function to insert_probe() and fetch_probe().
+Reads the number of entries from metadata.
 
+store: pointer to file stream of the hashtable.
+entry_length: the length of each entry.
+
+Returns: the number of entries in the hashtable.
 */
 int get_table_entry_count(FILE* store, int entry_length) {
 	//offset = sizeof entry_key + sizeof flag + sizeof value + skip the old entry
@@ -318,7 +356,12 @@ int get_table_entry_count(FILE* store, int entry_length) {
 /*-----------------SECOND CLASS AND TODO FUNCTIONS---------------------------*/
 
 /**
+Removed a file from the hashtable.
 
+store: pointer to file stream of the hashtable.
+key: string of key for entry to delete.
+
+Returns: 0 on success.
 */
 int delete(FILE* store, char* key) {
 	int entry_length = get_table_entry_length(store);
@@ -336,45 +379,13 @@ int delete(FILE* store, char* key) {
 	return 0;
 }
 
-//pass
-/**
-
-*/
-void read_int_array(FILE* store, char* key, int length) {
-	(void)length; //prevent unused parameter warning
-	int result[5];
-	for(int k = 0; k < 5; k++) {
-		result[k] = 0; //fill result with zeros
-	}
-	int len_storage = 0;
-	int *len_ptr = &len_storage;
-	fetch(store, result, key, len_ptr);
-	printf("2 value: \n");
-	for(int i = 0; i < 5; i++) {
-		printf("result[%d] = %d\n",i,result[i]);
-	}
-}
-
-//pass
-/**
-
-*/
-void read_char_array(FILE* store, char* key, int length) {
-	(void)length; //prevent unused parameter warning
-	char result[100];
-	int len_storage = 0;
-	int *len_ptr = &len_storage;
-	for(int k = 0; k < 5; k++) {
-		result[k] = '\0'; //fill result with zeros
-	}
-	fetch(store, result, key, len_ptr);
-	printf("2 value: %s\n",result);
-
-}
 
 /**
-* djb2 hash algorithm by Dan Bernstein
-* from http://www.cse.yorku.ca/~oz/hash.html
+djb2 hash algorithm by Dan Bernstein, from http://www.cse.yorku.ca/~oz/hash.html.
+
+str: string to generate hash of.
+
+Returns: hash of the input string.
 */
 unsigned long hash(char *str) {
 	unsigned long hash = 5381;
@@ -384,7 +395,3 @@ unsigned long hash(char *str) {
 		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 	return hash;
 }
-
-
-
-
