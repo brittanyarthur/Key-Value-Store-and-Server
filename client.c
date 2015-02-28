@@ -24,7 +24,8 @@ char* table_name;
 int main( int argc, char * argv[] ) {
 	(void)argc;
 	(void)argv;
-	table_name = "[none]";
+	table_name = calloc(256, sizeof(char));
+	//table_name = "";
 	int remote_port =  10732;
 	const char* remote_IP = "127.0.0.1";
 	int sock_fd = OpenSocket(remote_port, remote_IP);
@@ -120,7 +121,7 @@ int WriteData(int sock_fd) {
 
 		//Parse user action decision
 		no_response = 0;
-		if(table_name == NULL) {
+		if(!strcmp(table_name, "")) {
 			printf("You've gotsta set up your hashtable!\n");
 			write_buffer = do_init();
 		} else {
@@ -244,8 +245,10 @@ char* do_init() {
 	fgets(name_buffer, 256, stdin);
 	strtok(name_buffer, "\n"); //strip trailing newline
 
+	strcpy(table_name, name_buffer);
+
 	//this assumes table is on client side, will work for assignment but is wrong
-	if(access(name_buffer, W_OK) != -1) {
+	if(access(table_name, W_OK) != -1) {
 		//file exists
 		char* formatter = "<cmd>init</cmd><name></name><length>NONE</length><size>NONE</size><key>NONE</key><value>NONE</value>";
       int cmdsize = strlen(name_buffer) + strlen(formatter) + 1;
