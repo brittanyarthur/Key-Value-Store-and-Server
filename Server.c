@@ -51,7 +51,7 @@ int OpenSocket(int port)
         return -1;
    }
 
-   //socket binds to localhost
+   //socket binds to localhost //address in network byte order
    socketinfo.sin_addr.s_addr = inet_addr("127.0.0.1"); 
    //in internet family
    socketinfo.sin_family = AF_INET;

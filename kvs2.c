@@ -10,6 +10,7 @@
 const int TOMBSTONE = 0xdeadd00d;
 const int VALID     = 0xad00000b;
 const int INVALID   = 0xda00000b;
+const int METADATA  = 0xdaa0000b;
 
 
 FILE* initialize(char* name);
@@ -17,12 +18,14 @@ FILE* create_file(char* name);
 FILE* access_file(char* name);
 int fetch(FILE* store, void* result, char* key, int* length);
 void read_int_array(FILE* store, char* key, int length);
-void populate(FILE* store);
+void populate(FILE* store, int table_entry_count, int table_entry_size);
 int insert(FILE* store, char* key, void* value, int length);
 void read_char_array(FILE* store, char* key, int length);
 int fetch_probe(FILE* store, char* key);
 int insert_probe(FILE* store, char* key);
+void insert_meta_data(FILE* store, char* key, int value, int table_entry_length, int index);
 int delete(char* key);
+int get_table_entry_length(FILE* store);
 unsigned long hash(char *str);
 
 //pass
@@ -42,6 +45,10 @@ FILE* initialize(char* name){
 Now returns index like it should!
 */
 int insert(FILE* store, char* key, void* value, int length){
+	//get the table length using metadata that is stored in the hash table
+	int entrylen = get_table_entry_length(store);
+	printf("entrylen is : %d \n\n\n", entrylen);
+
 	if(key == NULL || value == NULL){
 		printf("Error: Cannot insert null values into hashtable.\n");
 		return -1;
@@ -182,7 +189,7 @@ int main(){
 
 FILE* create_file(char* name){
 	FILE* store = fopen(name, "w+");
-	populate(store);
+	populate(store, table_size, table_length);
 	return store;
 }
 
@@ -195,13 +202,13 @@ FILE* access_file(char* name){
 //pass
 //continue point: Assume this works. Assume structures put null ptrs at end.
 //TODO: Confirm or improve.
-void populate(FILE* store){
+void populate(FILE* store, int table_entry_count, int table_entry_length){
 	char filler = 0;
-	int remaining_line_size = table_length - sizeof(INVALID);
+	int remaining_line_size = table_entry_length - sizeof(INVALID);
 	int invalid_value = INVALID;
 	int* invalid = &invalid_value;
 
-	for(int i = 0; i < table_size; i++){
+	for(int i = 0; i < table_entry_count; i++){
 		//every slot will begin with "invalid" at initialize
  		fwrite(invalid, sizeof(INVALID), 1, store);
  		for(int k = 0; k < remaining_line_size; k++){
@@ -210,6 +217,41 @@ void populate(FILE* store){
  		//BEFORE THE LOOP. TBD: WHY ISNT THIS EQUIVALENT TO ABOVE?
 		//fwrite(&filler, sizeof(char)*multiply, 1, store); 
 	}
+
+	insert_meta_data(store, TABLE_ENTRY_LENGTH, table_entry_length, table_entry_length, 0);
+	insert_meta_data(store, TABLE_ENTRY_COUNT, table_entry_count, table_entry_length, 1);
+}
+
+void insert_meta_data(FILE* store, char* key, int value, int table_entry_length, int index){
+	//insert table_entry_count and table_entry_length into the hashtable
+	//storing at index 0 and at index 1
+	//first storing entry length
+	fseek(store, index*table_entry_length, SEEK_SET); 
+	//insert metaflag
+	int meta_value_flag = METADATA; 
+	int* meta_value_flag_ptr = &meta_value_flag;
+	fwrite(meta_value_flag_ptr, sizeof(METADATA), 1, store);
+	//insert key
+	int keysize = (strlen(key)+1)*sizeof(char);
+	fwrite(key, keysize, 1, store); 
+	//insert length of value
+	int val_len = sizeof(int);
+	int* val_len_ptr = &val_len;
+	fwrite(val_len_ptr, sizeof(int), 1, store);
+	//insert value
+	int meta_value = value; 
+	int* meta_value_ptr = &meta_value;
+	fwrite(meta_value_ptr, sizeof(int), 1, store);
+}
+
+int get_table_entry_length(FILE* store){
+	//offset = sizeof entry_key + sizeof flag + sizeof value
+	int offset = sizeof(METADATA) + (strlen(TABLE_ENTRY_LENGTH)+1)*sizeof(char) + sizeof(int);
+	fseek(store, offset, SEEK_SET); 
+	int entry_len = 0;
+	int* entry_len_ptr = &entry_len;
+	fread(entry_len_ptr, sizeof(int), 1, store);
+	return entry_len;
 }
 
 
