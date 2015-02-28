@@ -70,13 +70,16 @@ int OpenSocket(int port, const char* remote_IP) {
 	// Set IP address
 	// inet_addr interprets character string and returns binary rep of internet address
 	remote_server.sin_addr.s_addr = inet_addr(remote_IP);
+
 	// Address family = Internet
 	remote_server.sin_family = AF_INET;
+
 	// Set port number. htons function creates proper bigendian byte order for networking.
 	remote_server.sin_port = htons(port);
 
 	//make pointer to socket info
 	struct sockaddr_in* info_ptr = &remote_server;
+
 	//convert type
 	struct sockaddr* address_info = (struct sockaddr*)info_ptr;
 
@@ -144,8 +147,6 @@ int WriteData(int sock_fd) {
 				no_response = 1;
 				break;
 			}
-
-
 		}
 	}
 
@@ -174,21 +175,24 @@ char* do_quit() {
 }
 
 char* do_insert() {
+   char* value_buffer = calloc(256, sizeof(char));
+   char* key_buffer = calloc(256, sizeof(char));
+   assert(key_buffer != NULL);
+   assert(value_buffer != NULL);
+
 	printf("\nKey: ");
-	char* key_buffer = calloc(256, sizeof(char));
-	assert(key_buffer != NULL);
 	fgets(key_buffer, 256, stdin);
 	strtok(key_buffer, "\n"); //strip trailing newline
+
 	printf("\nValue: ");
-	char* value_buffer = calloc(256, sizeof(char));
-	assert(value_buffer != NULL);
 	fgets(value_buffer, 256, stdin);
 	strtok(value_buffer, "\n"); //strip trailing newline
 
 	char* formatter = "<cmd>insert</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value></value>";
 	int cmdsize = strlen(key_buffer) + strlen(value_buffer) + strlen(formatter) + strlen(table_name) + 1;
-	char* packet = calloc(cmdsize, sizeof(char));
-	assert(packet != NULL);
+   char* packet = calloc(cmdsize, sizeof(char));
+   assert(packet != NULL);
+
 	sprintf(packet, "<cmd>insert</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>%s</key><value>%s</value>",table_name, key_buffer, value_buffer);
 
 	//printf("packet is %s\n", packet);
@@ -196,34 +200,36 @@ char* do_insert() {
 }
 
 char* do_delete() {
-	printf("\nKey: ");
+	char* formatter = "<cmd>delete</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
 	char* key_buffer = calloc(256, sizeof(char));
 	assert(key_buffer != NULL);
+
+	printf("\nKey: ");
 	fgets(key_buffer, 256, stdin);
 	strtok(key_buffer, "\n"); //strip trailing newline
 
-	char* formatter = "<cmd>delete</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
 	int cmdsize = strlen(key_buffer) + strlen(formatter) + strlen(table_name) + 1;
+   char* packet = calloc(cmdsize, sizeof(char));
+   assert(packet != NULL);
 
-	char* packet = calloc(cmdsize, sizeof(char));
-	assert(packet != NULL);
 	sprintf(packet, "<cmd>delete</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>%s</key><value>NONE</value>", table_name, key_buffer);
 	//printf("packet is %s\n", packet);
 	return packet;
 }
 
 char* do_lookup() {
-	printf("\nKey: ");
+	char* formatter = "<cmd>lookup</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
 	char* key_buffer = calloc(256, sizeof(char));
 	assert(key_buffer != NULL);
+
+	printf("\nKey: ");
 	fgets(key_buffer,256, stdin);
 	strtok(key_buffer, "\n"); //strip trailing newline
 
-	char* formatter = "<cmd>lookup</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
 	int cmdsize = strlen(key_buffer) + strlen(formatter) + strlen(table_name) + 1;
-	//int character_additions = strlen("lookup") + 1; //unused
 	char* packet = calloc(cmdsize, sizeof(char));
-	assert(packet != NULL);
+   assert(packet != NULL);
+
 	sprintf(packet, "<cmd>lookup</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>%s</key><value>NONE</value>", table_name, key_buffer);
 
 	//printf("packet is %s\n", packet);
@@ -231,46 +237,49 @@ char* do_lookup() {
 }
 
 char* do_init() {
-	printf("\nTable Name: ");
 	char* name_buffer = calloc(256, sizeof(char));
 	assert(name_buffer != NULL);
 
-
+   printf("\nTable Name: ");
 	fgets(name_buffer, 256, stdin);
 	strtok(name_buffer, "\n"); //strip trailing newline
-
-
 
 	//this assumes table is on client side, will work for assignment but is wrong
 	if(access(name_buffer, W_OK) != -1) {
 		//file exists
-		printf("Found pre-existing table, CONNECTING\n");
 		char* formatter = "<cmd>init</cmd><name></name><length>NONE</length><size>NONE</size><key>NONE</key><value>NONE</value>";
-		int cmdsize = strlen(name_buffer) + strlen(formatter) + 1;
-		char* packet = calloc(cmdsize, sizeof(char));
+      int cmdsize = strlen(name_buffer) + strlen(formatter) + 1;
+
+      char* packet = calloc(cmdsize, sizeof(char));
 		assert(packet != NULL);
+
+		printf("Found pre-existing table, CONNECTING\n");
 		sprintf(packet, "<cmd>init</cmd><name>%s</name><length>NONE</length><size>NONE</size><key>NONE</key><value>NONE</value>", name_buffer);
 		//printf("packet is %s\n", packet);
 		return packet;
 
 	} else {
 		//file doesn't exist
-		printf("CREATING NEW TABLE\n");
-		printf("\nLength of entry: "); //entry
+      char* formatter = "<cmd>init</cmd><name></name><length></length><size></size><key>NONE</key><value>NONE</value>";
 		char* length_buffer = calloc(256, sizeof(char));
-		assert(length_buffer != NULL);
-		fgets(length_buffer, 256, stdin);
-		strtok(length_buffer, "\n"); //strip trailing newline
-		printf("\nNumber of entries: "); //num entries
 		char* size_buffer = calloc(256, sizeof(char));
 		assert(size_buffer != NULL);
+		assert(length_buffer != NULL);
+
+		printf("CREATING NEW TABLE\n");
+
+		printf("\nLength of entry: "); //entry
+		fgets(length_buffer, 256, stdin);
+		strtok(length_buffer, "\n"); //strip trailing newline
+
+		printf("\nNumber of entries: "); //num entries
 		fgets(size_buffer, 256, stdin);
 		strtok(size_buffer, "\n"); //strip trailing newline
 
-		char* formatter = "<cmd>init</cmd><name></name><length></length><size></size><key>NONE</key><value>NONE</value>";
 		int cmdsize = strlen(name_buffer) + strlen(length_buffer) + strlen(size_buffer) + strlen(formatter) + 1;
 		char* packet = calloc(cmdsize, sizeof(char));
-		assert(packet != NULL);
+      assert(packet != NULL);
+
 		sprintf(packet, "<cmd>init</cmd><name>%s</name><length>%s</length><size>%s</size><key>NONE</key><value>NONE</value>", name_buffer, length_buffer, size_buffer);
 		//printf("packet is %s\n", packet);
 		return packet;
@@ -280,6 +289,7 @@ char* do_init() {
 int RecieveData(int sock_fd) {
 	char* reply_buffer = calloc(sizeof(char), 256);
 	assert(reply_buffer != NULL);
+
 	// recv() will block until there is some data to read.
 	if(recv(sock_fd, reply_buffer, 256, 0) < 0) {
 		printf("Failed to recieve message.\n");

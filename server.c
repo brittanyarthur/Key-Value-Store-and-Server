@@ -51,13 +51,16 @@ int OpenSocket(int port) {
 
 	//socket binds to localhost //address in network byte order
 	socketinfo.sin_addr.s_addr = inet_addr("127.0.0.1");
+
 	//in internet family
 	socketinfo.sin_family = AF_INET;
+
 	//connect socket to the port
 	socketinfo.sin_port = htons(port);
 
 	//make pointer to socket info
 	struct sockaddr_in* info_ptr = &socketinfo;
+
 	//convert type
 	struct sockaddr* address_info = (struct sockaddr*)info_ptr;
 
