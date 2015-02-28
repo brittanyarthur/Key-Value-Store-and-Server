@@ -6,7 +6,6 @@
 #include <arpa/inet.h>  //inet_addr
 #include <unistd.h>     //fork(), access(2)
 #include <sys/wait.h>   //wait()
-#include <semaphore.h> // semophore()
 #include "kvs2.h"
 
 int OpenSocket(int port);
@@ -21,8 +20,6 @@ char* do_lookup(char* name, char* key);
 char* do_delete(char* name, char* key);
 
 #define QUIT       1
-
-sem_t sem;
 
 typedef struct sockaddr_in sockaddr_in;
 
@@ -189,15 +186,6 @@ char* do_delete(char* name, char* key){
 //get value: http://man7.org/linux/man-pages/man3/sem_getvalue.3.html
 
 int AcceptConnections(int sock_fd){
-    sem_t* semop = &sem;
-    if(sem_init(&sem, 1, 1) == -1){
-      printf("ERROR INITIALIZING SEMOPHORE\n");
-    }
-    int v = -1;
-    int* semp_val = &v;
-    sem_getvalue(&sem, semp_val);
-    printf("SEMOPHORE VALUE IS: %d\n",*semp_val);
-
 
     while(1){
       //Listen for an incoming connection
