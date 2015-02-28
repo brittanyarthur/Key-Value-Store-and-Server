@@ -13,6 +13,7 @@
 #include <ctype.h> //tolower()
 #include <assert.h>
 
+/** FUNCTION PROTOTYPES */
 int OpenSocket(int remote_port, const char* remote_IP);
 int RecieveData(int sock_fd);
 int WriteData(int sock_fd);
@@ -21,15 +22,16 @@ char* do_delete();
 char* do_lookup();
 char* do_init();
 char* do_quit();
-//char* BuildPacket(char* cmd, char* name, char* length, char* size, char* key, char* value);
+
+/** Stores the filename of the currently opened hashtable */
 char* table_name;
 
 /**
 
+Returns: 0 when exited normally, something else if something didn't work.
 */
-int main( int argc, char * argv[] ) {
-	(void)argc;
-	(void)argv;
+int main() {
+
 	table_name = calloc(256, sizeof(char));
 	//table_name = "";
 	int remote_port =  10732;
@@ -62,7 +64,12 @@ int main( int argc, char * argv[] ) {
 }
 
 /**
+[what does this do]
 
+port:
+remote_IP:
+
+Returns:
 */
 int OpenSocket(int port, const char* remote_IP) {
 	struct sockaddr_in remote_server;
@@ -101,9 +108,12 @@ int OpenSocket(int port, const char* remote_IP) {
 	return sock_fd;
 }
 
-//return code 1: quit. -1: error. 0: success.
+
 /**
 
+sock_fd: file descriptor for socket.
+
+Returns: 0 on success; -1 or error, 1 to quit.
 */
 int WriteData(int sock_fd) {
 	//Ask user for action
@@ -181,6 +191,7 @@ int WriteData(int sock_fd) {
 
 /**
 
+Returns: packet with only "quit".
 */
 char* do_quit() {
 	char* packet = calloc(sizeof(char), 4 + 1);
@@ -191,6 +202,7 @@ char* do_quit() {
 
 /**
 
+Returns: formatted packet to send to server to insert.
 */
 char* do_insert() {
    char* value_buffer = calloc(256, sizeof(char));
@@ -219,6 +231,7 @@ char* do_insert() {
 
 /**
 
+Returns: formatted packet to send to server to delete.
 */
 char* do_delete() {
 	char* formatter = "<cmd>delete</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
@@ -240,6 +253,7 @@ char* do_delete() {
 
 /**
 
+Returns: formatted packet to send to server to lookup.
 */
 char* do_lookup() {
 	char* formatter = "<cmd>lookup</cmd><name></name><length>NONE</length><size>NONE</size><key></key><value>NONE</value>";
@@ -262,6 +276,7 @@ char* do_lookup() {
 
 /**
 
+Returns: formatted packet to send to server to init.
 */
 char* do_init() {
 	char* name_buffer = calloc(256, sizeof(char));
@@ -317,6 +332,9 @@ char* do_init() {
 
 /**
 
+sock_fd: file descriptor for socket.
+
+Returns:
 */
 int RecieveData(int sock_fd) {
 	char* reply_buffer = calloc(sizeof(char), 256);
@@ -330,32 +348,4 @@ int RecieveData(int sock_fd) {
 	}
 	return 1;
 }
-
-
-/*
-char* BuildPacket(char* cmd, char* name, char* length, char* size, char* key, char* value){
-   *cmd = tolower(*cmd);
-   cmd[strlen(cmd)-1] = '\0'; //had to strip off newline character
-   if(strcmp(cmd, "init") == 0){
-      printf("found init\n");
-      //confirm that only the needed arguments are given
-      if(name != NULL && length!= NULL && size != NULL && strcmp(key, "") == 0 && strcmp(value, "") == 0){
-         printf("Correct\n");
-         //confirm that length and size can both be converted to ints
-         char* formatter = "<cmd></cmd><name></name><length></length><size></size>";
-         int cmdsize = strlen(name) + strlen(length) + strlen(size) + strlen(formatter) + 4 + 1;
-         char* init_cmd = malloc(cmdsize);
-         snprintf(init_cmd, cmdsize, "<cmd>%s</cmd><name>%s</name><length>%s</length><size>%s</size>", cmd, name, length, size);
-         printf("init_cmd is %s\n", init_cmd);
-         return init_cmd;
-      }else{
-         printf("ERROR: Wrong INIT arguments given\n");
-      }
-    }
-    return "";
-}
-*/
-
-
-
 
