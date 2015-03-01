@@ -54,6 +54,7 @@ int main() {
 	return 0;
 }
 
+
 /**
 
 port:
@@ -92,6 +93,52 @@ int openSocket(int port) {
 
 	return sock_fd;
 }
+
+
+/**
+sock_fd: file descriptor for socket.
+
+Returns:
+*/
+int acceptConnections(int sock_fd) {
+
+	while(1) {
+		//Listen for an incoming connection
+		if(listenIncomingConnection(sock_fd) == -1) printf("Error while listening.\n");
+
+		struct sockaddr_in newclient; //accept creates a new socket
+		socklen_t size = sizeof newclient;
+		int newSocket = 0;
+
+		//waiting to accept a connection
+		newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
+
+		int pid = fork();
+		if(pid == 0) { //child process
+
+			// loop for an ongoing conversation with the client
+			while(1) {
+
+				// 0 maps to other, 1 maps to no, 2 maps to yes
+				char* data_recieved = recieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
+
+				if(strcmp(data_recieved, "quit") == 0) {
+					printf("User quitting now.\n");
+					return QUIT;
+				}
+
+				// 0 maps to other, 1 maps to no, 2 maps to yes
+				char* status = parse_client_data(data_recieved); //we can change the return value to a char* but then we would have to allocate memory
+				sendData(sock_fd, newSocket, status);
+			}
+			return 0;
+		} else {
+			//wait(&pid);
+
+		}
+	}
+}
+
 
 /**
 
@@ -177,6 +224,27 @@ char* parse_client_data(char* reply_buffer) {
 	return "[513] LUL WUT?"; //from assignment spec
 }
 
+
+/**
+sock_fd: file descriptor for socket.
+newSocket:
+data_received:
+
+Returns:
+*/
+int sendData(int sock_fd, int newSocket, char* data_recieved) {
+	(void)sock_fd;
+	//Finally, a message can be sent!
+	if(send(newSocket,data_recieved,strlen(data_recieved),0) < 0) {
+		printf("Error Sending Message.\n");
+		return -1;
+	}
+	printf("Message Successfully Sent.\n");
+	return 0;
+}
+
+
+
 /**
 sounds legit
 */
@@ -201,13 +269,17 @@ char* do_insert(char* name, char* key, char* value) {
 
 	printf("inserting %s, with %s\n",key,value);
 	FILE* my_data = get_hashfile(name);
+
 	int value_size = (strlen(value) + 1)*sizeof(char);
 	insert(my_data, key, value, value_size);
+
 	char result[max_value_size];
 	int length;
 	int * len = &length;
+
 	fetch(my_data, result, key, len);
 	fclose(my_data);
+
 	if(!strcmp(result, value)) {
 		//insert success
 		mutex = FREE;
@@ -233,8 +305,10 @@ char* do_lookup(char* name, char* key) {
 	FILE* my_data = get_hashfile(name);
 	char* result = calloc(max_value_size, sizeof(char));
 	assert(result != NULL);
+
 	int length;
 	int* len = &length;
+
 	if(fetch(my_data, result, key, len) == -1) {
       mutex = FREE;
 		return "[404] KEY NOT FOUND";
@@ -261,72 +335,3 @@ char* do_delete(char* name, char* key) {
 	 mutex = FREE;
 	return "[201] DELETE SUCCESS";
 }
-
-//init:      init the semaphore  http://man7.org/linux/man-pages/man3/sem_init.3.html
-//wait:      lock by decrement   http://man7.org/linux/man-pages/man3/sem_wait.3.html
-//post:      unlock by increment http://man7.org/linux/man-pages/man3/sem_post.3.html
-//get value: http://man7.org/linux/man-pages/man3/sem_getvalue.3.html
-
-/**
-sock_fd: file descriptor for socket.
-
-Returns:
-*/
-int acceptConnections(int sock_fd) {
-
-	while(1) {
-		//Listen for an incoming connection
-		if(listenIncomingConnection(sock_fd) == -1) printf("Error while listening.\n");
-
-
-		struct sockaddr_in newclient; //accept creates a new socket
-		socklen_t size = sizeof newclient;
-		int newSocket = 0;
-
-		//waiting to accept a connection
-		newSocket = accept(sock_fd, (struct sockaddr *) &newclient, &size);
-
-		int pid = fork();
-		if(pid == 0) { //child process
-
-			// loop for an ongoing conversation with the client
-			while(1) {
-
-				// 0 maps to other, 1 maps to no, 2 maps to yes
-				char* data_recieved = recieveData(newSocket); //we can change the return value to a char* but then we would have to allocate memory
-
-				if(strcmp(data_recieved, "quit") == 0) {
-					printf("User quitting now.\n");
-					return QUIT;
-				}
-
-				// 0 maps to other, 1 maps to no, 2 maps to yes
-				char* status = parse_client_data(data_recieved); //we can change the return value to a char* but then we would have to allocate memory
-				sendData(sock_fd, newSocket, status);
-			}
-			return 0;
-		} else {
-			//wait(&pid);
-
-		}
-	}
-}
-
-/**
-sock_fd: file descriptor for socket.
-newSocket:
-data_received:
-
-Returns:
-*/
-int sendData(int sock_fd, int newSocket, char* data_recieved) {
-	(void)sock_fd;
-	//Finally, a message can be sent!
-	if(send(newSocket,data_recieved,strlen(data_recieved),0) < 0) {
-		printf("Error Sending Message.\n");
-		return -1;
-	}
-	printf("Message Successfully Sent.\n");
-	return 0;
-}
-

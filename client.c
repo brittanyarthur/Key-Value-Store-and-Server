@@ -194,6 +194,25 @@ int writeData(int sock_fd) {
 }
 
 
+/**
+
+sock_fd: file descriptor for socket.
+
+Returns:
+*/
+int recieveData(int sock_fd) {
+	char* reply_buffer = calloc(sizeof(char), 256);
+	assert(reply_buffer != NULL);
+
+	// recv() will block until there is some data to read.
+	if(recv(sock_fd, reply_buffer, 256, 0) < 0) {
+		printf("Failed to recieve message.\n");
+	} else {
+		printf("Data recieved from server is: %s\n",reply_buffer);
+	}
+	return 1;
+}
+
 
 
 /**
@@ -325,23 +344,3 @@ char* do_init() {
 		return packet;
 	}
 }
-
-/**
-
-sock_fd: file descriptor for socket.
-
-Returns:
-*/
-int recieveData(int sock_fd) {
-	char* reply_buffer = calloc(sizeof(char), 256);
-	assert(reply_buffer != NULL);
-
-	// recv() will block until there is some data to read.
-	if(recv(sock_fd, reply_buffer, 256, 0) < 0) {
-		printf("Failed to recieve message.\n");
-	} else {
-		printf("Data recieved from server is: %s\n",reply_buffer);
-	}
-	return 1;
-}
-
