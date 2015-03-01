@@ -239,11 +239,11 @@ char* parse_client_data(char* reply_buffer) {
 
 
 /**
-
+Sends a packet to the server.
 
 sock_fd: unused.
 newSocket: file descriptor for socket.
-data_received: 
+data_received: packet to send.
 
 Returns: 0 on success, or -1 on error.
 */
@@ -260,7 +260,13 @@ int sendData(int sock_fd, int newSocket, char* data_recieved) {
 
 
 /**
-sounds legit
+Performs a hashtable initialize and returns a success or failure message.
+
+name: filename of the hashtable.
+length: length of each hashtable entry.
+size: number of entries in the hashtable.
+
+Returns: 201 on success.
 */
 char* do_init(char* name, char* length, char* size) {
   int t_size = atoi(size);
@@ -272,11 +278,13 @@ char* do_init(char* name, char* length, char* size) {
 }
 
 /**
-name:
-key:
-value:
+Performs a hashtable insert and returns a success or failure message.
 
-Returns:
+name: filename of the hashtable.
+key: key of the entry to insert.
+value: value of the entry to insert.
+
+Returns: a code corresponding to the result.
 */
 char* do_insert(char* name, char* key, char* value) {
    if(mutex == IN_USE) return "[400] IN USE";
@@ -309,11 +317,12 @@ char* do_insert(char* name, char* key, char* value) {
 }
 
 /**
+Performs a hashtable fetch and returns a success or failure message.
 
-name:
-key:
+name: filename of the hashtable.
+key: key of the entry to fetch.
 
-Returns:
+Returns: a code corresponding to the result.
 */
 char* do_lookup(char* name, char* key) {
    if(mutex == IN_USE) return "[400] IN USE";
@@ -338,8 +347,10 @@ char* do_lookup(char* name, char* key) {
 }
 
 /**
-name:
-key:
+Performs a hashtable delete and returns a success or failure message.
+
+name: filename of the hashtable.
+key: key of the entry to delete.
 
 Returns:
 */
