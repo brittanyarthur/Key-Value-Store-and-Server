@@ -34,6 +34,7 @@ typedef enum {IN_USE, FREE} mutex_type;
 mutex_type mutex;
 
 /**
+The server opens a socket, then in acceptConnections enters an infinite loop where it listens for a connection, receives data, parses the input, and sends a response.
 
 Returns: 0 when exited normally, something else if something didn't work.
 */
@@ -55,8 +56,9 @@ int main() {
 
 
 /**
+Opens a socket. Almost identical to function in client.c with same name.
 
-port:
+port: the port number on which to create the socket.
 
 Returns: file descriptor to socket, or -1 if error.
 */
@@ -95,9 +97,11 @@ int openSocket(int port) {
 
 
 /**
+In an infinite loop, listens for a connection then makes a child process which receives, parses, and sends data.
+
 sock_fd: file descriptor for socket.
 
-Returns:
+Returns: only returns when user requested to quit,
 */
 int acceptConnections(int sock_fd) {
 
@@ -133,16 +137,19 @@ int acceptConnections(int sock_fd) {
 			return 0;
       } else if(pid==-1) {
          perror("server: fork");
+      } else {
+        //parent does nothing.
       }
 	}
 }
 
 
 /**
+Uses syscall listen to prepare socket for use.
 
 sock_fd: file descriptor for socket.
 
-Returns:
+Returns: 0 on success.
 */
 int listenIncomingConnection(int sock_fd) {
 	//Listen for incoming connections. A max of 1 connection can happen.
@@ -154,10 +161,11 @@ int listenIncomingConnection(int sock_fd) {
 }
 
 /**
+Receives a packet from the client, checks if want to quit, then returns the packet.
 
-newSocket:
+newSocket: the socket from which to read data.
 
-Returns:
+Returns: the received packet.
 */
 char* recieveData(int newSocket) {
 	//get the incoming message from the client.
@@ -186,10 +194,11 @@ char* recieveData(int newSocket) {
 }
 
 /**
+Extracts information from a packet, interprets the command, and calls a helper function to perform the action.
 
-reply_buffer:
+reply_buffer: packet to interpret.
 
-Returns:
+Returns: a code corresponding to the result.
 */
 char* parse_client_data(char* reply_buffer) {
 	char* command = calloc(sizeof(char), 100);
@@ -205,6 +214,7 @@ char* parse_client_data(char* reply_buffer) {
 	assert(key != NULL);
 	assert(value != NULL);
 
+    // %[^<] uses a regex to match any characters that are not '<'.
 	sscanf(reply_buffer, "<cmd>%[^<]</cmd><name>%[^<]</name><length>%[^<]</length><size>%[^<]</size><key>%[^<]</key><value>%[^<]</value>",
 		   command, name, length,size, key, value);
 
@@ -229,11 +239,13 @@ char* parse_client_data(char* reply_buffer) {
 
 
 /**
-sock_fd: file descriptor for socket.
-newSocket:
-data_received:
+Sends a packet to the server.
 
-Returns:
+sock_fd: unused.
+newSocket: file descriptor for socket.
+data_received: packet to send.
+
+Returns: 0 on success, or -1 on error.
 */
 int sendData(int sock_fd, int newSocket, char* data_recieved) {
 	(void)sock_fd;
@@ -248,7 +260,13 @@ int sendData(int sock_fd, int newSocket, char* data_recieved) {
 
 
 /**
-sounds legit
+Performs a hashtable initialize and returns a success or failure message.
+
+name: filename of the hashtable.
+length: length of each hashtable entry.
+size: number of entries in the hashtable.
+
+Returns: 201 on success.
 */
 char* do_init(char* name, char* length, char* size) {
   int t_size = atoi(size);
@@ -260,11 +278,13 @@ char* do_init(char* name, char* length, char* size) {
 }
 
 /**
-name:
-key:
-value:
+Performs a hashtable insert and returns a success or failure message.
 
-Returns:
+name: filename of the hashtable.
+key: key of the entry to insert.
+value: value of the entry to insert.
+
+Returns: a code corresponding to the result.
 */
 char* do_insert(char* name, char* key, char* value) {
    if(mutex == IN_USE) return "[400] IN USE";
@@ -297,11 +317,12 @@ char* do_insert(char* name, char* key, char* value) {
 }
 
 /**
+Performs a hashtable fetch and returns a success or failure message.
 
-name:
-key:
+name: filename of the hashtable.
+key: key of the entry to fetch.
 
-Returns:
+Returns: a code corresponding to the result.
 */
 char* do_lookup(char* name, char* key) {
    if(mutex == IN_USE) return "[400] IN USE";
@@ -326,8 +347,10 @@ char* do_lookup(char* name, char* key) {
 }
 
 /**
-name:
-key:
+Performs a hashtable delete and returns a success or failure message.
+
+name: filename of the hashtable.
+key: key of the entry to delete.
 
 Returns:
 */
