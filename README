@@ -1,0 +1,17 @@
+Brittany Arthur (bharthur)
+Jason Heron (jheron)
+Peter Froud (pfroud)
+
+Assignment 3: key-value store and server
+CS111 winter 2015
+
+
+We are using one (1) late pass.
+
+
+TO BUILD
+Type 'make'.
+Run ./server and ./client.
+
+
+KNOWN BUGS & LIMITATIONS
