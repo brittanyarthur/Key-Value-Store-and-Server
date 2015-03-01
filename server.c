@@ -45,7 +45,7 @@ int main() {
 	int port = 10732;
 	int sock_fd = openSocket(port); //bind
 	if(sock_fd != -1) {
-		printf("Connected to port %d. ctrl-C to quit.\n", port);
+		printf("Connected to port %d. Ctrl-c to quit.\n", port);
 		//Accept the incoming connection
 		acceptConnections(sock_fd);
 	}
@@ -170,7 +170,7 @@ char* recieveData(int newSocket) {
 		return "-1";
 	} else {
 		//printf("Received packet: %s\n",reply_buffer);
-		printf("\nReceived packet\n");
+		printf("\n\nReceived packet\n");
 		if(strcmp(reply_buffer, "quit") == 0) {
 			printf("EXITING NOW\n");
 			if(close(newSocket)==-1) perror("client: close");
@@ -207,7 +207,13 @@ char* parse_client_data(char* reply_buffer) {
 
 	sscanf(reply_buffer, "<cmd>%[^<]</cmd><name>%[^<]</name><length>%[^<]</length><size>%[^<]</size><key>%[^<]</key><value>%[^<]</value>",
 		   command, name, length,size, key, value);
-	printf("  command=\"%s\"\n  name=\"%s\"\n  length=\"%s\"\n  size=\"%s\"\n  key=\"%s\"\n  value=\"%s\"\n", command, name, length, size, key, value);
+
+	printf("  command=\"%s\"\n", command);
+	printf("  name=\"%s\"\n", name);
+	if(strcmp(length, "NONE")) printf("  length=\"%s\"\n", length);
+   if(strcmp(size, "NONE")) 	printf("  size=\"%s\"\n", size);
+	if(strcmp(key, "NONE"))    printf("  key=\"%s\"\n", key);
+	if(strcmp(value, "NONE"))  printf("  value=\"%s\"\n", value);
 
 	if(!strcmp(command, "init")) {
 		return do_init(name, length, size);
@@ -249,6 +255,7 @@ char* do_init(char* name, char* length, char* size) {
   int t_length = atoi(length);
   FILE* my_data = initialize(name, t_size, t_length);
   fclose(my_data);
+  printf("  [201] INIT SUCCESS");
 	return "[201] INIT SUCCESS";
 }
 
@@ -263,7 +270,7 @@ char* do_insert(char* name, char* key, char* value) {
    if(mutex == IN_USE) return "[400] IN USE";
    mutex = IN_USE;
 
-	printf("inserting %s, with %s\n",key,value);
+	//printf("Inserting <\"%s\",\"%s\">\n",key,value);
 	FILE* my_data = get_hashfile(name);
 
 	int value_size = (strlen(value) + 1)*sizeof(char);
@@ -280,10 +287,12 @@ char* do_insert(char* name, char* key, char* value) {
 
 		//insert success
 		mutex = FREE;
+		printf("  [201] INSERT_SUCCESS");
 		return "[201] INSERT_SUCCESS";
 	}
 	//insert failure
 	mutex = FREE;
+   printf("  [400] INSERT FAILURE");
 	return "[400] INSERT FAILURE";
 }
 
@@ -307,9 +316,10 @@ char* do_lookup(char* name, char* key) {
 
 	if(fetch(my_data, result, key, len) == -1) {
       mutex = FREE;
+      printf("  [404] KEY NOT FOUND");
 		return "[404] KEY NOT FOUND";
    }
-	printf("[200] FOUND: %s\n", result);
+	printf("[200] FOUND: %s", result);
 	fclose(my_data);
 	mutex = FREE;
 	return result;
@@ -329,5 +339,6 @@ char* do_delete(char* name, char* key) {
 	delete(my_data, key);
 	fclose(my_data);
 	 mutex = FREE;
+	 printf("  [201] DELETE SUCCESS");
 	return "[201] DELETE SUCCESS";
 }
