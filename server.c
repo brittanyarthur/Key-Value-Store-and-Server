@@ -66,7 +66,7 @@ int openSocket(int port) {
 	//create socket
 	int sock_fd = socket( PF_INET, SOCK_STREAM, 0);
 	if(sock_fd == -1) {
-		printf("Could not create socket.\n");
+		perror("server: couldn't create socket");
 		return -1;
 	}
 
@@ -87,7 +87,7 @@ int openSocket(int port) {
 
 	//bind this remote server socket to port
 	if (bind( sock_fd, address_info, sizeof(socketinfo) ) < 0 ) {
-		printf( "Failed to bind socket.\n" );
+		perror("server: failed to bind socket");
 		return -1;
 	}
 
@@ -132,10 +132,9 @@ int acceptConnections(int sock_fd) {
 				sendData(sock_fd, newSocket, status);
 			}
 			return 0;
-		} else {
-			//wait(&pid);
-
-		}
+      } else if(pid==-1) {
+         perror("server: fork");
+      }
 	}
 }
 
@@ -149,7 +148,7 @@ Returns:
 int listenIncomingConnection(int sock_fd) {
 	//Listen for incoming connections. A max of 1 connection can happen.
 	if(listen(sock_fd,1) < 0) {
-		printf("Error\n");
+		perror("server: listen");
 		return -1;
 	}
 	printf("Listening\n");
@@ -170,7 +169,7 @@ char* recieveData(int newSocket) {
 
 	// recv() will block until there is some data to read.
 	if(recv(newSocket, reply_buffer, 256, 0) < 0) {
-		printf("Failed to recieve message.\n");
+		perror("server: couldn't recieve message");
 		return "-1";
 	} else {
 		printf("Data recieved from client is: %s\n",reply_buffer);
@@ -237,7 +236,7 @@ int sendData(int sock_fd, int newSocket, char* data_recieved) {
 	(void)sock_fd;
 	//Finally, a message can be sent!
 	if(send(newSocket,data_recieved,strlen(data_recieved),0) < 0) {
-		printf("Error Sending Message.\n");
+		perror("server: souldn't send message");
 		return -1;
 	}
 	printf("Message Successfully Sent.\n");

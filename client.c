@@ -32,6 +32,7 @@ Returns: 0 when exited normally, something else if something didn't work.
 int main() {
 
 	table_name = calloc(256, sizeof(char));
+	assert(table_name != NULL);
 	//table_name = "";
 
 	int sock_fd = openSocket(10732, "127.0.0.1");
@@ -45,7 +46,7 @@ int main() {
 			write_result = writeData(sock_fd);
 			if(write_result == 1) {
 				printf("We hope you enjoyed using the hashtable.\n");
-				close(sock_fd);
+				if(close(sock_fd) == -1) perror("client: close");
 				return 0;
 			}
 		} else {
@@ -85,7 +86,7 @@ int openSocket(int port, const char* remote_IP) {
 
 	int sock_fd = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ); //socket == file descriptor, thus: mysocket
 	if(sock_fd == -1) {
-		printf("Could not create socket.");
+		perror("client: couldn't create socket");
 		return -1;
 	}
 
@@ -106,7 +107,7 @@ int openSocket(int port, const char* remote_IP) {
 	struct sockaddr* address_info = (struct sockaddr*)info_ptr;
 
 	if (connect(sock_fd, address_info, sizeof(remote_server)) < 0 ) {
-		printf( "Failed to connect to remote server.\n" );
+		perror("client: failed to connect");
 		return -1;
 	}
 
@@ -142,7 +143,7 @@ int writeData(int sock_fd) {
 
 		if(com == 'q') {
 			printf("EXITING NOW\n");
-			close(sock_fd);
+			if(close(sock_fd)==-1) perror("client: close");
 			return 1;
 		}
 
@@ -206,7 +207,7 @@ int recieveData(int sock_fd) {
 
 	// recv() will block until there is some data to read.
 	if(recv(sock_fd, reply_buffer, 256, 0) < 0) {
-		printf("Failed to recieve message.\n");
+		perror("client: couldn't recieve message");
 	} else {
 		printf("Data recieved from server is: %s\n",reply_buffer);
 	}
