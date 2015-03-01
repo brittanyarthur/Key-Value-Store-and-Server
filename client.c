@@ -148,7 +148,7 @@ int writeData(int sock_fd) {
 
 		//Parse user action decision
 		no_response = 0;
-		if(!strcmp(table_name, "")) {
+		if(strcmp(table_name, "")==0) {
 			printf("You've gotsta set up your hashtable!\n");
 			write_buffer = do_init();
 		} else {
