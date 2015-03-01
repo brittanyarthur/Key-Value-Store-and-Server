@@ -12,6 +12,3 @@ We are using one (1) late pass.
 TO BUILD
 Type 'make'.
 Run ./server and ./client.
-
-
-KNOWN BUGS & LIMITATIONS
