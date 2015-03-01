@@ -280,12 +280,9 @@ char* do_insert(char* name, char* key, char* value) {
 
 	fetch(my_data, result, key, len);
 	fclose(my_data);
-<<<<<<< HEAD
 
 	if(!strcmp(result, value)) {
-=======
-	if(strcmp(result, value) == 0) {
->>>>>>> 44c8835ecc6c627e8e117aa4e07259690b236c45
+
 		//insert success
 		mutex = FREE;
 		return "[201] INSERT_SUCCESS";
