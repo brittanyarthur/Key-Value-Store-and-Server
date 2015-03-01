@@ -28,6 +28,12 @@ int get_table_entry_length(FILE* store);
 int get_table_entry_count(FILE* store, int entry_length);
 unsigned long hash(char *str);
 
+
+
+FILE* get_hashfile(char* name){
+	return access_file(name);
+}
+
 /**
 Open or create a hashtable.
 Helper functions: create_file() and access_file().
@@ -36,11 +42,6 @@ name: the name of the hashtable.
 
 Returns: pointer to file stream of the hashtable.
 */
-
-FILE* get_hashfile(char* name){
-	return access_file(name);
-}
-
 FILE* initialize(char* name, int size, int length) {
 	FILE* store;
 	if(access(name, W_OK ) != -1)
@@ -173,7 +174,7 @@ int fetch(FILE* store, void* result, char* key, int* length) {
 }
 
 /**
-Helper function to fetch().
+Helper function to fetch() and delete().
 Looks through a hashtable for the key and returns the index.
 Helper functions: get_table_entry_length() and get_table_entry_count().
 
@@ -357,7 +358,8 @@ int get_table_entry_count(FILE* store, int entry_length) {
 /*-----------------SECOND CLASS AND TODO FUNCTIONS---------------------------*/
 
 /**
-Removed a file from the hashtable.
+Removes an entry from the hashtable.
+Helper function: fetch_probe().
 
 store: pointer to file stream of the hashtable.
 key: string of key for entry to delete.
