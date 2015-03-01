@@ -43,10 +43,9 @@ int main() {
 
 	// create socket
 	int port = 10732;
-	printf( "Creating socket on port %d\n", port );
 	int sock_fd = openSocket(port); //bind
 	if(sock_fd != -1) {
-		printf("Connected\n");
+		printf("Connected to port %d. ctrl-C to quit.\n", port);
 		//Accept the incoming connection
 		acceptConnections(sock_fd);
 	}
@@ -151,7 +150,6 @@ int listenIncomingConnection(int sock_fd) {
 		perror("server: listen");
 		return -1;
 	}
-	printf("Listening\n");
 	return 0;
 }
 
@@ -162,7 +160,6 @@ newSocket:
 Returns:
 */
 char* recieveData(int newSocket) {
-	printf("About to recieve data.\n");
 	//get the incoming message from the client.
 	char* reply_buffer = calloc(256, sizeof(char));
 	assert(reply_buffer != NULL);
@@ -172,15 +169,15 @@ char* recieveData(int newSocket) {
 		perror("server: couldn't recieve message");
 		return "-1";
 	} else {
-		printf("Data recieved from client is: %s\n",reply_buffer);
+		//printf("Received packet: %s\n",reply_buffer);
+		printf("\nReceived packet\n");
 		if(strcmp(reply_buffer, "quit") == 0) {
 			printf("EXITING NOW\n");
-			close(newSocket);
+			if(close(newSocket)==-1) perror("client: close");
 			return "quit";
 		}
 
 		if(strcmp(reply_buffer, "") == 0) {
-			printf("Client killed.\n");
 			return "quit";
 		}
 
@@ -210,7 +207,7 @@ char* parse_client_data(char* reply_buffer) {
 
 	sscanf(reply_buffer, "<cmd>%[^<]</cmd><name>%[^<]</name><length>%[^<]</length><size>%[^<]</size><key>%[^<]</key><value>%[^<]</value>",
 		   command, name, length,size, key, value);
-	printf("command=\"%s\"\nname=\"%s\"\nlength=\"%s\"\nsize=\"%s\"\nkey=\"%s\"\nvalue=\"%s\"\n", command, name, length, size, key, value);
+	printf("  command=\"%s\"\n  name=\"%s\"\n  length=\"%s\"\n  size=\"%s\"\n  key=\"%s\"\n  value=\"%s\"\n", command, name, length, size, key, value);
 
 	if(!strcmp(command, "init")) {
 		return do_init(name, length, size);
@@ -236,10 +233,9 @@ int sendData(int sock_fd, int newSocket, char* data_recieved) {
 	(void)sock_fd;
 	//Finally, a message can be sent!
 	if(send(newSocket,data_recieved,strlen(data_recieved),0) < 0) {
-		perror("server: souldn't send message");
+		perror("server: couldn't send message");
 		return -1;
 	}
-	printf("Message Successfully Sent.\n");
 	return 0;
 }
 
@@ -302,7 +298,6 @@ char* do_lookup(char* name, char* key) {
    if(mutex == IN_USE) return "[400] IN USE";
    mutex = IN_USE;
 
-	printf("Looking up: %s\n",key);
 	FILE* my_data = get_hashfile(name);
 	char* result = calloc(max_value_size, sizeof(char));
 	assert(result != NULL);

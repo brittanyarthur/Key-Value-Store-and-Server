@@ -36,7 +36,8 @@ int main() {
 	//table_name = "";
 
 	int sock_fd = openSocket(10732, "127.0.0.1");
-	printf("Socket has been opened\n");
+	if(sock_fd == -1) exit(EXIT_FAILURE);
+	printf("Connected to server.\n");
 
 	int write_result = 0;
 	int recieve_result = 0;
@@ -131,8 +132,10 @@ int writeData(int sock_fd) {
 
 	while(no_response) { //loop until there is a response
 
-		printf("\n****TABLE: %s****", table_name);
-		printf("\n[I]nsert: add a key/value pair to keystore.\n[D]elete: delete a key/value pair from keystore.\n[L]ookup: lookup value in keystore.\n[S]etup: configure keystore.\n[Q]uit: quit \n");
+
+
+		printf("\n> Active table: %s", table_name);
+		printf("\n> [I]nsert: add a key/value pair to keystore.\n> [D]elete: delete a key/value pair from keystore.\n> [L]ookup: lookup value in keystore.\n> [S]etup: configure keystore.\n> [Q]uit: quit \n");
 
 		command_buffer = calloc(5, sizeof(char));
 		assert(command_buffer != NULL);
@@ -187,7 +190,7 @@ int writeData(int sock_fd) {
 	//printf("writing to server: %s\n", write_buffer);
 	int result_status = write(sock_fd, write_buffer, strlen(write_buffer));
 	if(result_status < 0) {
-		printf("An error occured sending data from the client to the server.\n");
+		perror("client: write");
 		return -1;
 	}
 
