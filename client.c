@@ -26,6 +26,7 @@ char* do_init();
 char* table_name;
 
 /**
+The client enters an infinite loop where it asks the user for input, send it to the server, and reads the response.
 
 Returns: 0 when exited normally, something else if something didn't work.
 */
@@ -66,12 +67,12 @@ int main() {
 }
 
 /**
-[what does this do]
+Creates and connects to a socket.
 
-port:
-remote_IP:
+port: the port to bind to.
+remote_IP: the IP address of the remote server.
 
-Returns:
+Returns: file descriptor of the created socket, or -1 on error.
 */
 int openSocket(int port, const char* remote_IP) {
 	struct sockaddr_in remote_server;
@@ -117,6 +118,9 @@ int openSocket(int port, const char* remote_IP) {
 
 
 /**
+Asks the user for a command: either insert, delete, lookup, setup, or quit.
+Interprets the command and calls appropriate helper function.
+Sends a packet from the helper function to the server.
 
 sock_fd: file descriptor for socket.
 
@@ -131,8 +135,6 @@ int writeData(int sock_fd) {
 	char com;
 
 	while(no_response) { //loop until there is a response
-
-
 
 		printf("\n> Active table: %s", table_name);
 		printf("\n> [I]nsert: add a key/value pair to keystore.\n> [D]elete: delete a key/value pair from keystore.\n> [L]ookup: lookup value in keystore.\n> [S]etup: configure keystore.\n> [Q]uit: quit \n");
@@ -199,10 +201,11 @@ int writeData(int sock_fd) {
 
 
 /**
+Gets data from the socket and prints it to the terminal.
 
 sock_fd: file descriptor for socket.
 
-Returns:
+Returns: 1 on success.
 */
 int recieveData(int sock_fd) {
 	char* reply_buffer = calloc(sizeof(char), 256);
@@ -220,6 +223,7 @@ int recieveData(int sock_fd) {
 
 
 /**
+Asks the user for for key and value to insert into the hashtable. A formatted packet containing the key, value, and insert command is returned.
 
 Returns: formatted packet to send to server to insert.
 */
@@ -249,6 +253,7 @@ char* do_insert() {
 }
 
 /**
+Asks the user for for key to delete from the hashtable. A formatted packet containing the key and delete command is returned.
 
 Returns: formatted packet to send to server to delete.
 */
@@ -271,6 +276,7 @@ char* do_delete() {
 }
 
 /**
+Asks the user for for key to locate in the hashtable. A formatted packet containing the key and lookup command is returned.
 
 Returns: formatted packet to send to server to lookup.
 */
@@ -294,6 +300,8 @@ char* do_lookup() {
 }
 
 /**
+Asks the user the the filename of the hashtable to use. If the file exists, a formatted packet containing the name and init command is returned.
+If the file doesn't exist, the user inputs their desired entry length and table length. Then, a formatted packet containing the two lengths and the init command is returned.
 
 Returns: formatted packet to send to server to init.
 */
