@@ -1,9 +1,9 @@
 
 # CS 111 winter 2015: Assignment 3 - Key-Value Store and Server
 
-Brittany Arthur (bharthur)
-Jason Heron (jheron)
-Peter Froud (pfroud)
+Brittany Arthur (bharthur)  
+Jason Heron (jheron)  
+Peter Froud (pfroud)  
 
 We are using one (1) late pass.
 
